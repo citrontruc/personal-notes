@@ -147,7 +147,7 @@ public class AsyncVoidExample
 
 ## Errors to avoid
 
-**WARNING**: Avoid blocking and deadlock. NEVER use GetDataAsync().Wait() or GetDataAsync().Result, because it will block your program.
+**WARNING**: Avoid blocking. NEVER use GetDataAsync().Wait() or GetDataAsync().Result, because it will block your program.
 
 ## AsyncStreams
 

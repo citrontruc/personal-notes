@@ -63,7 +63,6 @@ class Person_InitExample
          init { _yearOfBirth = value; }
      }
 }
-
 ```
 
 ## sealed
@@ -94,7 +93,19 @@ When building structs, you can override operators (+, -, ==, !=). Do not forget 
 
 C sharp **structs** have value semantics. Aka, variable values are copied on assignment. p2 = p1 while create a copy of p1 in p2.
 
-## Repositories & Records
+- A simple data container.
+- Fields are usually public by default.
+- No or limited behavior (methods) depending on the language.
+- Often value-type semantics (copied on assignment) in languages like C/C++ and C#.
+- Used for lightweight, immutable-ish, or small data aggregates.
+
+## Records
+
+- Designed to represent data with meaning (entities, rows, DTOs).
+- Built-in support for value equality (two records with same fields are equal).
+- Typically immutable by default.
+- Often comes with automatically generated features: equals, hash, toString, constructors, etc.
+- In languages like C# or Java, records can still have methods and validation but remain primarily data-centric.
 
 Records peuvent être des record class et des record struct. Record struct peut gérer l'expression with qui crée un clone de la valeur. Exemple 
 ```cs
@@ -166,23 +177,25 @@ public class ProductRepository : IProductRepository
 
 ```
 
-records to represent data. Immutable, can have inheritance.
+Records to represent data. Immutable, can have inheritance. Les records viennent souvent avec des méthodes equals, hash et toString.
 
----
+## enum
 
 In csharp, **enum** is a value type defined by a set of named constants.
+```cs
 enum Season {
     Spring,
     Summer,
     Autumn,
     Winter
 }
+```
 
 **p++ and ++p** (pre increment and post increment). Both increment, the first one returns the value pre-incrementation, the second one post incrementation.
 
 **static** keywords mean values does not belong to instances of the class but to the class itself. static class then all the elements must be static. 
 
----
+## readonly
 
 Mots clés : readonly peut être assigné dans constructeur puis nul part ailleurs, const est fixé lors de la compilation.
 exemple:
@@ -198,9 +211,11 @@ public class Test
 }
 ```
 
+## ref
+
 Mot clé ref dans argument d'une méthode quand on veut passer la référence d'une variable. A ce moment, l'objet est modifié. ref n'exige pas que l'objet soit initialisé. out semble pareil mais besoin que l'objet soit initialisé.
 
----
+## zip
 
 ```cs
 var diffs = values
@@ -209,7 +224,6 @@ var diffs = values
 ```
 
 translation: attach to values the value values.Skip(1) and for x, y, do operation.
-
 
 ## Yield statement
 

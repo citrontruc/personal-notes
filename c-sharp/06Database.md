@@ -1,6 +1,23 @@
 # Database
 
+## Migrations
+
 **WARNING**: Use EF Core migrations to manage schema changes.
+
+Apply changes to data model.
+
+```bash
+dotnet ef migrations add InitialCreate
+```
+
+If we change the object schemas, we change our database accordingly by using:
+
+```bash
+dotnet ef migrations add AddBlogCreatedTimestamp
+dotnet ef database update
+```
+
+If your database is in the cloud / elsewhere, you can update your migrations with the connection string.
 
 ## Filter data
 
@@ -65,7 +82,13 @@ var book = await context.Books
     .FirstOrDefaultAsync(cancellationToken);
 ```
 
-## Eager loading
+## Loading data
+
+### Eager loading
+
+Tu fais ta requête et tu loades dans la foulée.
+
+Eager loading is when you query one type of entity and immediately load related entities as part of it.
 
 Include and ThenIndlude lets you specify which data to include. You can have multiple levels. **HOWEVER** Be careful!
 
@@ -106,6 +129,43 @@ using (var context = new BloggingContext())
         .ThenInclude(owner => owner.Photo)
         .ToListAsync();
 }
+```
+
+### Lazy loading
+
+Les données sont chargées quand elles sont sollicitées. Desavantage : tu ne contrôles pas vraiment.
+
+```cs
+// Startup / DbContext options
+optionsBuilder
+    .UseLazyLoadingProxies()
+    .UseSqlServer(connectionString);
+
+public class User
+{
+    public int Id { get; set; }
+    public virtual List<Post> Posts { get; set; }  // virtual for lazy loading
+}
+
+var user = await context.Users.FirstAsync();
+
+// triggers a separate SQL query only when accessed
+var posts = user.Posts;
+```
+
+### Explicit loading
+
+You manually request loading of related data.
+
+```cs
+var user = await context.Users.FirstAsync();
+
+// explicitly load the relationship later
+await context.Entry(user)
+    .Collection(u => u.Posts)
+    .LoadAsync();
+
+// now user.Posts is populated, but only because you asked for it
 ```
 
 ## Add rollback to operations

@@ -50,7 +50,9 @@ var shipmentWithBonus = new { address = "Somewhere St.", product, bonus };
 var anonArray = new[] { new { name = "apple", diam = 4 }, new { name = "grape", diam = 1 }};
 ```
 
-**with** lets you change a value but won't let you add one. You can only do non destructive mutations.
+## with
+
+Lets you change a value but won't let you add one. You can only do non destructive mutations.
 
 ```cs
 var apple = new { Item = "apples", Price = 1.35 };
