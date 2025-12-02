@@ -1,0 +1,1 @@
+unityhub --no-sandbox
