@@ -5,4 +5,3 @@ The CIA triad: fundamental model in cybersecurity. Guiding principal for data an
 - Confidentiality (do encryption at rest, check user access)
 - Integrity (avoid data tempering, avoid ransomware)
 - Availability (avoid DDoS and avoid downtime)
-
