@@ -144,3 +144,32 @@ public class TodoItemsController : ControllerBase
        };
 }
 ```
+
+## Versioning
+
+Only do it when you add new stuff (you don't need it if you add optional fields or new endpoints). Put the number in the url path.
+
+Use the Asp.Versioning.Mvc and configure the Dependency Injection
+
+
+```cs
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+
+// Add API versioning
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
+});
+
+var app = builder.Build();
+
+app.MapControllers();
+app.Run();
+```
+
+You can also have versioning in your header. Do this in case of frequent change, meaningless version numbers or if you are openAI.

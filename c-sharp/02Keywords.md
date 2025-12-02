@@ -365,3 +365,12 @@ var parse = (string s) => int.Parse(s);
 ```
 
 Il est important par contre que le type de sortie soit fixe ou object.
+
+## with
+
+Créer une copie d'un objet avec des éléments différents.
+
+```cs
+var shipment = new { address = "Nowhere St.", product = "stuff" };
+var testWith = shipment with {address = "Autre address"};
+```
