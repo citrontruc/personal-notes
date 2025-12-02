@@ -1,4 +1,0 @@
-Bonjour Anaïs,
-
-J'espère que tu vas bien. Je voulais te faire un petit retour sur mes entretiens CBTW : j'ai l'impression que tu manques un peu de confiance en toi, alors que tu n'as aucune raison. Tu es parvenue à identifier tout ce que je disais sur les sujets techniques, tes remarques étaient pertinentes et tu n'as pas à te sentir responsable de l'état du marché du travail actuel. Tu n'es pas responsable non plus des choix de ton entreprise (j'ai déjà vu des embauches se faire et se défaire sans raison). Bref : tu es légitime, tu proposes quelque chose, tu es là pour une raison. Tu as tous les droits d'avoir confiance, on fait un entretien et je suis sûr qu'en termes d'entretiens, c'est toi qui a le plus d'expérience de nous deux ;).
-N'hésite pas à faire des phrases plus courtes et plus efficaces. Parler moins m'aide parfois à me sentir en confiance.
