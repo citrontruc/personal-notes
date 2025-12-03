@@ -1,4 +1,18 @@
-# Complexity
+# Memory
+
+## How does it work
+
+In C#, when you create an object of a reference type, the CLR (Common Language Runtime) allocates memory for the object on the managed heap. The variable that holds the reference to this object is stored on the stack.
+
+When you pass a reference type to a method, you are actually passing the reference by default. This can lead to unintentional side effects if not managed properly.
+
+## Garbage Collection
+
+The fundamental operation of garbage collection in C# involves several key steps:
+
+- **Marking**: The GC identifies which objects are still accessible from the root references. Root references include static variables, local variables, and CPU registers. During this phase, the GC traverses the object graph starting from these roots, marking all reachable objects.
+- **Sweeping**: After marking, the garbage collector sweeps through the heap to identify unmarked objects, which are considered unreachable. These objects are eligible for collection.
+- **Compacting**: To optimize memory usage, the GC may compact the heap by moving objects together, eliminating gaps left by collected objects. This compaction process helps in reducing fragmentation and allows for faster allocation of new objects.
 
 ## Dictionary
 
