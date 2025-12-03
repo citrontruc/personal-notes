@@ -656,3 +656,23 @@ public class ProductService
     }
 }
 ```
+
+## Declaration pattern
+
+It allows you to both check the type of an object and declare a variable of that type in a single statement.
+
+The pattern is particularly useful in scenarios where you need to handle different types of objects differently.
+
+Example:
+```cs
+// Do not write:
+if (product != null && product is Electronics){
+    var electronics = (Electronics)product;
+    electronics.Price *= 0.8m;
+}
+
+// write this instead
+if (product is Electronics electronis){
+    electronics *=0.8m;
+}
+```

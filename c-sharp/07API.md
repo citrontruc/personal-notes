@@ -173,3 +173,55 @@ app.Run();
 ```
 
 You can also have versioning in your header. Do this in case of frequent change, meaningless version numbers or if you are openAI.
+
+# Pagination
+
+There are two main types of pagination: by page or by cursor. In both cases, you will take **pageSize** number of elements. Difference is in the fact that in page, you will cycle through pages and skip elements while in cursor pagination, you sort elements by id and take the ids bigger than your cursor.
+
+Page is very easy to code but can be slow because elements you skip are still scanned. Problem is also that you have no idempotence (page orders is handled by the server). However, pages can be rebuilt from any scenario ==> Easy to do pagination on sorted data.
+
+Cursor is idempotent + Since you give an id, you search by id which is much faster than skipping rows. Problem is that it depends on ids which are handled by the server (you don't know what ids are meant to be). Cursor does not solve some complex sorting patterns that pages can handle.
+
+Cursor pagination translates to the following SQL query.
+
+```sql
+SELECT u.id, u.date, u.note, u.user_id
+FROM user_notes AS u
+WHERE u.date < @date OR (u.date = @date AND u.id <= @lastId)
+ORDER BY u.date DESC, u.id DESC
+LIMIT @limit;
+```
+
+It is possible to passs down a cursor to the user. Here is a way to encode a cursor and give it to the user:
+
+```cs
+using Microsoft.AspNetCore.Authentication; // For Base64UrlTextEncoder
+
+public sealed record Cursor(DateOnly Date, Guid LastId)
+{
+    public static string Encode(DateOnly date, string lastId)
+    {
+        var cursor = new Cursor(date, lastId);
+        string json = JsonSerializer.Serialize(cursor);
+        return Base64UrlTextEncoder.Encode(Encoding.UTF8.GetBytes(json));
+    }
+
+    public static Cursor? Decode(string? cursor)
+    {
+        if (string.IsNullOrWhiteSpace(cursor))
+        {
+            return null;
+        }
+
+        try
+        {
+            string json = Encoding.UTF8.GetString(Base64UrlTextEncoder.Decode(cursor));
+            return JsonSerializer.Deserialize<Cursor>(json);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+}
+```
