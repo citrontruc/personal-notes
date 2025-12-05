@@ -174,7 +174,7 @@ app.Run();
 
 You can also have versioning in your header. Do this in case of frequent change, meaningless version numbers or if you are openAI.
 
-# Pagination
+## Pagination
 
 There are two main types of pagination: by page or by cursor. In both cases, you will take **pageSize** number of elements. Difference is in the fact that in page, you will cycle through pages and skip elements while in cursor pagination, you sort elements by id and take the ids bigger than your cursor.
 
@@ -224,4 +224,55 @@ public sealed record Cursor(DateOnly Date, Guid LastId)
         }
     }
 }
+```
+
+## Validation
+
+You want to make sure that the values that get posted are at the very least checked. There is a validation feature in Dotnet 10: https://www.nikolatech.net/blogs/minimal-api-validation-in-aspnet-core
+
+Just add a validation service to your webAppBuilder
+
+```cs
+builder.Services.AddValidation();
+```
+
+You also need to add to the csproj file the following information:
+```xml
+<PropertyGroup>
+<InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.Http.Validation.Generated</InterceptorsNamespaces>
+</PropertyGroup>
+```
+
+We can now have data validation through a validation class:
+
+```cs
+public sealed record CreateProductRequest(
+    string Name,
+    string Description,
+    decimal Price) : IValidatableObject
+{
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (string.IsNullOrWhiteSpace(Name))
+        {
+            yield return new ValidationResult("Name should not be empty.", [nameof(Name)]);
+        }
+        if (string.IsNullOrWhiteSpace(Description))
+        {
+            yield return new ValidationResult("Description should not be empty.", [nameof(Description)]);
+        }
+        if (Price < 0.01m || Price > 10.0m)
+        {
+            yield return new ValidationResult("Price should be between 0.01 and 10.0.", [nameof(Price)]);
+        }
+    }
+}
+```
+
+You can also add validation in requests:
+```cs
+public sealed record CreateProductRequest(
+    [Required] string Name,
+    [Required] string Description,
+    [Range(0.01, 10.0)] decimal Price);
 ```

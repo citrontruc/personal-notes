@@ -4,6 +4,10 @@
 
 Put remplace une valeur par une autre. PATCH remplace une partie de la valeur (juste quelques champs).
 
+## Idempotency
+
+Risk: double billing if request failed when trying to reach server or when server failed to answer back. What to do: store idempotency key on the server side. If request is sent twice to the server, you won't get a double payment.
+
 ## Status codes
 
 200 - Success

@@ -1,12 +1,6 @@
-. .venv/bin/activate to avoid having permission denied when activating a new environment.
+# Django
 
-Librairie pre-commit qui permet de mettre en place des pre-commit hooks. Utiliser pre-commit install pour ajouter une nouvelle version des pre-commit hooks.
-
-Attention: pre-commit ne run que pour les fichiers nouvvellement commit, pas pour l'intégratlité du repo. Il faut donc faire ça au tout début.
-
-## Django
-
----
+## Setup
 
 // Créer une app dans django
 uv run manage.py startapp music
@@ -20,6 +14,15 @@ uv run django-admin startproject musicarchive
 
 python manage.py createsuperuser
 
+## Organisation du code
+
+Organisation en dossiers :
+- Views : contient le code des pages et comment réagir lorsque l'utilisateur prend des actions.
+- templates : code html des pages à afficher.
+- models : indique les objets à manipuler.
+forms : indique comment l'utilisateur rentre des informations.
+
+## Bases de données
 
 python manage.py makemigrations
 python manage.py migrate
@@ -36,11 +39,3 @@ uv run manage.py createsuperuser
 Manière dont les password sont stockés dans django : <algorithm>$<iterations>$<salt>$<hash>
 
 ATTENTION : quand on supprime la db sqllite, on supprime aussi les données de superuser.
-
----
-
-Organisation en dossiers :
-- Views : contient le code des pages et comment réagir lorsque l'utilisateur prend des actions.
-- templates : code html des pages à afficher.
-- models : indique les objets à manipuler.
-forms : indique comment l'utilisateur rentre des informations.
