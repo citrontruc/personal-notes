@@ -1,5 +1,7 @@
 # Setup
 
+Note culturelle : le nom du module qui permet le typage dans python est mypy.
+
 ## Environnements virtuels
 
 . .venv/bin/activate to avoid having permission denied when activating a new environment.
