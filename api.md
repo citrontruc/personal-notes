@@ -1,5 +1,9 @@
 # API
 
+## What does a reste API even mean?
+
+Client-Server with standardized request methods. Stateless, Uniform interfaces and paths, cacheable values (with additional intermediary needed), layered systems (load balancer, auth, db...). Maybe have an api gateway to handle this.
+
 ## Patch vs put
 
 Put remplace une valeur par une autre. PATCH remplace une partie de la valeur (juste quelques champs).

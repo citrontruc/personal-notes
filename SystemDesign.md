@@ -99,3 +99,11 @@ After every registration, when a service wants to know how to contact other serv
 Every so often, heartbeat to know which services are still available.
 
 You can also do service discovery the other way around with a list of APIs in a DNS or something (simplest thing would be config file).
+
+## Saga pattern
+
+See notebook. We have a central service which coordinates microservices. The central service sends requests in queues and checks other queues to see where we are. Is a SPOF. We could have the micro services talk to one another directly but then they would be coupled.
+
+## Strangler fig pattern
+
+We gradually replace a legacy system with a microservice architecture. New system gradually takes responsabilities until fully replaced.
