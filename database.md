@@ -4,7 +4,7 @@
 
 - Atomicity (works or fails completely)
 - Consitency (valid state to valid state)
-- Isolation ( independant transactions)
+- Isolation (independant transactions)
 - Durability (durable changes)
 
 ## ORM

@@ -1,17 +1,24 @@
-# System design
+# API System design
 
 ## Table of content
 
-- [System design](#system-design)
+- [API System design](#api-system-design)
   - [Table of content](#table-of-content)
   - [Heuristics to find solutions](#heuristics-to-find-solutions)
   - [Distributed Services](#distributed-services)
+    - [API Gateway](#api-gateway)
     - [Detecting failure](#detecting-failure)
     - [Clock synchronization](#clock-synchronization)
     - [Resiliency](#resiliency)
-  - [Service Registry](#service-registry)
+  - [Async integration](#async-integration)
+  - [PUB/SUB](#pubsub)
+  - [Outbox pattern](#outbox-pattern)
+  - [CQRS pattern](#cqrs-pattern)
+  - [Service Registry \& Discovery](#service-registry--discovery)
   - [Saga pattern](#saga-pattern)
   - [Strangler fig pattern](#strangler-fig-pattern)
+  - [Sidecar](#sidecar)
+  - [Anti-corruption layer](#anti-corruption-layer)
 
 ## Heuristics to find solutions
 
@@ -38,6 +45,16 @@
 ## Distributed Services
 
 Main challenge of distributed services is having a global clock. No shared memory.
+
+### API Gateway
+
+All requests are sent to an api gateway which then dispatches the requests. Security checks / rate limiting and other services are performed at the api gateway level.
+
+**Benefits**: Simple to put in place and helps you change the services easily and independently from one another. Hides internal servies from user.
+
+**Drawbacks**: SPOF, can become bottleneck. Can slow down requests.
+
+**Note**: can be used as a facade when you want to modernize old services. See stragler fig pattern.
 
 ### Detecting failure
 
@@ -107,7 +124,43 @@ Managing data concurrently can get very complicated. In order to manage that, we
 
 Distributed systems fail often; it’s not a question of “if”, but when. Resiliency patterns are about absorbing, isolating, and recovering from failures rather than pretending they won’t happen.
 
-## Service Registry
+## Async integration
+
+Done through message queues. Useful to decouple services. Helps regulate workflow and avoid failure if one service is momentarily down.
+
+Provides natural ways to balance loads, improve resilience and decouple.
+
+**Careful**: Debugging is more complicated & we don't know when requests will be handled. Use when immediate responses are not required (for example in notification services).
+
+**Dead Letter** queue for messages that have failed processing multiple times.
+
+## PUB/SUB
+
+Event bus to which services can subscribe. Much like the observer design pattern. Subscribers don't know about one another and subscriber does not know about publisher.
+
+Careful: more complicated to debug. No idea when requests are treated exactly. Notably, are we sure we respect requests order?
+
+**Useful for**: chat applications, saga pattern, database modification.
+
+## Outbox pattern
+
+Variant on previous patterns: instead of publishing to message queue, services are published to database (the outbox). A background process reads from the outbox and publishes events to the message queue. Processed events are marked as processed.
+
+This has some advantages: logging & guarantee that events are published only if the whole operation is successful (after published to database).
+
+**Careful**: how do you handle duplicates? Requires additional infrastructure.
+
+## CQRS pattern
+
+Pattern that separates write and read operations through two distinct workflows. Write operations are handled by a write database while read operations are handled by a read database. Both need to be synchronized every cycle.
+
+Allows for independant optimizations of read and write operations. Enablesscaling independentaly write and read operations.
+
+**Careful**: data synchronization. Two databases.
+
+Use primarily when write to read ratio is high. Systems with high needs for query performance.
+
+## Service Registry & Discovery
 
 Centralized service which receives requests from every service. When it receives a request, it identifies the service and stores it in memory. For each service, you need IP, port and the timestamp of last registration note.
 
@@ -119,8 +172,30 @@ You can also do service discovery the other way around with a list of APIs in a 
 
 ## Saga pattern
 
-See notebook. We have a central service which coordinates microservices. The central service sends requests in queues and checks other queues to see where we are. Is a SPOF. We could have the micro services talk to one another directly but then they would be coupled.
+See notebook. We have a central service which coordinates microservices. The central service sends requests in queues and checks other queues to see where we are. Is a SPOF. We could have the micro services talk to one another directly but then they would be coupled. No need for lock, everything is handled by central coordinator.
+
+**Careful**: need procedure to undo changes done by one service in case of failure. Monitoring becomes quite complicated. Sometimes, it is easier to have an event bus.
 
 ## Strangler fig pattern
 
-We gradually replace a legacy system with a microservice architecture. New system gradually takes responsabilities until fully replaced.
+We gradually replace a legacy system with a microservice architecture. New system gradually takes responsabilities until fully replaced. Works well with api gateway.
+
+Reduces risk of migration. if you want test perdio, have legacy and new software compute solution and compare them. Legacy system sends solutions. No user disruption.
+
+**Careful**: more complicated for users. Requires additional infrastructure. Testing is more complex.
+
+Use when move to cloud or there are outdated services you want to modernize.
+
+## Sidecar
+
+You bundle a sidecar service in your containers. The sidecar handles logging, events and networking. Allows you to separate concerns and change side activities without modifying services. You can handle multiple sidecars if you want.
+
+Gives reusable components of code, standardized implementation of traffic management, security & observability. Sidecar can be the one listrning to event bus while the service only handles code logic.
+
+**Careful**: increase each service size. Orchestration of deployments when you change the sidecar. Latency?
+
+## Anti-corruption layer
+
+Have a layer betweeen your services and outside services to normalize data and check their values before transmitting them.
+
+**CAREFUL**: bottleneck + you need to change it every time external services change.
