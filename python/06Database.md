@@ -5,6 +5,7 @@
 Some popular tools in order to deal with data in a database are Django with the django ORM and SQLAlchemy.
 
 Example SQLAlchemy:
+
 ```python
 from sqlalchemy import create_engine
 from sqlalchemy import select

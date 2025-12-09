@@ -1,5 +1,14 @@
 # Communications
 
+## Table of Content
+
+- [Communications](#communications)
+  - [Table of Content](#table-of-content)
+  - [Short polling](#short-polling)
+  - [Long polling](#long-polling)
+  - [Server-sent events](#server-sent-events)
+  - [Websockets](#websockets)
+
 ## Short polling
 
 The client periodically asks for an update to the server. If nothing happens, we get an empty response.

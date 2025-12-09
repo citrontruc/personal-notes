@@ -1,5 +1,16 @@
 # Some basic methods to make your life easier
 
+## Table of Content
+
+- [Some basic methods to make your life easier](#some-basic-methods-to-make-your-life-easier)
+  - [Table of Content](#table-of-content)
+  - [Create a list with the same element repeating](#create-a-list-with-the-same-element-repeating)
+  - [SubString](#substring)
+  - [String.IndexOf](#stringindexof)
+  - [^3](#3)
+  - [array\[2..5\]](#array25)
+  - [Searches in lists](#searches-in-lists)
+
 ## Create a list with the same element repeating
 
 ```cs
@@ -18,7 +29,6 @@ str.Substring(5,3);
 ## String.IndexOf
 
 Obtenir l'index d'un élément. On peut indiquer le startIndex à partir duquel regarder.
-
 
 ## ^3
 

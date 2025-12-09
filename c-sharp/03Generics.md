@@ -2,6 +2,14 @@
 
 Principal avantage est la réutilisation et le fait qu'on n'a pas besoin de faire du boxing ou du typecasting.
 
+## Table of Content
+
+- [Generics](#generics)
+  - [Table of Content](#table-of-content)
+  - [Principe](#principe)
+  - [Ajout de contraintes](#ajout-de-contraintes)
+  - [Covariance and Contravariance](#covariance-and-contravariance)
+
 ## Principe
 
 Avoir un placeholder/template que l'on remplace au moment opportun par un type donné. Le type de la variable est défini par le programme qui utilise notre objet avec un generics.
@@ -64,7 +72,7 @@ where T : EntityBase, IAggregateRoot, new()
 
 ## Covariance and Contravariance
 
-https://stackoverflow.com/questions/2662369/covariance-and-contravariance-real-world-example
+<https://stackoverflow.com/questions/2662369/covariance-and-contravariance-real-world-example>
 
 Lié aux Generics. Fonctionne uniquement pour les generics.
 

@@ -1,5 +1,13 @@
 # Cool commands
 
+## Table of content
+
+- [Cool commands](#cool-commands)
+  - [Table of content](#table-of-content)
+  - [Lookup in dictionary](#lookup-in-dictionary)
+  - [Initialization with anonymous types](#initialization-with-anonymous-types)
+  - [with](#with)
+
 ## Lookup in dictionary
 
 ```cs
@@ -17,7 +25,7 @@ if (configLookup.TryGetValue(4, out (int Min, int Max) range))
 // Output: Found range: min is 10, max is 20
 ```
 
-## Initialization with anonymous types 
+## Initialization with anonymous types
 
 ```cs
 var title = "Software Engineer";
@@ -33,7 +41,7 @@ var employee = new { title, department, salary };
 Console.WriteLine($"Title: {employee.title}, Department: {employee.department}, Salary: {employee.salary}");
 ```
 
-**Cascade initializations**
+Option: **Cascade initializations**
 
 ```cs
 var product = new Product();
@@ -44,7 +52,7 @@ var shipmentWithBonus = new { address = "Somewhere St.", product, bonus };
 // End result should be { address = Somewhere St., product = { product = stuff }, bonus = { note = You won! } }
 ```
 
-**Multiple initializations**
+Option: **Multiple initializations**
 
 ```cs
 var anonArray = new[] { new { name = "apple", diam = 4 }, new { name = "grape", diam = 1 }};

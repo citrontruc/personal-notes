@@ -1,5 +1,11 @@
 # Exceptions
 
+## Table of content
+
+- [Exceptions](#exceptions)
+  - [Table of content](#table-of-content)
+  - [Exception groups](#exception-groups)
+
 ## Exception groups
 
 Introduced in python 3.11.

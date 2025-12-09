@@ -1,5 +1,18 @@
 # Create projects
 
+## Table of Contents
+
+- [Create projects](#create-projects)
+  - [Table of Contents](#table-of-contents)
+  - [Basic projects](#basic-projects)
+  - [Project components](#project-components)
+    - [csproj](#csproj)
+    - [sln](#sln)
+    - [entry point](#entry-point)
+  - [Different project types](#different-project-types)
+  - [C sharpier](#c-sharpier)
+  - [Tests](#tests)
+
 ## Basic projects
 
 ```bash
@@ -49,16 +62,20 @@ dotnet run -- 10 20
 - blazorserver and blazorwasm for web assembly (frontend for webapps)
 
 ## C sharpier
+
 ```bash
 dotnet tool install csharpier
 dotnet csharpier format .
 ```
-https://csharpier.com/docs/About
+
+<https://csharpier.com/docs/About>
 
 ## Tests
+
 ```bash
 dotnet new mstest
 dotnet sln add <path to project>
 dotnet add reference <path to project>
 ```
-https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-csharp-with-mstest
+
+<https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-csharp-with-mstest>

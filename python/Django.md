@@ -1,5 +1,15 @@
 # Django
 
+## Table of content
+
+- [Django](#django)
+  - [Table of content](#table-of-content)
+  - [Setup](#setup)
+  - [Organisation du code](#organisation-du-code)
+  - [Chemin d'une requête](#chemin-dune-requête)
+  - [Bases de données](#bases-de-données)
+  - [ORM](#orm)
+
 ## Setup
 
 // Créer une app dans django
@@ -17,6 +27,7 @@ python manage.py createsuperuser
 ## Organisation du code
 
 Organisation en dossiers :
+
 - Views : contient le code des pages et comment réagir lorsque l'utilisateur prend des actions.
 - templates : code html des pages à afficher.
 - models : indique les objets à manipuler.
@@ -49,7 +60,7 @@ lancer la commande "uv run manage.py" affiche toutes les commandes qu'il est pos
 ---
 
 uv run manage.py createsuperuser
-Manière dont les password sont stockés dans django : <algorithm>$<iterations>$<salt>$<hash>
+Manière dont les password sont stockés dans django : \<algorithm>$<iterations>$\<salt>$\<hash>
 
 ATTENTION : quand on supprime la db sqllite, on supprime aussi les données de superuser.
 

@@ -3,6 +3,7 @@
 ## Booleans
 
 Prefix your booleans:
+
 ```cs
 // active
 bool isActive;

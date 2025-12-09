@@ -1,11 +1,16 @@
 # Threading
 
-## free-threading
+## Table of content
 
+- [Threading](#threading)
+  - [Table of content](#table-of-content)
+  - [free-threading](#free-threading)
+
+## free-threading
 
 Python had a mechanism to control the number of threads used to execute commands. This constraint disappeared in python 3.13.
 
-Note: You have to disable gil in configuration file: https://dev.to/mechcloud_academy/unlocking-true-parallelism-a-developers-guide-to-free-threaded-python-314-175i
+Note: You have to disable gil in configuration file: <https://dev.to/mechcloud_academy/unlocking-true-parallelism-a-developers-guide-to-free-threaded-python-314-175i>
 
 ```bash
 ./configure --disable-gil

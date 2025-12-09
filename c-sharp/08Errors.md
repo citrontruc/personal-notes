@@ -1,5 +1,12 @@
 # Errors
 
+## Table of Content
+
+- [Errors](#errors)
+  - [Table of Content](#table-of-content)
+  - [Throw](#throw)
+  - [try-catch](#try-catch)
+
 ## Throw
 
 Basic errors can be raised using throw new Error.

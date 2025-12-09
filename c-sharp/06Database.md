@@ -1,5 +1,22 @@
 # Database
 
+## Table of content
+
+- [Database](#database)
+  - [Table of content](#table-of-content)
+  - [Migrations](#migrations)
+  - [Filter data](#filter-data)
+  - [Index](#index)
+  - [Tracking](#tracking)
+  - [Projections](#projections)
+  - [Loading data](#loading-data)
+    - [Eager loading](#eager-loading)
+    - [Lazy loading](#lazy-loading)
+    - [Explicit loading](#explicit-loading)
+  - [Add rollback to operations](#add-rollback-to-operations)
+  - [Locks](#locks)
+  - [Dispose of DbContext](#dispose-of-dbcontext)
+
 ## Migrations
 
 **WARNING**: Use EF Core migrations to manage schema changes.

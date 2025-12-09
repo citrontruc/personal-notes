@@ -1,5 +1,20 @@
 # Design Patterns
 
+## Table of content
+
+- [Design Patterns](#design-patterns)
+  - [Table of content](#table-of-content)
+  - [Decorator](#decorator)
+  - [Extension](#extension)
+  - [Dependency Injection](#dependency-injection)
+    - [🛠️ Service Lifetimes](#️-service-lifetimes)
+  - [Dependency Injection are your friend](#dependency-injection-are-your-friend)
+    - [What about APIs?](#what-about-apis)
+  - [Service Locator](#service-locator)
+  - [Singleton](#singleton)
+  - [Repository pattern](#repository-pattern)
+  - [Declaration pattern](#declaration-pattern)
+
 ## Decorator
 
 There are no specific keywords. You just have to implement it.
@@ -100,7 +115,9 @@ You can create a webapp objects and add all the services to this webapp. When yo
 
 The three methods register services with different lifetimes in the DI container. The choice depends on how you want the service's state to be managed and shared throughout your application.
 
-1. services.AddTransient<TService, TImplementation>()
+```cs
+services.AddTransient<TService, TImplementation>()
+```
 
 Definition: A new instance of the service is created every time it is requested, regardless of where the request is coming from.
 
@@ -112,7 +129,9 @@ For services that should not share state and need to be isolated from other cons
 
 Examples: Simple utility classes, or a service that calculates a value and immediately returns it.
 
-2. services.AddScoped<TService, TImplementation>()
+```cs
+services.AddScoped<TService, TImplementation>()
+```
 
 Definition: A single instance of the service is created per scope. In a typical ASP.NET Core web application, the scope is usually the client's request (HTTP request).
 
@@ -128,7 +147,9 @@ This is the most common lifetime for services interacting with request-specific 
 
 Examples: A service that coordinates multiple repository operations for a single transaction, or a service that holds request-specific user information.
 
-3. services.AddSingleton<TService, TImplementation>()
+```cs
+services.AddSingleton<TService, TImplementation>()
+```
 
 Definition: A single instance of the service is created the first time it is requested (or when Startup.ConfigureServices runs, depending on the registration method) and that same instance is reused for every subsequent request for the entire lifetime of the application.
 
@@ -152,7 +173,7 @@ builder.Services.AddSingleton<IMusicRepository, InMemoryMusicRepository>();
 builder.Services.AddSingleton<AlbumParameters, AlbumParameters>();
 ```
 
-## Dependency Injection are your friend!!!
+## Dependency Injection are your friend
 
 There is a microsoft library to which you can register your services. You can then ask a ServiceCollection to resolve services for you. You will reuse all the services.
 
@@ -203,8 +224,9 @@ svc.Notify("Hello");
 
 Careful! You can have conflicts if you register twice a service with the same interface (exemple: if you register two IMessageSender, the lib won't know which one to use). You can add functions for that but it is not practical.
 
-**Service lifetime**: Transient, Scoped or Singleton. 
-- Transient services are created each time they're requested from the service container. They are disposed at the end of requests. Services are resolved and constructed every time. 
+**Service lifetime**: Transient, Scoped or Singleton.
+
+- Transient services are created each time they're requested from the service container. They are disposed at the end of requests. Services are resolved and constructed every time.
 - Scoped are created once per client request. Disposed at end of request. Be careful with scoped services.
 - Singleton Created first time they are requested most times. We use the same instance for every subsequent request. Must be thread safe. Careful with memory use.
 
@@ -664,6 +686,7 @@ It allows you to both check the type of an object and declare a variable of that
 The pattern is particularly useful in scenarios where you need to handle different types of objects differently.
 
 Example:
+
 ```cs
 // Do not write:
 if (product != null && product is Electronics){

@@ -15,11 +15,13 @@ Careful with interacting with databases and queues. We need to put in place lock
 ## Session store
 
 How it works:
+
 - Session data is stored in the Redis hash data structure
 - An expiry time is set for each user's data
 - The expiry time gets renewed whenever the user requests something
 
-It let them:
+It lets them:
+
 - Scale stateless web servers easily
 - Handle traffic spikes
 

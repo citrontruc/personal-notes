@@ -15,7 +15,7 @@ blur["members"] = ["Damon Albarn"]  # Type check error: "members" is read-only
 blur["members"].append("Damon Albarn")  # OK: list is mutable
 ```
 
-# Enums in python
+## Enums in python
 
 ```python
 from enum import Enum

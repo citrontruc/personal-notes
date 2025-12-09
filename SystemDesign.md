@@ -1,4 +1,19 @@
-# Heuristics to find solutions
+# System design
+
+## Table of content
+
+- [System design](#system-design)
+  - [Table of content](#table-of-content)
+  - [Heuristics to find solutions](#heuristics-to-find-solutions)
+  - [Distributed Services](#distributed-services)
+    - [Detecting failure](#detecting-failure)
+    - [Clock synchronization](#clock-synchronization)
+    - [Resiliency](#resiliency)
+  - [Service Registry](#service-registry)
+  - [Saga pattern](#saga-pattern)
+  - [Strangler fig pattern](#strangler-fig-pattern)
+
+## Heuristics to find solutions
 
 - Write + Spike: Queue
 - Latency + Global: CDN
@@ -20,7 +35,6 @@
 - Distributed + Transaction: Saga pattern
 - Concurrency + Consistency: Row locking
 
-
 ## Distributed Services
 
 Main challenge of distributed services is having a global clock. No shared memory.
@@ -28,6 +42,7 @@ Main challenge of distributed services is having a global clock. No shared memor
 ### Detecting failure
 
 In order to check that no service is down, we have the heartbeat & gossip protocol:
+
 1) Heartbeat mechanism
     - Heartbeat messages are small signals that nodes send to each other to show they are still alive.
     - These messages serve as health checks, enabling each node to determine whether its peers are functioning properly or have failed.
@@ -43,6 +58,7 @@ You have to balance when to send updates. Too many and you might have false posi
 There are a few algorithms to try to keep a logical order of events:
 
 **Lamport Clocks** use a simple counter on each machine:
+
 - Each process starts with a counter at 0
 - For every local event, increase the counter: LC = LC + 1
 - When sending a message, attach the current counter value
@@ -84,6 +100,7 @@ Managing data concurrently can get very complicated. In order to manage that, we
     - This ensures that requests are sent only to servers that can handle them.
 
 **Failure Causes**. To build a resilient system, you first need to understand why failures happen:
+
 - Hardware failures: Disks can crash, memory can get corrupted, and network interfaces may fail.
 - Software failures: Bugs, memory leaks, or misconfiguration can cause services to stop working.
 - Cascading failures: One failing service can trigger failures in other services that depend on it.

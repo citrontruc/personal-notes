@@ -12,6 +12,7 @@ Base64 encoded.
 It has three components: headers, payload and signature. From the header and payload, you can check the signature.
 
 Standard procedure:
+
 - User gives name + password.
 - Server creates JWT using oauth info.
 - Send back signed JWT to user to include in future request.

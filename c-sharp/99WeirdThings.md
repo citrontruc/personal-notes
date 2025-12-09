@@ -1,5 +1,12 @@
 # Weird Stuff
 
+## Table of content
+
+- [Weird Stuff](#weird-stuff)
+  - [Table of content](#table-of-content)
+  - [String and StringBuilders](#string-and-stringbuilders)
+  - [Boxed and unboxed variables](#boxed-and-unboxed-variables)
+
 ## String and StringBuilders
 
 String is immutable. Every modification creates a new instance. This costs memory and time when you do many concatenations.
@@ -32,4 +39,3 @@ foreach (object item in list)
     }
 }
 ```
-

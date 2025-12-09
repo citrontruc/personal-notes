@@ -1,5 +1,16 @@
 # API
 
+## Table of content
+
+- [API](#api)
+  - [Table of content](#table-of-content)
+  - [Avoid confusion in variable origin](#avoid-confusion-in-variable-origin)
+  - [Swagger](#swagger)
+  - [Example controller](#example-controller)
+  - [Versioning](#versioning)
+  - [Pagination](#pagination)
+  - [Validation](#validation)
+
 ## Avoid confusion in variable origin
 
 You can ask parameters [FromBody] or [FromQuery].
@@ -8,11 +19,11 @@ You can ask parameters [FromBody] or [FromQuery].
 
 In order to have an automatic swagger for your application, you must add the swashbuckle library to your csproj. You can also use scalar to display a more modern swagger. You can't have both.
 
-Very nice tutorial over here: https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-8.0&viewFallbackFrom=aspnetcore-10.0&tabs=visual-studio-code
+Very nice tutorial over here: <https://learn.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-8.0&viewFallbackFrom=aspnetcore-10.0&tabs=visual-studio-code>
 
-You can use scalar to do your documentation: https://www.mykolaaleksandrov.dev/posts/2025/11/scalar-api-documentation/
+You can use scalar to do your documentation: <https://www.mykolaaleksandrov.dev/posts/2025/11/scalar-api-documentation/>
 
-tuto scalar : https://darthpedro.net/2025/03/16/using-scalar-with-net9-webapi-projects/.
+tuto scalar : <https://darthpedro.net/2025/03/16/using-scalar-with-net9-webapi-projects/>.
 
 ## Example controller
 
@@ -151,7 +162,6 @@ Only do it when you add new stuff (you don't need it if you add optional fields 
 
 Use the Asp.Versioning.Mvc and configure the Dependency Injection
 
-
 ```cs
 var builder = WebApplication.CreateBuilder(args);
 
@@ -228,7 +238,7 @@ public sealed record Cursor(DateOnly Date, Guid LastId)
 
 ## Validation
 
-You want to make sure that the values that get posted are at the very least checked. There is a validation feature in Dotnet 10: https://www.nikolatech.net/blogs/minimal-api-validation-in-aspnet-core
+You want to make sure that the values that get posted are at the very least checked. There is a validation feature in Dotnet 10: <https://www.nikolatech.net/blogs/minimal-api-validation-in-aspnet-core>
 
 Just add a validation service to your webAppBuilder
 
@@ -237,6 +247,7 @@ builder.Services.AddValidation();
 ```
 
 You also need to add to the csproj file the following information:
+
 ```xml
 <PropertyGroup>
 <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.Http.Validation.Generated</InterceptorsNamespaces>
@@ -270,6 +281,7 @@ public sealed record CreateProductRequest(
 ```
 
 You can also add validation in requests:
+
 ```cs
 public sealed record CreateProductRequest(
     [Required] string Name,

@@ -1,5 +1,17 @@
 # Memory
 
+## Table of content
+
+- [Memory](#memory)
+  - [Table of content](#table-of-content)
+  - [How does it work](#how-does-it-work)
+  - [Garbage Collection](#garbage-collection)
+  - [Dictionary](#dictionary)
+    - [Data Structure](#data-structure)
+    - [Adding new elements](#adding-new-elements)
+    - [Resizing](#resizing)
+    - [Conclusion](#conclusion)
+
 ## How does it work
 
 In C#, when you create an object of a reference type, the CLR (Common Language Runtime) allocates memory for the object on the managed heap. The variable that holds the reference to this object is stored on the stack.
@@ -16,13 +28,14 @@ The fundamental operation of garbage collection in C# involves several key steps
 
 ## Dictionary
 
-Interesting article: https://dotnetos.org/blog/2022-03-28-dictionary-implementation/
+Interesting article: <https://dotnetos.org/blog/2022-03-28-dictionary-implementation/>
 
-Actual implementation of a dictionary in dotnet: https://medium.com/@vosarat1995/how-c-dictionary-actually-works-47f3a156055b
+Actual implementation of a dictionary in dotnet: <https://medium.com/@vosarat1995/how-c-dictionary-actually-works-47f3a156055b>
 
 ### Data Structure
 
 Dictionary has two main internal structures:
+
 1) **Buckets**: an array of integers, each pointing to the index of the first entry in that bucket. Target bucket is found with (hashCode % buckets.Length) <== **THIS IS SHARDING**
 2) **Entries**: an array of structs that actually hold the key, value, hash code, and a pointer to the next entry in case of a collision.
 
@@ -42,6 +55,7 @@ GetHashCode() and Equals() are critical: poor hash distribution hurts performanc
 ### Resizing
 
 When the number of items exceeds a certain load factor (~0.75 of the array size), the dictionary resizes:
+
 - Allocates a larger array for buckets and entries.
 - Recalculates bucket indices for all entries because hashCode % newArray.Length changes.
 

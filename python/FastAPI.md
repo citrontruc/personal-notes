@@ -1,5 +1,11 @@
 # FastAPI
 
+## Table of content
+
+- [FastAPI](#fastapi)
+  - [Table of content](#table-of-content)
+  - [Swagger](#swagger)
+
 ## Swagger
 
 FastApi automatically generates a swagger for your application. You don't need any more commands. Access the swagger by going to the /docs endpoint. You can give swagger ui parameters in the app.

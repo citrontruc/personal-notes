@@ -1,12 +1,22 @@
 # Async return types
 
+## Table of content
+
+- [Async return types](#async-return-types)
+  - [Table of content](#table-of-content)
+  - [Task](#task)
+  - [EventHandling](#eventhandling)
+  - [Errors to avoid](#errors-to-avoid)
+  - [AsyncStreams](#asyncstreams)
+
 ## Task
 
-By default, a task is the result of an async method that returns no values. Task<TResult> if you return a value.
+By default, a task is the result of an async method that returns no values. Task\<TResult> if you return a value.
 
 void for EventHandling.
 
 Basic example of an async method.
+
 ```cs
 public static async Task DisplayCurrentInfoAsync()
 {
@@ -26,6 +36,7 @@ static async Task WaitAndApologizeAsync()
 ```
 
 Basic Example with a return value:
+
 ```cs
 var getLeisureHoursTask = GetLeisureHoursAsync();
 

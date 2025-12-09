@@ -1,5 +1,13 @@
 # Threads
 
+## Table of content
+
+- [Threads](#threads)
+  - [Table of content](#table-of-content)
+  - [locks](#locks)
+  - [New version of locks](#new-version-of-locks)
+  - [Deadlock](#deadlock)
+
 ## locks
 
 Le but du lock est de faire en sorte qu'un morceau de code ne soit accédé que par un processus.
@@ -38,7 +46,7 @@ class Program {
 ## New version of locks
 
 There is a new version of lock that is more optimal. System.Threading.Lock.
-Here is an example with a bank account lock system. 
+Here is an example with a bank account lock system.
 
 ```cs
 using System;
@@ -169,7 +177,8 @@ class Program {
 }
 ```
 
-Afin d'éviter ce genre de mécanisme, il faut que
+Afin d'éviter ce genre de mécanisme, il faut que :
+
 - Tous les locks se fassent dans le même ordre.
 - Avoir des timeouts et des mécanismes pour réessayer plus tard.
 - Limiter la durée des locks et les scopes des locks afin d'éviter des conflits.

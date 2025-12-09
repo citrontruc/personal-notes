@@ -1,10 +1,12 @@
+# Github
+
 git tag v1.0.20
 git push origin tag v1.0.20
 
 ---
 
 git init
-git remote add origin <repo-url>
+git remote add origin \<repo-url>
 git fetch
 git checkout main
 
@@ -25,4 +27,4 @@ Si besoin de rajouter des informations sur un commit qui a déjà été écrit.
 
 **git branch** + name of branch to create branch.
 
-**git checkout -b <name of new branch>** : lets you create a new branche and switch to it.
+**git checkout -b \<name of new branch>** : lets you create a new branche and switch to it.

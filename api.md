@@ -1,6 +1,15 @@
 # API
 
-## What does a reste API even mean?
+## Table of content
+
+- [API](#api)
+  - [Table of content](#table-of-content)
+  - [What does a rest API even mean?](#what-does-a-rest-api-even-mean)
+  - [Patch vs put](#patch-vs-put)
+  - [Idempotency](#idempotency)
+  - [Status codes](#status-codes)
+
+## What does a rest API even mean?
 
 Client-Server with standardized request methods. Stateless, Uniform interfaces and paths, cacheable values (with additional intermediary needed), layered systems (load balancer, auth, db...). Maybe have an api gateway to handle this.
 

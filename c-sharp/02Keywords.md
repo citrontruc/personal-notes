@@ -1,5 +1,26 @@
 # Keywords
 
+## Table of content
+
+- [Keywords](#keywords)
+  - [Table of content](#table-of-content)
+  - [Hashtable vs Dictionary](#hashtable-vs-dictionary)
+  - [var](#var)
+  - [internal vs private](#internal-vs-private)
+  - [init](#init)
+  - [sealed](#sealed)
+  - [Cool stuff for inheritance](#cool-stuff-for-inheritance)
+  - [struct](#struct)
+  - [Records](#records)
+  - [enum](#enum)
+  - [readonly](#readonly)
+  - [ref](#ref)
+  - [zip](#zip)
+  - [Yield statement](#yield-statement)
+  - [Partial classes](#partial-classes)
+  - [Action vs Func](#action-vs-func)
+  - [with](#with)
+
 ## Hashtable vs Dictionary
 
 HashTable stocke les objets en tant qu'object tandis que les dictionnaires est fortement typé. Hashtable embarque un peu de gestion de la concurrence.
@@ -107,13 +128,15 @@ C sharp **structs** have value semantics. Aka, variable values are copied on ass
 - Often comes with automatically generated features: equals, hash, toString, constructors, etc.
 - In languages like C# or Java, records can still have methods and validation but remain primarily data-centric.
 
-Records peuvent être des record class et des record struct. Record struct peut gérer l'expression with qui crée un clone de la valeur. Exemple 
+Records peuvent être des record class et des record struct. Record struct peut gérer l'expression with qui crée un clone de la valeur. Exemple :
+
 ```cs
 var p2 = p1 with {Y=30};
 ```
+
 Un des rares vrais avantages est la facilité pour définir mais ce n'est pas énorme non plus.
 
-https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record
+<https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record>
 
 ```cs
 // Record Struct - Concise definition
@@ -182,6 +205,7 @@ Records to represent data. Immutable, can have inheritance. Les records viennent
 ## enum
 
 In csharp, **enum** is a value type defined by a set of named constants.
+
 ```cs
 enum Season {
     Spring,
@@ -193,12 +217,13 @@ enum Season {
 
 **p++ and ++p** (pre increment and post increment). Both increment, the first one returns the value pre-incrementation, the second one post incrementation.
 
-**static** keywords mean values does not belong to instances of the class but to the class itself. static class then all the elements must be static. 
+**static** keywords mean values does not belong to instances of the class but to the class itself. static class then all the elements must be static.
 
 ## readonly
 
 Mots clés : readonly peut être assigné dans constructeur puis nul part ailleurs, const est fixé lors de la compilation.
-exemple:
+exemple :
+
 ```cs
 public class Test
 {
@@ -230,7 +255,8 @@ translation: attach to values the value values.Skip(1) and for x, y, do operatio
 Use yield statement to return elements as an enumerator.
 It has nothing to do with asynchronicity (for asynchronicity, use **await**).
 
-Example: 
+Example:
+
 ```cs
 Console.WriteLine(string.Join(" ", TakeWhilePositive(new int[] {2, 3, 4, 5, -1, 3, 4})));
 // Output: 2 3 4 5
