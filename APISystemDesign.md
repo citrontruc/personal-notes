@@ -19,6 +19,8 @@
   - [Strangler fig pattern](#strangler-fig-pattern)
   - [Sidecar](#sidecar)
   - [Anti-corruption layer](#anti-corruption-layer)
+  - [Circuit breaker](#circuit-breaker)
+  - [Bulkhead pattern](#bulkhead-pattern)
 
 ## Heuristics to find solutions
 
@@ -172,9 +174,11 @@ You can also do service discovery the other way around with a list of APIs in a 
 
 ## Saga pattern
 
-See notebook. We have a central service which coordinates microservices. The central service sends requests in queues and checks other queues to see where we are. Is a SPOF. We could have the micro services talk to one another directly but then they would be coupled. No need for lock, everything is handled by central coordinator.
+See notebook. We have a central service which coordinates microservices. The central service sends requests in queues and checks other queues to see where we are. Is a SPOF. We could have the micro services talk to one another directly but then they would be coupled. No need for lock, everything is handled by central coordinator. A lot of transactions can be handled at the same time with the coordinator just having to keep queues with a list of all current transactions.
 
 **Careful**: need procedure to undo changes done by one service in case of failure. Monitoring becomes quite complicated. Sometimes, it is easier to have an event bus.
+
+Example use case: on order, we start by locking an article, change quantity in store, pay for article and then send shipment information.
 
 ## Strangler fig pattern
 
@@ -199,3 +203,19 @@ Gives reusable components of code, standardized implementation of traffic manage
 Have a layer betweeen your services and outside services to normalize data and check their values before transmitting them.
 
 **CAREFUL**: bottleneck + you need to change it every time external services change.
+
+## Circuit breaker
+
+Safety switch. Can block calls to faulty systems in order to avoid cascades of errors. Retry every so often to see if the system is fixed.
+
+In order to implement a circuit breaker, you need to identify which app talks to which api (what are the circuits), define thresholds (how many errors, which errors lead to blocked states...) Implement fallback to go back to normal. Monitor the system. Fixing errors is always better to avoiding them.
+
+Best use case is rate limiting or transient cases.
+
+## Bulkhead pattern
+
+Meant for system resilience. You encapsulate services in order to isolate them. It works via thread pools, partitioned data connection. Bulkhead is a generic term that can encompass CQRS pattern or other patterns that seek to separate ressources in order to avoid dependencies and improve resilience.
+
+Bulkhead needs redundancy and isolation. Improved if each of the ressources can scale up independently from the others.
+
+**Careful**: can be expensive becaause we have multiple ressources and channels.
