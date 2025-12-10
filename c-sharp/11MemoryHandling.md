@@ -46,6 +46,8 @@ Lists are an array with capacity n with three main elements:
 
 Every time the size is equal to the capacity, we double the array capacity.
 
+With these elements: adding a new element to a list is complecity of O(1) but becomes O(n) when the list needs to be resized. Inseerts have a complexity of O(n) because we have to move the other elements.
+
 ### Misc
 
 A span is a struct that points to an element and the surrounding elements. Spans in fact just store a pointer.

@@ -5,6 +5,7 @@
 - [Create projects](#create-projects)
   - [Table of Contents](#table-of-contents)
   - [Basic projects](#basic-projects)
+  - [Adding packages in dotnet](#adding-packages-in-dotnet)
   - [Project components](#project-components)
     - [csproj](#csproj)
     - [sln](#sln)
@@ -33,6 +34,16 @@ linux ctrl + shift + I
 dotnet format //deletes whitespaces. Linter.
 dotnet run --project <name of project if you have multiple projects in you sln>
 ```
+
+## Adding packages in dotnet
+
+The command to add packages to a dotnet project is:
+
+```bash
+dotnet add package <name of package> --version <version number>
+```
+
+Specifying a version number is very important because dotnet does not handle version compatibility but instead just checks if the latest version is compatible.
 
 ## Project components
 

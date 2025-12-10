@@ -1,5 +1,18 @@
 # Authentication & Authorization
 
+## Table of content
+
+- [Authentication \& Authorization](#authentication--authorization)
+  - [Table of content](#table-of-content)
+  - [Adding auth middleware](#adding-auth-middleware)
+    - [Code](#code)
+    - [Configuration](#configuration)
+  - [Create policies](#create-policies)
+
+## Adding auth middleware
+
+### Code
+
 In minimal APIs, authentication and authorization are handled through a service that is used in the middleware.
 
 ```cs
@@ -31,7 +44,45 @@ app.MapGet("/", () => "Hello World!");
 app.Run();
 ```
 
+### Configuration
+
+In order to specify how to do authentication, you must specidy the auth configuration in your appsettings.json file.
+
+```json
+{
+  "Authentication": {
+    "DefaultScheme":  "LocalAuthIssuer",
+    "Schemes": {
+      "Bearer": {
+        "ValidAudiences": [
+          "https://localhost:7259",
+          "http://localhost:5259"
+        ],
+        "ValidIssuer": "dotnet-user-jwts"
+      },
+      "LocalAuthIssuer": {
+        "ValidAudiences": [
+          "https://localhost:7259",
+          "http://localhost:5259"
+        ],
+        "ValidIssuer": "local-auth"
+      }
+    }
+  }
+}
+```
+
+The ValidAudiences don't have to be urls but can be any  user role. The valid issuer can be a lot of things, for example, aws, azure or other: <https://login.microsoftonline.com/tenant-id/v2.0>. dotnet-user-jwts is the local jwt token issuer.
+
+You can have multiple issuers if you allow SSO, if you are doing ddevelopment or if you are doing a migration between two security issuers.
+
 Full configuration for your authentication needs to be in your configuration file.
+
+In order to create a security token, run the following command:
+
+```bash
+dotnet user-jwts create
+```
 
 ## Create policies
 
