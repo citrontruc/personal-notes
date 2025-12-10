@@ -6,6 +6,10 @@
   - [Table of content](#table-of-content)
   - [How does it work](#how-does-it-work)
   - [Garbage Collection](#garbage-collection)
+  - [Lists](#lists)
+    - [Information](#information)
+    - [Composition](#composition)
+    - [Misc](#misc)
   - [Dictionary](#dictionary)
     - [Data Structure](#data-structure)
     - [Adding new elements](#adding-new-elements)
@@ -26,6 +30,26 @@ The fundamental operation of garbage collection in C# involves several key steps
 - **Sweeping**: After marking, the garbage collector sweeps through the heap to identify unmarked objects, which are considered unreachable. These objects are eligible for collection.
 - **Compacting**: To optimize memory usage, the GC may compact the heap by moving objects together, eliminating gaps left by collected objects. This compaction process helps in reducing fragmentation and allows for faster allocation of new objects.
 
+## Lists
+
+### Information
+
+Lists implement multiple interfaces (ICollection, IEnumerable, IList...). List stores all elements as a reference to a single array of elements of T type.
+
+### Composition
+
+Lists are an array with capacity n with three main elements:
+
+- items (elements)
+- size (number of items in the list)
+- version (changes as the list is modified. Increments every time an operation takes place.)
+
+Every time the size is equal to the capacity, we double the array capacity.
+
+### Misc
+
+A span is a struct that points to an element and the surrounding elements. Spans in fact just store a pointer.
+
 ## Dictionary
 
 Interesting article: <https://dotnetos.org/blog/2022-03-28-dictionary-implementation/>
@@ -36,10 +60,12 @@ Actual implementation of a dictionary in dotnet: <https://medium.com/@vosarat199
 
 Dictionary has two main internal structures:
 
-1) **Buckets**: an array of integers, each pointing to the index of the first entry in that bucket. Target bucket is found with (hashCode % buckets.Length) <== **THIS IS SHARDING**
+1) **Buckets**: Set of elements with similar hash. An array of integers, each pointing to the index of the first entry in that bucket. Target bucket is found with (hashCode % buckets.Length) <== **THIS IS SHARDING**
 2) **Entries**: an array of structs that actually hold the key, value, hash code, and a pointer to the next entry in case of a collision.
 
 A single bucket can contain multiple entries if different keys have the same hash modulo array size. This is called chaining.
+
+There are some other elements to have version, number of empty spaces in the bucket, count of elements...
 
 Average lookup is O(1), worst-case O(n) if all keys collide in the same bucket.
 
@@ -50,13 +76,15 @@ Average lookup is O(1), worst-case O(n) if all keys collide in the same bucket.
 3) Check existing entries in that bucket for equality (Equals() method).
 4) If the key exists, update the value; if not, create a new entry and link it to the bucket chain.
 
-GetHashCode() and Equals() are critical: poor hash distribution hurts performance
+![alt text](./img/AddingElementsToDict.png)
+
+GetHashCode() and Equals() are critical: poor hash distribution hurts performance.
 
 ### Resizing
 
 When the number of items exceeds a certain load factor (~0.75 of the array size), the dictionary resizes:
 
-- Allocates a larger array for buckets and entries.
+- Allocates a larger array for buckets and entries. (We double size of use prime numbers).
 - Recalculates bucket indices for all entries because hashCode % newArray.Length changes.
 
 This ensures lookups stay O(1) on average.
