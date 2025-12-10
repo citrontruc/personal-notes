@@ -10,6 +10,9 @@
   - [^3](#3)
   - [array\[2..5\]](#array25)
   - [Searches in lists](#searches-in-lists)
+  - [Iterating on lists](#iterating-on-lists)
+    - [foreach](#foreach)
+    - [Index](#index)
 
 ## Create a list with the same element repeating
 
@@ -45,4 +48,35 @@ var result = people
     .Where(p => p.Age > 18)
     .OrderBy(p => p.LastName)
     .Select(p => p.FirstName);
+```
+
+## Iterating on lists
+
+### foreach
+
+Iterateon all the elements. A month = key + value.
+
+```cs
+public static void SubDictionaryUsingForEach(Dictionary<int,string> monthsInYear)
+{
+    foreach (var month in monthsInYear)
+    {
+        Console.WriteLine($"{month.Key}: {month.Value}");
+    }
+}
+```
+
+### Index
+
+Take the element located at position i:
+
+```cs
+public static void SubDictionaryForLoop(Dictionary<int, string> monthsInYear)
+{
+   for (int index = 0; index < monthsInYear.Count; index++)
+   {
+       KeyValuePair<int, string> month = monthsInYear.ElementAt(index);
+       Console.WriteLine($"{month.Key}: {month.Value}");
+   }
+}
 ```
