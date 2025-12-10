@@ -6,6 +6,7 @@
   - [Table of content](#table-of-content)
   - [locks](#locks)
   - [New version of locks](#new-version-of-locks)
+  - [Lock structures](#lock-structures)
   - [Deadlock](#deadlock)
 
 ## locks
@@ -47,6 +48,8 @@ class Program {
 
 There is a new version of lock that is more optimal. System.Threading.Lock.
 Here is an example with a bank account lock system.
+
+This new lock system has multiple methods (EnterScope). The following example only uses basic lock functionalities.
 
 ```cs
 using System;
@@ -130,6 +133,76 @@ class AccountTest
             {
                 account.Debit(Math.Abs(amount));
             }
+        }
+    }
+}
+```
+
+## Lock structures
+
+There are some built in components for effective lock handling.
+
+Indeed, **lock** blocks all access to a piece of code. **ReaderWriterLockSlim** allows to differentiate read and write operations. The example below shows the difference between these two operations:
+
+```cs
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+class Program
+{
+    static ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
+    static List<int> sharedData = new List<int>();
+
+    static void Main()
+    {
+        // Start some reader threads
+        for (int i = 0; i < 3; i++)
+        {
+            new Thread(ReadData).Start();
+        }
+
+        // Start some writer threads
+        for (int i = 0; i < 2; i++)
+        {
+            new Thread(WriteData).Start();
+        }
+    }
+
+    static void ReadData()
+    {
+        while (true)
+        {
+            rwLock.EnterReadLock();
+            try
+            {
+                Console.WriteLine($"Reading data: {string.Join(",", sharedData)}");
+            }
+            finally
+            {
+                rwLock.ExitReadLock();
+            }
+            Thread.Sleep(500);
+        }
+    }
+
+    static void WriteData()
+    {
+        Random rnd = new Random();
+        while (true)
+        {
+            rwLock.EnterWriteLock();
+            try
+            {
+                int value = rnd.Next(100);
+                sharedData.Add(value);
+                Console.WriteLine($"Wrote data: {value}");
+            }
+            finally
+            {
+                rwLock.ExitWriteLock();
+            }
+            Thread.Sleep(1000);
         }
     }
 }
