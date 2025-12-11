@@ -149,3 +149,69 @@ namespace LoggerExample
 ## Middleware
 
 You can put logs wherever you want but if you want to log all of your requests and have them be saved to log files, include your logger to the middleware.
+
+Example underneath is done with Serilog. You can have the logs write to multiple files depending on the log importance (you keep an error file for example).
+
+We have a class to handle exception logging using a logger. The class works as a middleware to our api / application.
+
+```cs
+public class ExceptionLoggingMiddleware : IloggerMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionLoggingMiddleware> _logger;
+
+    public ExceptionLoggingMiddleware(
+        RequestDelegate next,
+        ILogger<ExceptionLoggingMiddleware> logger
+    )
+    {
+        _next = next;
+        _logger = logger;
+    }
+
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
+        {
+            await _next(context);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Unhandled exception occurred. Request: {Method} {Path} - User: {User}",
+                context.Request.Method,
+                context.Request.Path,
+                context.User?.Identity?.Name ?? "Anonymous"
+            );
+
+            throw;
+        }
+    }
+}
+```
+
+```cs
+// Create aa logger to write to two different files.
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: "logs/app-.log",
+        rollingInterval: RollingInterval.Day,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+    )
+    .WriteTo.File(
+        "logs/errors-.log",
+        rollingInterval: RollingInterval.Day,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+        restrictedToMinimumLevel: LogEventLevel.Error
+    )
+    .CreateLogger();
+
+// Use Serilog as the logging provider
+builder.Host.UseSerilog();
+
+// Exception handler should be FIRST because after logging, we fail.
+app.UseMiddleware<ExceptionLoggingMiddleware>();
+```
