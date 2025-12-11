@@ -89,4 +89,12 @@ dotnet sln add <path to project>
 dotnet add reference <path to project>
 ```
 
+```bash
+dotnet new mstest --framework net9.0 -n MyTestProject
+```
+
+Warning! Sometimes, everything is fine but MSTest will still mark it as an error in vscode.
+
+In path to project, use /
+
 <https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-csharp-with-mstest>

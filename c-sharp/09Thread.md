@@ -348,4 +348,4 @@ Il existe cependant des manières annexes de gérer les choses. Il est notamment
 
 ## Thread-safe Structures
 
-There are some natively thread-safe structures: example is the ConcurrentDictionary. Use the specific methods to access elements.
+There are some natively thread-safe structures: example is the ConcurrentDictionary or ConcurrentHashmap. Use the specific methods to access elements.
