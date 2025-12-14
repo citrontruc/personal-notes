@@ -12,7 +12,7 @@
     - [entry point](#entry-point)
   - [Different project types](#different-project-types)
   - [C sharpier](#c-sharpier)
-  - [Tests](#tests)
+  - [Upgrade version of dotnet](#upgrade-version-of-dotnet)
 
 ## Basic projects
 
@@ -81,20 +81,9 @@ dotnet csharpier format .
 
 <https://csharpier.com/docs/About>
 
-## Tests
+## Upgrade version of dotnet
 
 ```bash
-dotnet new mstest
-dotnet sln add <path to project>
-dotnet add reference <path to project>
+dotnet tool install -g dotnet-upgrade-assistant
+dotnet upgrade ./YourSolution.sln
 ```
-
-```bash
-dotnet new mstest --framework net9.0 -n MyTestProject
-```
-
-Warning! Sometimes, everything is fine but MSTest will still mark it as an error in vscode.
-
-In path to project, use /
-
-<https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-csharp-with-mstest>

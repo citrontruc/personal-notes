@@ -6,6 +6,7 @@
   - [Table of content](#table-of-content)
   - [String and StringBuilders](#string-and-stringbuilders)
   - [Boxed and unboxed variables](#boxed-and-unboxed-variables)
+  - [Return Types](#return-types)
 
 ## String and StringBuilders
 
@@ -37,5 +38,31 @@ foreach (object item in list)
     {
         Console.WriteLine(number);
     }
+}
+```
+
+## Return Types
+
+I have a class to create PagedLists (lists with additional properties). However, my retrun type is IEnumerable. My PagedList is therefore converted to an IEnumerable ==> It loses its additional properties. If I wanted to have them, I should either define an IResponse type and add the properties at the time of respones or change my Response so that it is not an IEnumerable.
+
+```cs
+public async Task<IEnumerable<Album>> GetAllAlbums(
+    MusicDbContext db,
+    int? pageSize,
+    int? pageNumber
+)
+{
+    (int correctPageSize, int correctPageNumber) =
+        AlbumParameters.CorrectPaginationParameters(
+            _defaultAlbumParameters,
+            pageSize,
+            pageNumber
+        );
+
+    return await PagedList<Album>.ToPagedListAsync(
+        db.Albums.AsNoTracking().OrderBy(a => a.ArtistName).ThenBy(a => a.Name),
+        correctPageSize,
+        correctPageNumber
+    );
 }
 ```

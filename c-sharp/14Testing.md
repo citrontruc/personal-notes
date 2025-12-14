@@ -4,6 +4,7 @@
 
 - [Testing](#testing)
   - [Table of content](#table-of-content)
+  - [Tests](#tests)
   - [Best practices](#best-practices)
   - [Conventions](#conventions)
     - [Naming](#naming)
@@ -11,6 +12,26 @@
     - [Simplicity](#simplicity)
     - [All the elements used by the test are present in the test](#all-the-elements-used-by-the-test-are-present-in-the-test)
     - [You don't need to test private methods](#you-dont-need-to-test-private-methods)
+
+## Tests
+
+Using MSTest. WARNING: mstest is an aging framework, it is recommended to use XUnit instead.
+
+```bash
+dotnet new mstest
+dotnet sln add <path to project>
+dotnet add reference <path to project>
+```
+
+```bash
+dotnet new mstest --framework net9.0 -n MyTestProject
+```
+
+Warning! Sometimes, everything is fine but MSTest will still mark it as an error in vscode.
+
+In path to project, use /
+
+<https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-csharp-with-mstest>
 
 ## Best practices
 
