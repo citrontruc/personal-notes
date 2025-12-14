@@ -12,6 +12,7 @@
     - [Simplicity](#simplicity)
     - [All the elements used by the test are present in the test](#all-the-elements-used-by-the-test-are-present-in-the-test)
     - [You don't need to test private methods](#you-dont-need-to-test-private-methods)
+  - [XUnit](#xunit)
 
 ## Tests
 
@@ -105,3 +106,151 @@ private StringCalculator CreateDefaultStringCalculator()
 ### You don't need to test private methods
 
 Private methods are the details of the implementation. They are not meant to be called from the exterior. Normally, you wouldn't need to test them. Test the public methods that use them.
+
+## XUnit
+
+XUnit has two main test methods: Fact and Theory
+
+**Fact**: Represents a test method that should be true under the given circumstances. It is typically used for tests that have no inputs or outputs. Use it only if you g=have results that don't change.
+
+```cs
+public class MathOperations
+{
+    public int Add(int a, int b)
+    {
+        return a + b;
+    }
+}
+
+public class MathOperationsTests
+{
+    [Fact]
+    public void Add_ReturnsCorrectSum()
+    {
+        // Arrange
+        MathOperations math = new MathOperations();
+
+        // Act
+        int result = math.Add(3, 5);
+
+        // Assert
+        Assert.Equal(8, result);
+    }
+}
+```
+
+**Theory**: Represents a parametrized test method that receives arguments from data sources. The theory is tested with different sets of data to ensure that it behaves correctly under various conditions.
+
+```cs
+public class MathOperations
+{
+    public int Add(int a, int b)
+    {
+        return a + b;
+    }
+}
+
+public class MathOperationsTests
+{
+    [Theory]
+    [InlineData(3, 5, 8)]   // First parameter: 3, Second parameter: 5, Expected result: 8
+    [InlineData(2, 2, 4)]   // First parameter: 2, Second parameter: 2, Expected result: 4
+    [InlineData(10, 5, 15)] // First parameter: 10, Second parameter: 5, Expected result: 15
+    public void Add_ReturnsCorrectSum(int a, int b, int expected)
+    {
+        // Arrange
+        MathOperations math = new MathOperations();
+
+        // Act
+        int result = math.Add(a, b);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+}
+```
+
+**MemberData** is an attribute in xUnit.net used to specify a method that will provide the test data for a parameterized test. The method specified by MemberData must return IEnumerable<object[]>, where each object array represents a set of test data.
+
+```cs
+using System.Collections.Generic;
+using Xunit;
+
+public class MathOperations
+{
+    public int Add(int a, int b)
+    {
+        return a + b;
+    }
+}
+
+public class MathOperationsTests
+{
+    // Method providing test data
+    public static IEnumerable<object[]> TestData()
+    {
+        yield return new object[] { 3, 5, 8 };
+        yield return new object[] { 2, 2, 4 };
+        yield return new object[] { 10, 5, 15 };
+    }
+
+    [Theory]
+    [MemberData(nameof(TestData))]
+    public void Add_ReturnsCorrectSum(int a, int b, int expected)
+    {
+        // Arrange
+        MathOperations math = new MathOperations();
+
+        // Act
+        int result = math.Add(a, b);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+}
+```
+
+**TestDataClass**: same thing as previous but this time it is a class that provides the test data. ClassData specifies a class that provides the test data for a parameterized test. The class specified by ClassData must implement IEnumerable<object[]>, where each object array represents a set of test data.
+
+```cs
+using System.Collections.Generic;
+using Xunit;
+
+public class MathOperations
+{
+    public int Add(int a, int b)
+    {
+        return a + b;
+    }
+}
+
+public class MathOperationsTests
+{
+    // Class providing test data
+    public class TestDataClass : IEnumerable<object[]>
+    {
+        public IEnumerator<object[]> GetEnumerator()
+        {
+            yield return new object[] { 3, 5, 8 };
+            yield return new object[] { 2, 2, 4 };
+            yield return new object[] { 10, 5, 15 };
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    [Theory]
+    [ClassData(typeof(TestDataClass))]
+    public void Add_ReturnsCorrectSum_ClassData(int a, int b, int expected)
+    {
+        // Arrange
+        MathOperations math = new MathOperations();
+
+        // Act
+        int result = math.Add(a, b);
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+}
+```
