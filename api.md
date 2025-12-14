@@ -8,6 +8,7 @@
   - [Patch vs put](#patch-vs-put)
   - [Idempotency](#idempotency)
   - [Status codes](#status-codes)
+  - [Api Testing](#api-testing)
 
 ## What does a rest API even mean?
 
@@ -46,3 +47,13 @@ Risk: double billing if request failed when trying to reach server or when serve
 502 - Bad gateway
 503 - Unavailable
 504 - Gateway Timeout
+
+## Api Testing
+
+- Positive path testing: When doing something correct, you have a success code. Make sure your doocumentation specifies expected return codes. Verify payloads.
+- Negative path testing: when doing something incorrect, we have a failure code. Test for values over thresholds (payload too large, malformed objects, use null and empty inputs...)
+- Authentication & Authorization testing (test multiple users and expired tokens, test sensitive operations).
+- Response time (simulate that for realistic operations, we have realistic execution time).
+- Data validation (do it both for success and failure, test field level constraints (size & other)).
+- Integration testing => Ordering a product updates stocks and launches the payment methods.
+- Injection testing (sanitize requests).

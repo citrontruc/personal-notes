@@ -13,6 +13,8 @@
     - [All the elements used by the test are present in the test](#all-the-elements-used-by-the-test-are-present-in-the-test)
     - [You don't need to test private methods](#you-dont-need-to-test-private-methods)
   - [XUnit](#xunit)
+  - [Architecture tests](#architecture-tests)
+  - [Mocks](#mocks)
 
 ## Tests
 
@@ -253,4 +255,137 @@ public class MathOperationsTests
         Assert.Equal(expected, result);
     }
 }
+```
+
+## Architecture tests
+
+We focused on testing units and testing integration, what about testing architecture? You will need an architecture testing library to do that. Examples are: <https://github.com/TNG/ArchUnitNET?ck_subscriber_id=3624423941> and <https://github.com/BenMorris/NetArchTest?ck_subscriber_id=3624423941>.
+
+- Test dependency injection. In order to do that, create your use cases and check that all the services that should be attached are attached.
+- Naming convention test. Example under.
+- Check that there are no unwanted dependencies.
+
+```cs
+// Naming convention test. The building blocks of the architecture should be named accordingly.
+using Bookify.Application.Abstractions.Messaging;
+using FluentValidation;
+using NetArchTest.Rules;
+
+namespace Bookify.ArchitectureTests.Application;
+
+public class ApplicationTests : BaseTest
+{
+    [Fact]
+    public void CommandHandler_Should_HaveNameEndingWith_CommandHandler()
+    {
+        var result = Types.InAssembly(ApplicationAssembly)
+            .That()
+            .ImplementInterface(typeof(ICommandHandler<>))
+            .Or()
+            .ImplementInterface(typeof(ICommandHandler<,>))
+            .Should().HaveNameEndingWith("CommandHandler")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful);
+    }
+
+    [Fact]
+    public void QueryHandler_Should_HaveNameEndingWith_QueryHandler()
+    {
+        var result = Types.InAssembly(ApplicationAssembly)
+            .That()
+            .ImplementInterface(typeof(IQueryHandler<,>))
+            .Should()
+            .HaveNameEndingWith("QueryHandler")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful);
+    }
+
+    [Fact]
+    public void Validator_Should_HaveNameEndingWith_Validator()
+    {
+        var result = Types.InAssembly(ApplicationAssembly)
+            .That()
+            .Inherit(typeof(AbstractValidator<>))
+            .Should()
+            .HaveNameEndingWith("Validator")
+            .GetResult();
+
+        Assert.True(result.IsSuccessful);
+    }
+}
+```
+
+Explanation:
+
+```cs
+Types.InAssembly(ApplicationAssembly)
+.That()
+.ImplementInterface(typeof(ICommandHandler<>))
+.Or()
+.ImplementInterface(typeof(ICommandHandler<,>))
+.Should()
+.HaveNameEndingWith("CommandHandler")
+.GetResult();
+```
+
+- Types.InAssembly(ApplicationAssembly)
+Selects all types defined in ApplicationAssembly.
+- .That().ImplementInterface(typeof(ICommandHandler<>))
+Filters types that implement ICommandHandler\<T>.
+- .Or().ImplementInterface(typeof(ICommandHandler<,>))
+Also includes types implementing ICommandHandler<TCommand, TResult>.
+- .Should().HaveNameEndingWith("CommandHandler")
+Asserts that all matching types must have names ending with CommandHandler.
+- .GetResult()
+Executes the rule and returns the validation result (used by the test runner to fail/pass).
+
+## Mocks
+
+In order to mock components, you can use the Moq library. Example: if a value depends on the day, we can use the following code:
+
+```cs
+public interface IDateTimeProvider
+{
+    DayOfWeek DayOfWeek();
+}
+
+public decimal GetPayRate(decimal baseRate, IDateTimeProvider dateTimeProvider)
+{
+    return dateTimeProvider.DayOfWeek() == DayOfWeek.Sunday ? baseRate * 1.25m : baseRate;
+}
+
+// We mock the datetime provider to make sure we recover the right day in our case.
+public void GetPayRate_IsSunday_ReturnsHigherRate_Snippet4()
+{
+    // Arrange
+    var rateCalculator = new RateCalculator();
+    var dateTimeProviderMock = new Mock<IDateTimeProvider>();
+    dateTimeProviderMock.Setup(m => m.DayOfWeek()).Returns(DayOfWeek.Sunday);
+
+    // Act
+    var actual = rateCalculator.GetPayRate(10.00m, dateTimeProviderMock.Object);
+          
+    // Assert
+    Assert.That(actual, Is.EqualTo(12.5m));
+}
+```
+
+Moq can also do verifications, verify the number of executions and throw errors. You can setup a sequence of data in order to get results in a specified order:
+
+```cs
+// Arrange
+var mock = new Mock<IDateTimeProvider>();
+mock.SetupSequence(m => m.DayOfWeek())
+    .Returns(DayOfWeek.Sunday)
+    .Returns(DayOfWeek.Tuesday)
+    .Returns(DayOfWeek.Saturday);
+
+// Act
+var result = ExampleClass.ChecksSequenceIsCorrect(mockedObject: mock.Object);
+
+// Assert
+Assert.That(result, Is.EqualTo(true));
+mock.VerifyAll();
 ```

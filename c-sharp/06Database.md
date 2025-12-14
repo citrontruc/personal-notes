@@ -4,6 +4,11 @@
 
 - [Database](#database)
   - [Table of content](#table-of-content)
+  - [Notes on performances](#notes-on-performances)
+    - [Tip 1) Reuse connection when possible](#tip-1-reuse-connection-when-possible)
+    - [Tip 2) regroup queries whenever possible \& entity framework](#tip-2-regroup-queries-whenever-possible--entity-framework)
+    - [Tip 3) Transform data](#tip-3-transform-data)
+    - [Bulk insert](#bulk-insert)
   - [Migrations](#migrations)
   - [Filter data](#filter-data)
   - [Index](#index)
@@ -16,6 +21,124 @@
   - [Add rollback to operations](#add-rollback-to-operations)
   - [Locks](#locks)
   - [Dispose of DbContext](#dispose-of-dbcontext)
+
+## Notes on performances
+
+### Tip 1) Reuse connection when possible
+
+Opening and closing connections takes time. Avoid to open and close them. Reuse them.
+
+```cs
+var cmdText = @"
+    insert into dbo.Customers (Id, FirstName, LastName, Street, City, State, PhoneNumber, EmailAddress)
+    values (@Id, @FirstName, @LastName, @Street, @City, @State, @PhoneNumber, @EmailAddress)";
+
+// We create a connection and use it for all our customers.
+using (var connection = new SqlConnection(connectionString))
+{
+    foreach (var customer in customers)
+    {
+        var command = new SqlCommand(cmdText, connection);
+        command.Parameters.AddWithValue("@Id", customer.Id);
+        command.Parameters.AddWithValue("@FirstName", customer.FirstName);
+        command.Parameters.AddWithValue("@LastName", customer.LastName);
+        command.Parameters.AddWithValue("@Street", customer.Street);
+        command.Parameters.AddWithValue("@City", customer.City);
+        command.Parameters.AddWithValue("@State", customer.State);
+        command.Parameters.AddWithValue("@PhoneNumber", customer.PhoneNumber);
+        command.Parameters.AddWithValue("@EmailAddress", customer.EmailAddress);
+ 
+        connection.Open();
+        command.ExecuteNonQuery();
+    }
+}
+```
+
+### Tip 2) regroup queries whenever possible & entity framework
+
+Instead of having one SQL query for each row, we could have one giant sql query which encompasses all our users. Avoid doing this too much because it is ugly but you could do it.
+
+```cs
+var cmdText = customers.Aggregate(
+    new StringBuilder(),
+    (sb, customer) => sb.AppendLine(@$"
+        insert into dbo.Customers (Id, FirstName, LastName, Street, City, State, PhoneNumber, EmailAddress)
+        values('{customer.Id}', '{customer.FirstName}', '{customer.LastName}', '{customer.Street}', '{customer.City}', '{customer.State}', '{customer.PhoneNumber}', '{customer.EmailAddress}')")
+);
+ 
+using (var connection = new SqlConnection(connectionString))
+{
+    var command = new SqlCommand(cmdText.ToString(), connection);
+    connection.Open();
+    command.ExecuteNonQuery();
+}
+```
+
+it is much better to use the entity framework
+
+```cs
+using (var context = new CustomersContext())
+{
+    context.Customers.AddRange(customers);
+    context.SaveChanges();
+}
+```
+
+In this case, an optimized SQL query is generated automatically.
+
+### Tip 3) Transform data
+
+By transforming data into a data table, we make them easier to insert in an sql table.
+
+```cs
+DataTable GetUsersDataTable()
+{
+    var dataTable = new DataTable();
+
+    dataTable.Columns.Add(nameof(User.Email), typeof(string));
+    dataTable.Columns.Add(nameof(User.FirstName), typeof(string));
+    dataTable.Columns.Add(nameof(User.LastName), typeof(string));
+    dataTable.Columns.Add(nameof(User.PhoneNumber), typeof(string));
+
+    foreach (var user in GetUsers())
+    {
+        dataTable.Rows.Add(
+            user.Email, user.FirstName, user.LastName, user.PhoneNumber);
+    }
+
+    return dataTable;
+}
+```
+
+### Bulk insert
+
+Method to insert large volumes of data real fast.
+
+```cs
+using (var copy = new SqlBulkCopy(connectionString))
+{
+    copy.DestinationTableName = "dbo.Customers";
+    // Add mappings so that the column order doesn't matter
+    copy.ColumnMappings.Add(nameof(Customer.Id), "Id");
+    copy.ColumnMappings.Add(nameof(Customer.FirstName), "FirstName");
+    copy.ColumnMappings.Add(nameof(Customer.LastName), "LastName");
+    copy.ColumnMappings.Add(nameof(Customer.Street), "Street");
+    copy.ColumnMappings.Add(nameof(Customer.City), "City");
+    copy.ColumnMappings.Add(nameof(Customer.State), "State");
+    copy.ColumnMappings.Add(nameof(Customer.PhoneNumber), "PhoneNumber");
+    copy.ColumnMappings.Add(nameof(Customer.EmailAddress), "EmailAddress");
+ 
+    copy.WriteToServer(ToDataTable(customers));
+}
+```
+
+Ef core sample:
+
+```cs
+using var context = new ApplicationDbContext();
+
+await context.BulkInsertAsync(GetUsers());
+```
 
 ## Migrations
 
