@@ -781,3 +781,5 @@ public enum Features
 
 await _features.IsEnabledAsync(Features.NewSearch.ToString());
 ```
+
+There are some nice writings for the MVC framework that you can use.
