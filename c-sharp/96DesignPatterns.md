@@ -15,6 +15,7 @@
   - [Repository pattern](#repository-pattern)
   - [Declaration pattern](#declaration-pattern)
   - [Feature flag](#feature-flag)
+  - [Result Pattern](#result-pattern)
 
 ## Decorator
 
@@ -705,7 +706,39 @@ if (product is Electronics electronis){
 
 ## Feature flag
 
-Allows you to declare which features should be used and which one should be held back for later. You can add more or less complex conditions to your feature flags in order to choose when the features are enabled.
+Allows you to declare which features should be used and which one should be held back for later. You can add more or less complex conditions to your feature flags in order to choose when the features are enabled. Instead, use results:
+
+```cs
+public sealed record Error(string Code, string Description)
+{
+    public static readonly Error None = new(string.Empty, string.Empty);
+}
+
+public class Result
+{
+    private Result(bool isSuccess, Error error)
+    {
+        if (isSuccess && error != Error.None ||
+            !isSuccess && error == Error.None)
+        {
+            throw new ArgumentException("Invalid error", nameof(error));
+        }
+
+        IsSuccess = isSuccess;
+        Error = error;
+    }
+
+    public bool IsSuccess { get; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public Error Error { get; }
+
+    public static Result Success() => new(true, Error.None);
+
+    public static Result Failure(Error error) => new(false, error);
+}
+```
 
 This is mostly possible with the appsettings.json file. It uses the FeatureManagement package.
 
@@ -783,3 +816,95 @@ await _features.IsEnabledAsync(Features.NewSearch.ToString());
 ```
 
 There are some nice writings for the MVC framework that you can use.
+
+## Result Pattern
+
+Don't throw errors for parts of the code who are not code-breaking. Having too many errors make it difficult to reason with the whole of your codebase. Keep errors only for exceptional cases.
+
+Another element to handle is the fail fast principal. When you have a configuration that does not work, throw an error when validating the class (at the very beginning):
+
+```cs
+// Define our errors
+public static class FollowerErrors
+{
+    public static readonly Error SameUser = new Error(
+        "Followers.SameUser", "Can't follow yourself");
+
+    public static readonly Error NonPublicProfile = new Error(
+        "Followers.NonPublicProfile", "Can't follow non-public profiles");
+
+    public static readonly Error AlreadyFollowing = new Error(
+        "Followers.AlreadyFollowing", "Already following");
+}
+
+// Error with an argument.
+public static class FollowerErrors
+{
+    public static Error NotFound(Guid id) => new Error(
+        "Followers.NotFound", $"The follower with Id '{id}' was not found");
+}
+
+
+// Usse the Result pattern
+public sealed class FollowerService
+{
+    private readonly IFollowerRepository _followerRepository;
+
+    public FollowerService(IFollowerRepository followerRepository)
+    {
+        _followerRepository = followerRepository;
+    }
+
+    public async Task<Result> StartFollowingAsync(
+        User user,
+        User followed,
+        DateTime utcNow,
+        CancellationToken cancellationToken = default)
+    {
+        if (user.Id == followed.Id)
+        {
+            return Result.Failure(FollowerErrors.SameUser);
+        }
+
+        if (!followed.HasPublicProfile)
+        {
+            return Result.Failure(FollowerErrors.NonPublicProfile);
+        }
+
+        if (await _followerRepository.IsAlreadyFollowingAsync(
+                user.Id,
+                followed.Id,
+                cancellationToken))
+        {
+            return Result.Failure(FollowerErrors.AlreadyFollowing);
+        }
+
+        var follower = Follower.Create(user.Id, followed.Id, utcNow);
+
+        _followerRepository.Insert(follower);
+
+        return Result.Success();
+    }
+}
+```
+
+In order to combine the result pattern with an API, you can use the following code:
+
+```cs
+app.MapPost(
+    "users/{userId}/follow/{followedId}",
+    (Guid userId, Guid followedId, FollowerService followerService) =>
+    {
+        var result = await followerService.StartFollowingAsync(
+            userId,
+            followedId,
+            DateTime.UtcNow);
+
+        if (result.IsFailure)
+        {
+            return Results.BadRequest(result.Error);
+        }
+
+        return Results.NoContent();
+    });
+```
