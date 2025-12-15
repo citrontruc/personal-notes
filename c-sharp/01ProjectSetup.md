@@ -13,6 +13,7 @@
   - [Different project types](#different-project-types)
   - [C sharpier](#c-sharpier)
   - [Upgrade version of dotnet](#upgrade-version-of-dotnet)
+  - [Dotnet watch](#dotnet-watch)
 
 ## Basic projects
 
@@ -87,3 +88,9 @@ dotnet csharpier format .
 dotnet tool install -g dotnet-upgrade-assistant
 dotnet upgrade ./YourSolution.sln
 ```
+
+## Dotnet watch
+
+**dotnet watch** - Restarts or hot reloads the specified application, or runs a specified dotnet command, when changes in source code are detected.
+
+Use dotnet watch run to reload the run of your code. Useful to debug.

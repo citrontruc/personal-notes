@@ -14,6 +14,7 @@
   - [Singleton](#singleton)
   - [Repository pattern](#repository-pattern)
   - [Declaration pattern](#declaration-pattern)
+  - [Feature flag](#feature-flag)
 
 ## Decorator
 
@@ -440,6 +441,8 @@ See project for recommended way to do things with Apis. Now in minimal APIs, eve
 
 ## Service Locator
 
+Generally discouraged. We much rather have dependency injection.
+
 ```cs
 /* Service locator who returns which services exist and are registered. */
 
@@ -698,4 +701,83 @@ if (product != null && product is Electronics){
 if (product is Electronics electronis){
     electronics *=0.8m;
 }
+```
+
+## Feature flag
+
+Allows you to declare which features should be used and which one should be held back for later. You can add more or less complex conditions to your feature flags in order to choose when the features are enabled.
+
+This is mostly possible with the appsettings.json file. It uses the FeatureManagement package.
+
+```json
+{
+    "Logging": {
+        "LogLevel": {
+            "Default": "Warning"
+        }
+    },
+
+    // Define feature flags in a JSON file.
+    "feature_management": {
+        "feature_flags": [
+            {
+                "id": "FeatureT",
+                "enabled": false
+            },
+            {
+                "id": "FeatureU",
+                "enabled": true,
+                "conditions": {}
+            },
+            {
+                "id": "FeatureV",
+                "enabled": true,
+                "conditions": {
+                    "requirement_type": "All",
+                    "client_filters": [
+                        {  
+                            "name": "Microsoft.TimeWindow",
+                            "parameters": {
+                                "Start": "Sun, 01 Jun 2025 13:59:59 GMT",
+                                "End": "Fri, 01 Aug 2025 00:00:00 GMT"
+                            }
+                        },
+                        {
+                            "name": "Microsoft.Percentage",
+                            "parameters": {
+                                "Value": "50"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+```
+
+Once you have all your feature flags detailed in your code, you must register the FeatureManagement service (note: not shown here, you can add feature filters):
+
+```cs
+using Microsoft.FeatureManagement;
+
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddFeatureManagement();
+    }
+}
+```
+
+You can then evaluate your feature flags in your code:
+
+```cs
+public enum Features
+{
+    NewSearch,
+    BetaExport
+}
+
+await _features.IsEnabledAsync(Features.NewSearch.ToString());
 ```

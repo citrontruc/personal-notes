@@ -5,6 +5,7 @@
 - [Design patterns](#design-patterns)
   - [Table of Content](#table-of-content)
   - [Decorator](#decorator)
+  - [Feature flags](#feature-flags)
 
 ## Decorator
 
@@ -59,4 +60,22 @@ class MyClass:
         print("Hello!")
 obj = MyClass()
 obj.say_hello()
+```
+
+## Feature flags
+
+A pattern to let you roll out new features gradually. Easiest way is to have a configuration flag and a wrapper to check if features are enabled according to the source.
+
+```python
+class FeatureFlags:
+    def __init__(self, source):
+        self.source = source
+
+    def enabled(self, name, default=False):
+        return self.source.get(name, default)
+
+flags = FeatureFlags({"new_feature": True})
+
+if flags.enabled("new_feature"):
+    run_new_logic()
 ```
