@@ -43,7 +43,7 @@ foreach (object item in list)
 
 ## Return Types
 
-I have a class to create PagedLists (lists with additional properties). However, my retrun type is IEnumerable. My PagedList is therefore converted to an IEnumerable ==> It loses its additional properties. If I wanted to have them, I should either define an IResponse type and add the properties at the time of respones or change my Response so that it is not an IEnumerable.
+I have a class to create PagedLists (lists with additional properties). However, my return type is IEnumerable. My PagedList is therefore converted to an IEnumerable ==> It loses its additional properties. If I wanted to have them, I should either define an IResponse type and add the properties at the time of respones or change my Response so that it is not an IEnumerable.
 
 ```cs
 public async Task<IEnumerable<Album>> GetAllAlbums(

@@ -202,7 +202,7 @@ ORDER BY u.date DESC, u.id DESC
 LIMIT @limit;
 ```
 
-It is possible to passs down a cursor to the user. Here is a way to encode a cursor and give it to the user:
+It is possible to pass down a cursor to the user. Here is a way to encode a cursor and give it to the user:
 
 ```cs
 using Microsoft.AspNetCore.Authentication; // For Base64UrlTextEncoder

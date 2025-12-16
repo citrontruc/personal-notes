@@ -49,7 +49,7 @@ private is class scope and internal is assembly scope.
 
 ## init
 
-value can only be set by the constructor.
+Value can only be set by the constructor.
 
 ```cs
 string Id { get; init; } = Id;
@@ -92,7 +92,7 @@ You can't inherit from a sealed class. You can't override a sealed attribute.
 
 ## Cool stuff for inheritance
 
-When inheriting from a class, in your constructor, you can do that:
+When inheriting from a class, in your constructor you can call the previous contructor.
 Runs the constructor of the base class before running the other constructor.
 Does not work for other method overrides.
 
@@ -112,7 +112,7 @@ public class DerivedClass : BaseClass
 
 When building structs, you can override operators (+, -, ==, !=). Do not forget to also override methods ToString, Equals and GetHashCode.
 
-C sharp **structs** have value semantics. Aka, variable values are copied on assignment. p2 = p1 while create a copy of p1 in p2.
+C sharp **struct** have value semantics. Aka, variable values are copied on assignment. p2 = p1 while create a copy of p1 in p2.
 
 - A simple data container.
 - Fields are usually public by default.
@@ -121,6 +121,8 @@ C sharp **structs** have value semantics. Aka, variable values are copied on ass
 - Used for lightweight, immutable-ish, or small data aggregates.
 
 ## Records
+
+In C# (specifically starting with C# 9), when you use the record keyword by itself, you are implicitly declaring a record class.
 
 - Designed to represent data with meaning (entities, rows, DTOs).
 - Built-in support for value equality (two records with same fields are equal).
@@ -197,7 +199,6 @@ public class ProductRepository : IProductRepository
         }
     }
 }
-
 ```
 
 Records to represent data. Immutable, can have inheritance. Les records viennent souvent avec des méthodes equals, hash et toString.
@@ -221,14 +222,14 @@ enum Season {
 
 ## readonly
 
-Mots clés : readonly peut être assigné dans constructeur puis nul part ailleurs, const est fixé lors de la compilation.
+Mots clés : readonly peut être assigné dans constructeur puis nulle part ailleurs, const est fixé lors de la compilation.
 exemple :
 
 ```cs
 public class Test
 {
     const int c = 10;
-    readlonly int test = 10;
+    readonly int test = 10;
     public Test(int value)
     {
         test = value;

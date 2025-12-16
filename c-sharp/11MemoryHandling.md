@@ -46,7 +46,7 @@ Lists are an array with capacity n with three main elements:
 
 Every time the size is equal to the capacity, we double the array capacity.
 
-With these elements: adding a new element to a list is complecity of O(1) but becomes O(n) when the list needs to be resized. Inseerts have a complexity of O(n) because we have to move the other elements.
+With these elements: adding a new element to a list is complecity of O(1) but becomes O(n) when the list needs to be resized. Inserts have a complexity of O(n) because we have to move the other elements.
 
 ### Misc
 
@@ -94,7 +94,7 @@ This ensures lookups stay O(1) on average.
 ### Conclusion
 
 - A Dictionary stores a set of buckets and entries.
-- Index of a bucket — i - is calculated based on the hash code of the key.
-- The value of the bucket[i] contains the index of a record in entries
-- The matching entry either matches the key or has another entry in the links chain that does (or the key doesn’t exist in a dictionary)
+- Index of a bucket - i - is calculated based on the hash code of the key.
+- The value of the bucket[i] contains the index of a record in entries.
+- The matching entry either matches the key or has another entry in the links chain that does (or the key doesn’t exist in a dictionary).
 - To find the actual value, Dictionary cycles by the links until it finds a matching key or stops at the dead-end (0 or -1 in next).

@@ -1,5 +1,12 @@
 # Practices
 
+## Table of Content
+
+- [Practices](#practices)
+  - [Table of Content](#table-of-content)
+  - [Booleans](#booleans)
+  - [using](#using)
+
 ## Booleans
 
 Prefix your booleans:

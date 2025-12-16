@@ -121,7 +121,7 @@ The three methods register services with different lifetimes in the DI container
 services.AddTransient<TService, TImplementation>()
 ```
 
-Definition: A new instance of the service is created every time it is requested, regardless of where the request is coming from.
+**Definition**: A new instance of the service is created every time it is requested, regardless of where the request is coming from.
 
 When to use it:
 
@@ -135,7 +135,7 @@ Examples: Simple utility classes, or a service that calculates a value and immed
 services.AddScoped<TService, TImplementation>()
 ```
 
-Definition: A single instance of the service is created per scope. In a typical ASP.NET Core web application, the scope is usually the client's request (HTTP request).
+**Definition**: A single instance of the service is created per scope. In a typical ASP.NET Core web application, the scope is usually the client's request (HTTP request).
 
 This means that within one HTTP request, the service will be the same instance.
 
@@ -153,7 +153,7 @@ Examples: A service that coordinates multiple repository operations for a single
 services.AddSingleton<TService, TImplementation>()
 ```
 
-Definition: A single instance of the service is created the first time it is requested (or when Startup.ConfigureServices runs, depending on the registration method) and that same instance is reused for every subsequent request for the entire lifetime of the application.
+**Definition**: A single instance of the service is created the first time it is requested (or when Startup.ConfigureServices runs, depending on the registration method) and that same instance is reused for every subsequent request for the entire lifetime of the application.
 
 When to use it:
 

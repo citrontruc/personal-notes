@@ -30,7 +30,7 @@ dotnet add reference <path to project>
 dotnet new mstest --framework net9.0 -n MyTestProject
 ```
 
-Warning! Sometimes, everything is fine but MSTest will still mark it as an error in vscode.
+**Warning!** Sometimes, everything is fine but MSTest will still mark it as an error in vscode.
 
 In path to project, use /
 
