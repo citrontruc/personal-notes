@@ -21,6 +21,7 @@
   - [Add rollback to operations](#add-rollback-to-operations)
   - [Locks](#locks)
   - [Dispose of DbContext](#dispose-of-dbcontext)
+  - [Global Query Filters](#global-query-filters)
 
 ## Notes on performances
 
@@ -132,7 +133,7 @@ using (var copy = new SqlBulkCopy(connectionString))
 }
 ```
 
-Ef core sample:
+Ef core sample with the BulkInsertAsync method:
 
 ```cs
 using var context = new ApplicationDbContext();
@@ -175,6 +176,10 @@ var books = context.Books
     .Take(pageSize)
     .ToList();
 ```
+
+When using filters, you can use the .Contains method in order to filter on a column. Problem is if you have a lot of values to filter on (example: .Where(p => productIDs.Contains(p.ID)) with a list of 10_000 ids), you end up with a giant query that takes time or can even make your system crash (SQL has a parameter limit).
+
+If you have a lot of values to retrieve, see bulk retrieval.
 
 ## Index
 
@@ -385,3 +390,25 @@ public async Task StartAsync(CancellationToken cancellationToken)
     var books = await context.Books.ToListAsync();
 }
 ```
+
+## Global Query Filters
+
+In your modelBuilder, add a query filter to avoid inappropriate data fro coming up:
+
+```cs
+modelBuilder
+   .Entity<Order>()
+   .HasQueryFilter(order => !order.IsDeleted);
+```
+
+If you need to do a request without it, you can manually dipose of your query filter
+
+```cs
+dbContext
+   .Orders
+   .IgnoreQueryFilters()
+   .Where(order => order.Id == orderId)
+   .FirstOrDefault();
+```
+
+Careful: when adding query filters, you make your requests less clear.
