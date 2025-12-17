@@ -10,6 +10,8 @@
     - [Log solutions in dotnet](#log-solutions-in-dotnet)
     - [Code](#code)
   - [Middleware](#middleware)
+  - [Visualize logs](#visualize-logs)
+  - [Logging options](#logging-options)
 
 ## Why log?
 
@@ -22,6 +24,15 @@ We want to avoid useless, scattered logs without any context.
 - Have multiple logging levels in order to avoid lack of visibility.
 - Delete old logs.
 - Consolidate logs when you need to know how your app / api is used.
+
+```cs
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.File(
+        "logs/service.log",
+        rollingInterval: RollingInterval.Day, // Rotate logs daily
+        retainedFileCountLimit: 7)  // Retain only the last 7 days of logs
+    .CreateLogger();
+```
 
 ### Log levels
 
@@ -88,6 +99,33 @@ namespace SerilogAdvanced
             log.Warning("Warning, Serilog!");
         }
     }
+}
+```
+
+The above example explains how to log data when creating a logger. You can also add the logging information in the appsettings.json file:
+
+```json
+{
+  "Serilog": {
+    "Using": [
+      "Serilog.Sinks.Console",
+      "Serilog.Sinks.File"
+    ],
+    "MinimumLevel": {
+      "Default": "Debug",
+      "Override": {
+        "Microsoft": "Information"
+      }
+    },
+    "WriteTo": [
+      { "Name": "Console" },
+      { "Name": "File", "Args": { "path": "service.log", "rollingInterval": "Day" } }
+    ],
+    "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ],
+    "Properties": {
+      "Application": "ApplicationName"
+    }
+  }
 }
 ```
 
@@ -215,3 +253,47 @@ builder.Host.UseSerilog();
 // Exception handler should be FIRST because after logging, we fail.
 app.UseMiddleware<ExceptionLoggingMiddleware>();
 ```
+
+## Visualize logs
+
+There is a Service and Serilog library to show logs in UI (Seq).
+
+```bash
+dotnet add package Serilog.Sinks.Seq
+```
+
+Update appsettings.json file accordingly and maybe we need to add information in the Logger configuration (check);
+
+```json
+{
+  "Serilog": {
+    "Using": [
+      "Serilog.Sinks.Console",
+      "Serilog.Sinks.Seq"
+    ],
+    "MinimumLevel": {
+      "Default": "Debug",
+      "Override": {
+        "Microsoft": "Information"
+      }
+    },
+    "WriteTo": [
+      { "Name": "Console" },
+      {
+        "Name": "Seq",
+        "Args": {
+          "serverUrl": "http://localhost:5341"
+        }
+      }
+    ],
+    "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId" ],
+    "Properties": {
+      "Application": "ShippingService"
+    }
+  }
+}
+```
+
+## Logging options
+
+<https://antondevtips.com/blog/logging-requests-and-responses-for-api-requests-and-httpclient-in-aspnetcore>

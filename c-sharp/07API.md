@@ -4,12 +4,19 @@
 
 - [API](#api)
   - [Table of content](#table-of-content)
+  - [Architecture](#architecture)
   - [Avoid confusion in variable origin](#avoid-confusion-in-variable-origin)
   - [Swagger](#swagger)
   - [Example controller](#example-controller)
+  - [Data Transfer Objects](#data-transfer-objects)
   - [Versioning](#versioning)
   - [Pagination](#pagination)
   - [Validation](#validation)
+  - [Compress big payloads](#compress-big-payloads)
+
+## Architecture
+
+In order to avoid confusion and problems, it is recommended that you use DDD and organize your files by business functionalities rather than by technological parts (no "router" or "models", but "shipment" and "products").
 
 ## Avoid confusion in variable origin
 
@@ -156,6 +163,14 @@ public class TodoItemsController : ControllerBase
 }
 ```
 
+## Data Transfer Objects
+
+Data Transfer Objects are the objects that are manipulated by your applications. While "models" are the objects stored in your database. The user sends data with the post method. The data sent is of the ValueDto object. You then map it to a Value Object. When the user tries to get a value, you retrieve the Value object from your database and map it to the ValueDto object.
+
+**Warning**: you don't reuse the sale Dto for input and output. CreateValueRequest != ValueResponse. The database never sees Dtos, but the controller speaks in Dto language.
+
+There are libraries to do the mapping between the objects. Can be a double edge sword. Do it by hand.
+
 ## Versioning
 
 Only do it when you add new stuff (you don't need it if you add optional fields or new endpoints). Put the number in the url path.
@@ -287,4 +302,30 @@ public sealed record CreateProductRequest(
     [Required] string Name,
     [Required] string Description,
     [Range(0.01, 10.0)] decimal Price);
+```
+
+## Compress big payloads
+
+When you have big payloads, you can compress them before sending them in order to avoid slow transfers.
+
+```cs
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+});
+
+builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
+
+builder.Services.Configure<GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
+
+var app = builder.Build();
+app.UseResponseCompression();
 ```

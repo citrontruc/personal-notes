@@ -5,6 +5,7 @@
 - [Cache](#cache)
   - [Table of Content](#table-of-content)
   - [Example](#example)
+  - [Database result caching](#database-result-caching)
 
 ## Example
 
@@ -84,5 +85,27 @@ file record AlphabetLetter(char Letter)
 {
     internal string Message =>
         $"The '{Letter}' character is the {Letter - 64} letter in the English alphabet.";
+}
+```
+
+## Database result caching
+
+Introduce caching in your queries in order to get results faster.
+
+```cs
+public async Task<Book?> GetBookAsync(Guid id, CancellationToken cancellationToken)
+{
+    var cacheKey = $"Book_{id}";
+
+    if (_cache.TryGetValue(cacheKey, out Book? book))
+    {
+        return book;
+    }
+    
+    book = await _context.Books
+        .Include(b => b.Author)
+        .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
+        
+    return book;
 }
 ```

@@ -5,6 +5,7 @@
 - [Design Patterns](#design-patterns)
   - [Table of content](#table-of-content)
   - [Decorator](#decorator)
+  - [Option design pattern](#option-design-pattern)
   - [Extension](#extension)
   - [Dependency Injection](#dependency-injection)
     - [🛠️ Service Lifetimes](#️-service-lifetimes)
@@ -85,6 +86,69 @@ public class ExceptionReportingMessenger : MessengerDecorator
     }
 }
 ```
+
+## Option design pattern
+
+Imagine, you have authentication information stored in appsettings.json:
+
+```json
+{
+  "MyOptions": {
+    "Endpoint": "https://api.example.com",
+    "TimeoutSeconds": 30,
+    "EnableCaching": true
+  }
+}
+```
+
+You can create an option class that is a dataclass to get your options.
+
+```cs
+using System.ComponentModel.DataAnnotations;
+
+public sealed class MyOptions
+{
+    public const string SectionName = "MyOptions";
+
+    [Required, Url]
+    public string Endpoint { get; init; } = default!;
+
+    [Range(1, 300)]
+    public int TimeoutSeconds { get; init; }
+
+    public bool EnableCaching { get; init; }
+}
+
+// You can now register your option:
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddOptions<MyOptions>()
+    .Bind(builder.Configuration.GetSection(MyOptions.SectionName))
+    .ValidateDataAnnotations()
+    .Validate(o => o.TimeoutSeconds > 0, "Timeout must be > 0")
+    .ValidateOnStart();
+
+var app = builder.Build();
+
+// You can then use your options in your service:
+public sealed class MyService
+{
+    private MyOptions _options;
+
+    public MyService(IOptionsMonitor<MyOptions> monitor)
+    {
+        _options = monitor.CurrentValue;
+
+        monitor.OnChange((opts, _) =>
+        {
+            _options = opts;
+        });
+    }
+}
+```
+
+**IOptionsMonitor** is the reloadable options object. It change automatically when values change.
 
 ## Extension
 

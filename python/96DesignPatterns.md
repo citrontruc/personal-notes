@@ -4,8 +4,53 @@
 
 - [Design patterns](#design-patterns)
   - [Table of Content](#table-of-content)
+  - [Option data pattern](#option-data-pattern)
   - [Decorator](#decorator)
   - [Feature flags](#feature-flags)
+
+## Option data pattern
+
+Have a class to store your options. Store defaults + overrides. Immutable, validated configuration.
+
+```python
+from dataclasses import dataclass
+
+@dataclass(frozen=True)
+class ConnectionOptions:
+    host: str
+    port: int
+    user: str
+    password: str
+    timeout: int = 30
+    use_ssl: bool = True
+
+class ConnectionOptionsBuilder:
+    def __init__(self):
+        self._opts = {
+            "timeout": 30,
+            "use_ssl": True,
+        }
+
+    def host(self, value): self._opts["host"] = value; return self
+    def port(self, value): self._opts["port"] = value; return self
+    def user(self, value): self._opts["user"] = value; return self
+    def password(self, value): self._opts["password"] = value; return self
+    def timeout(self, value): self._opts["timeout"] = value; return self
+    def use_ssl(self, value): self._opts["use_ssl"] = value; return self
+
+    def build(self) -> ConnectionOptions:
+        return ConnectionOptions(**self._opts)
+
+opts = (
+    ConnectionOptionsBuilder()
+    .host("db.local")
+    .port(5432)
+    .user("app")
+    .password("secret")
+    .timeout(10)
+    .build()
+)
+```
 
 ## Decorator
 

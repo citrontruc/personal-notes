@@ -19,11 +19,14 @@
     - [Lazy loading](#lazy-loading)
     - [Explicit loading](#explicit-loading)
   - [Add rollback to operations](#add-rollback-to-operations)
+  - [Split Queries](#split-queries)
   - [Locks](#locks)
   - [Dispose of DbContext](#dispose-of-dbcontext)
   - [Global Query Filters](#global-query-filters)
 
 ## Notes on performances
+
+DbContext serves as an ORM but you can bypass it and directly send an SQL query. Can be useful for some optimization cases.
 
 ### Tip 1) Reuse connection when possible
 
@@ -113,7 +116,7 @@ DataTable GetUsersDataTable()
 
 ### Bulk insert
 
-Method to insert large volumes of data real fast.
+Method to insert large volumes of data real fast. There are two main ways to do this, the first is SqlBulkCopy. Problem is that it only works for SQl.
 
 ```cs
 using (var copy = new SqlBulkCopy(connectionString))
@@ -140,6 +143,8 @@ using var context = new ApplicationDbContext();
 
 await context.BulkInsertAsync(GetUsers());
 ```
+
+BulkInsert has a few nifty options for optimization. You can have InsertIfNotExist to avoid inserting data that already exists. You have BulkUpdate, BulkDelete and other nice methods. Not just insert.
 
 ## Migrations
 
@@ -337,6 +342,25 @@ catch (Exception)
     await transaction.RollbackAsync();
     throw;
 }
+```
+
+## Split Queries
+
+Imagine that you need to join multiple data together and then filter the result. By default you will have everything in a single query which can be memory intensive. A solution is to use "AsSplitquery" which will apply filters first on each table and then merge everything ==> You have multiple small queries.
+
+```cs
+// Before
+var project = await _context.Projects
+    .Include(p => p.Tasks)
+    .Include(p => p.Contributors)
+    .FirstOrDefaultAsync(p => p.Id == projectId);
+
+// After
+var project = await _context.Projects
+    .AsSplitQuery() // <--- The Magic Trigger
+    .Include(p => p.Tasks)
+    .Include(p => p.Contributors)
+    .FirstOrDefaultAsync(p => p.Id == projectId);
 ```
 
 ## Locks
