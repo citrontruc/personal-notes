@@ -8,6 +8,7 @@
     - [Tip 1) Reuse connection when possible](#tip-1-reuse-connection-when-possible)
     - [Tip 2) regroup queries whenever possible \& entity framework](#tip-2-regroup-queries-whenever-possible--entity-framework)
     - [Tip 3) Transform data](#tip-3-transform-data)
+    - [Tip 4) Deploy in multiple regions](#tip-4-deploy-in-multiple-regions)
     - [Bulk insert](#bulk-insert)
   - [Migrations](#migrations)
   - [Filter data](#filter-data)
@@ -114,6 +115,10 @@ DataTable GetUsersDataTable()
 }
 ```
 
+### Tip 4) Deploy in multiple regions
+
+Avoid latency.
+
 ### Bulk insert
 
 Method to insert large volumes of data real fast. There are two main ways to do this, the first is SqlBulkCopy. Problem is that it only works for SQl.
@@ -201,6 +206,8 @@ public class BookConfiguration : IEntityTypeConfiguration<Book>
     }
 }
 ```
+
+Index the most used data on the most searched on columns.
 
 ## Tracking
 
