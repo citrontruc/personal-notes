@@ -7,6 +7,12 @@
   - [Decorator](#decorator)
   - [Option design pattern](#option-design-pattern)
   - [Extension](#extension)
+    - [Classic approach](#classic-approach)
+    - [Modern approach](#modern-approach)
+    - [Example with properties](#example-with-properties)
+    - [static methods](#static-methods)
+    - [Real world example to extract fields of requests](#real-world-example-to-extract-fields-of-requests)
+    - [Good practice](#good-practice)
   - [Dependency Injection](#dependency-injection)
     - [🛠️ Service Lifetimes](#️-service-lifetimes)
   - [Dependency Injection are your friend](#dependency-injection-are-your-friend)
@@ -152,6 +158,8 @@ public sealed class MyService
 
 ## Extension
 
+### Classic approach
+
 You can add methods to a class later via extensions. You have to make them static.
 
 ```cs
@@ -171,6 +179,239 @@ public static class StringExtensions
 // Your strings now have an added method.
 string value = "Test";
 value.Reverse();
+```
+
+### Modern approach
+
+There is a more modern approach to group multipple extensions together. Works with C# 14 and more reent versions.
+
+```cs
+// Old version of extension. Uses the this keyword.
+public static class StringExtensions
+{
+    public static bool IsNullOrEmpty(this string value)
+    {
+        return string.IsNullOrEmpty(value);
+    }
+    
+    public static string Truncate(this string value, int maxLength)
+    {
+        if (string.IsNullOrEmpty(value) || value.Length <= maxLength)
+        {
+            return value;
+        }
+            
+        return value.Substring(0, maxLength);
+    }
+}
+
+// Modern approach is to use the extension keyword in order to separate the extension methods from the element you are extending:
+public static class StringExtensions
+{
+    extension(string value)
+    {
+        public bool IsNullOrEmpty()
+        {
+            return string.IsNullOrEmpty(value);
+        }
+        
+        public string Truncate(int maxLength)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length <= maxLength)
+            {
+                return value;
+            }
+                
+            return value.Substring(0, maxLength);
+        }
+    }
+}
+```
+
+### Example with properties
+
+With the modern approach for extensions, you can add properties to elements easily:
+
+```cs
+public static class CollectionExtensions
+{
+    extension<T>(IEnumerable<T> source)
+    {
+        public bool IsEmpty => !source.Any();
+
+        public bool HasItems => source.Any();
+
+        public int Count => source.Count();
+
+        public IEnumerable<T> WhereNotNull() =>
+            source.Where(item => item != null);
+        
+        public Dictionary<TKey, List<T>> GroupToDictionary<TKey>(
+            Func<T, TKey> keySelector) where TKey : notnull =>
+            source.GroupBy(keySelector)
+                  .ToDictionary(g => g.Key, g => g.ToList());
+    }
+}
+
+public void ProcessOrders(IEnumerable<Order> orders)
+{
+    if (orders.IsEmpty)
+    {
+        Console.WriteLine("No orders to process");
+        return;
+    }
+
+    foreach (var order in orders)
+    {
+        // Process order
+    }
+}
+
+// We can then do that:
+var products = _productService.GetAll();
+
+var productsByCategory = products
+    .WhereNotNull()
+    .Where(p => p.IsAvailable)
+    .GroupToDictionary(p => p.Category);
+
+foreach (var category in productsByCategory)
+{
+    Console.WriteLine($"{category.Key}: {category.Value.Count} products");
+}
+```
+
+### static methods
+
+With extensions, it is also possible to add static methods to the class and not the instance of the class.
+
+```cs
+public static class ProductExtensions
+{
+    extension(Product)
+    {
+        public static Product CreateDefault() =>
+            new Product
+            {
+                Name = "Unnamed Product",
+                Price = 0,
+                StockQuantity = 0,
+                Category = "Uncategorized",
+                CreatedDate = DateTime.UtcNow
+            };
+
+        public static bool IsValidPrice(decimal price) =>
+            price >= 0 && price <= 1000000;
+
+        public static string DefaultCategory => "General";
+    }
+}
+```
+
+### Real world example to extract fields of requests
+
+```cs
+public static class ApiHttpContextExtensions
+{
+    extension(HttpContext context)
+    {
+        public string CorrelationId =>
+            context.Request.Headers["X-Correlation-ID"].FirstOrDefault()
+                ?? Guid.NewGuid().ToString();
+
+        public string ClientIp =>
+            context.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                ?? context.Connection.RemoteIpAddress?.ToString()
+                ?? "Unknown";
+
+        public bool IsApiRequest =>
+            context.Request.Path.StartsWithSegments("/api");
+
+        public string? GetBearerToken()
+        {
+            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+            if (authHeader?.StartsWith("Bearer ") == true)
+            {
+                return authHeader.Substring("Bearer ".Length).Trim();
+            }
+            return null;
+        }
+
+        public T? GetQueryParameter<T>(string key)
+        {
+            if (context.Request.Query.TryGetValue(key, out var value))
+            {
+                try
+                {
+                    return (T?)Convert.ChangeType(value.ToString(), typeof(T));
+                }
+                catch
+                {
+                    return default;
+                }
+            }
+            return default;
+        }
+
+        public void AddResponseHeader(string key, string value)
+        {
+            context.Response.Headers[key] = value;
+        }
+    }
+
+    extension(HttpContext)
+    {
+        public static bool IsValidPath(string path) =>
+            !string.IsNullOrWhiteSpace(path) && path.StartsWith("/");
+    }
+}
+```
+
+### Good practice
+
+Regroup extensions on similar types and interfaces. Put them in the Utils folder maybe?
+
+```cs
+public static class CollectionExtensions
+{
+    extension<T>(IEnumerable<T> source)
+    {
+        public bool IsEmpty => !source.Any();
+
+        public bool HasItems => source.Any();
+
+        public int Count => source.Count();
+    }
+
+    extension(IEnumerable<string> source)
+    {
+        public string JoinWithComma() => string.Join(", ", source);
+        public IEnumerable<string> NonEmpty() => source.Where(s => !string.IsNullOrEmpty(s));
+    }
+
+    extension<T>(List<T> list)
+    {
+        public void AddIfNotExists(T item)
+        {
+            if (!list.Contains(item))
+            {
+                list.Add(item);
+            }
+        }
+    }
+}
+
+// Don't forget to document your extensions:
+extension(Product product)
+{
+    /// <summary>
+    /// Gets whether the product is currently available for purchase.
+    /// </summary>
+    /// <remarks>
+    /// A product is available if its stock quantity is greater than zero.
+    /// </remarks>
+    public bool IsAvailable => product.StockQuantity > 0;
+}
 ```
 
 ## Dependency Injection

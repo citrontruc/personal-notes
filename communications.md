@@ -4,10 +4,23 @@
 
 - [Communications](#communications)
   - [Table of Content](#table-of-content)
+  - [Protocols](#protocols)
   - [Short polling](#short-polling)
   - [Long polling](#long-polling)
   - [Server-sent events](#server-sent-events)
   - [Websockets](#websockets)
+
+## Protocols
+
+TCP. HTTP builds on TCP and HTTPS builds on HTTP.
+
+UDP. Lightweight, used for fast transmission with possible loss.
+
+Sockets.
+
+SMTP (Simple Mail Transfer Protocol). Used for email delivery. SFTP variant for files.
+
+SSH.
 
 ## Short polling
 

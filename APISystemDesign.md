@@ -5,6 +5,7 @@
 - [API System design](#api-system-design)
   - [Table of content](#table-of-content)
   - [Heuristics to find solutions](#heuristics-to-find-solutions)
+  - [Microservice good practices](#microservice-good-practices)
   - [Distributed Services](#distributed-services)
     - [API Gateway](#api-gateway)
     - [Detecting failure](#detecting-failure)
@@ -43,6 +44,10 @@
 - Traffic + Reliability: Load Balancer
 - Distributed + Transaction: Saga pattern
 - Concurrency + Consistency: Row locking
+
+## Microservice good practices
+
+Keep every code at same maturity, deploy everything in containers and have containers coordinated with kubernetes. Separate CICD for each service. Have micro frontend = a frontend for each microservice. Each frontend talks to the API Gateway who then dispatches messages to APIs.
 
 ## Distributed Services
 
@@ -156,7 +161,7 @@ This has some advantages: logging & guarantee that events are published only if 
 
 Pattern that separates write and read operations through two distinct workflows. Write operations are handled by a write database while read operations are handled by a read database. Both need to be synchronized every cycle.
 
-Allows for independant optimizations of read and write operations. Enablesscaling independentaly write and read operations.
+Allows for independant optimizations of read and write operations. Enables scaling independentaly write and read operations.
 
 **Careful**: data synchronization. Two databases.
 
@@ -214,8 +219,8 @@ Best use case is rate limiting or transient cases.
 
 ## Bulkhead pattern
 
-Meant for system resilience. You encapsulate services in order to isolate them. It works via thread pools, partitioned data connection. Bulkhead is a generic term that can encompass CQRS pattern or other patterns that seek to separate ressources in order to avoid dependencies and improve resilience.
+Meant for system resilience. You encapsulate services in order to isolate them. It works via thread pools, partitioned data connection. Bulkhead is a generic term that can encompass CQRS pattern or other patterns that seek to separate resources in order to avoid dependencies and improve resilience.
 
-Bulkhead needs redundancy and isolation. Improved if each of the ressources can scale up independently from the others.
+Bulkhead needs redundancy and isolation. Improved if each of the resources can scale up independently from the others.
 
-**Careful**: can be expensive becaause we have multiple ressources and channels.
+**Careful**: can be expensive becaause we have multiple resources and channels.

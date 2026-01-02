@@ -17,6 +17,8 @@
 - **Application Layer** (Repository interfaces, business user cases, services interfaces & implementations).
 - **Domain Layer** (Core business entities and value objects). Core business objects like Employees, payments, orders...
 
+![Clean Architecture Diagram](img/CleanArchitecture.png)
+
 ## Domain Layer
 
 Create a Product.cs file and put in place all the business validation rules (example: stocks cannot be negative).

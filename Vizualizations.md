@@ -1,5 +1,12 @@
 # Visualizations
 
+## Table of content
+
+- [Visualizations](#visualizations)
+  - [Table of content](#table-of-content)
+  - [Criteria](#criteria)
+  - [Careful with divergence](#careful-with-divergence)
+
 ## Criteria
 
 In order to create efficient dashboard, try to think about:
