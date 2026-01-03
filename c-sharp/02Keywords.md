@@ -13,6 +13,7 @@
   - [struct](#struct)
   - [Records](#records)
   - [enum](#enum)
+  - [static](#static)
   - [readonly](#readonly)
   - [ref](#ref)
   - [zip](#zip)
@@ -217,6 +218,8 @@ enum Season {
 ```
 
 **p++ and ++p** (pre increment and post increment). Both increment, the first one returns the value pre-incrementation, the second one post incrementation.
+
+## static
 
 **static** keywords mean values does not belong to instances of the class but to the class itself. static class then all the elements must be static.
 

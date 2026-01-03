@@ -23,7 +23,7 @@ string[] array = ["A", "B"]; // creates populated array of length 2
   }
 ```
 
-Exerice : dans un supermarché, des clients arrivent aux caisses. ils prennent la première caisse vide. Dans combien de temps est-ce que tout le monde aura fait ses courses.
+Exercice : dans un supermarché, des clients arrivent aux caisses. ils prennent la première caisse vide. Dans combien de temps est-ce que tout le monde aura fait ses courses.
 
 ```cs
 using System;

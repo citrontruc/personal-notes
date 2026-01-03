@@ -24,6 +24,6 @@ bool canEdit;
 
 ## using
 
-Keep it outside of the namespace to make it cleaner and also avoid inconsistent behaviours (with global using and other).
+Used for imports. Keep it outside of the namespace to make it cleaner and also avoid inconsistent behaviours (with global using and other).
 
 Your scope should be the file.

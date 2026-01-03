@@ -183,7 +183,7 @@ value.Reverse();
 
 ### Modern approach
 
-There is a more modern approach to group multipple extensions together. Works with C# 14 and more reent versions.
+There is a more modern approach to group multiple extensions together. Works with C# 14 and more recent versions.
 
 ```cs
 // Old version of extension. Uses the this keyword.
@@ -482,7 +482,7 @@ builder.Services.AddSingleton<AlbumParameters, AlbumParameters>();
 
 ## Dependency Injection are your friend
 
-There is a microsoft library to which you can register your services. You can then ask a ServiceCollection to resolve services for you. You will reuse all the services.
+There is a microsoft library to which you can register your services. You can then ask a ServiceCollection to resolve services for you.
 
 ```cs
 public interface IMessageSender
@@ -715,7 +715,7 @@ public class AlbumsController : ControllerBase
 }
 ```
 
-With our Program.cs equal to this
+In our case above, we a a Program.cs equal to this
 
 ```cs
 using Microsoft.EntityFrameworkCore;
@@ -750,7 +750,9 @@ See project for recommended way to do things with Apis. Now in minimal APIs, eve
 Generally discouraged. We much rather have dependency injection.
 
 ```cs
-/* Service locator who returns which services exist and are registered. */
+/*
+Service locator who returns which services exist and are registered.
+*/
 
 public static class ServiceLocator
 {
@@ -787,7 +789,6 @@ public static class ServiceLocator
         _services.Clear();
     }
 }
-
 ```
 
 ## Singleton
@@ -860,7 +861,7 @@ public class Singleton<T> : MonoBehaviour
 
 Repository Pattern: An abstraction layer between your application logic and data access. It encapsulates the logic for retrieving and storing domain objects, providing a collection-like interface. The repository knows about your domain models and business logic.
 
-In API, the view is the JSON response.
+**In API, the view is the JSON response.**
 
 DbContext (in Entity Framework): The actual mechanism that communicates with the database. It handles connections, change tracking, and translating LINQ queries into SQL.
 
@@ -999,51 +1000,21 @@ Example:
 ```cs
 // Do not write:
 if (product != null && product is Electronics){
+    // Convert than apply transformation.
     var electronics = (Electronics)product;
     electronics.Price *= 0.8m;
 }
 
 // write this instead
-if (product is Electronics electronis){
+// Check and transform.
+if (product is Electronics electronics){
     electronics *=0.8m;
 }
 ```
 
 ## Feature flag
 
-Allows you to declare which features should be used and which one should be held back for later. You can add more or less complex conditions to your feature flags in order to choose when the features are enabled. Instead, use results:
-
-```cs
-public sealed record Error(string Code, string Description)
-{
-    public static readonly Error None = new(string.Empty, string.Empty);
-}
-
-public class Result
-{
-    private Result(bool isSuccess, Error error)
-    {
-        if (isSuccess && error != Error.None ||
-            !isSuccess && error == Error.None)
-        {
-            throw new ArgumentException("Invalid error", nameof(error));
-        }
-
-        IsSuccess = isSuccess;
-        Error = error;
-    }
-
-    public bool IsSuccess { get; }
-
-    public bool IsFailure => !IsSuccess;
-
-    public Error Error { get; }
-
-    public static Result Success() => new(true, Error.None);
-
-    public static Result Failure(Error error) => new(false, error);
-}
-```
+Allows you to declare which features should be used and which one should be held back for later. You can add more or less complex conditions to your feature flags in order to choose when the features are enabled.
 
 This is mostly possible with the appsettings.json file. It uses the FeatureManagement package.
 
@@ -1126,7 +1097,41 @@ There are some nice writings for the MVC framework that you can use.
 
 Don't throw errors for parts of the code who are not code-breaking. Having too many errors make it difficult to reason with the whole of your codebase. Keep errors only for exceptional cases.
 
-Another element to handle is the fail fast principal. When you have a configuration that does not work, throw an error when validating the class (at the very beginning):
+We want our programs to fail gracefully and log their results before terminating. In order to do so, we should create a result class that catches errors and communicates what happened.
+
+```cs
+public sealed record Error(string Code, string Description)
+{
+    public static readonly Error None = new(string.Empty, string.Empty);
+}
+
+public class Result
+{
+    private Result(bool isSuccess, Error error)
+    {
+        if (isSuccess && error != Error.None ||
+            !isSuccess && error == Error.None)
+        {
+            throw new ArgumentException("Invalid error", nameof(error));
+        }
+
+        IsSuccess = isSuccess;
+        Error = error;
+    }
+
+    public bool IsSuccess { get; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public Error Error { get; }
+
+    public static Result Success() => new(true, Error.None);
+
+    public static Result Failure(Error error) => new(false, error);
+}
+```
+
+Another element to handle is the fail fast principal. When you have a configuration that does not work, throw an error when validating the class (at the very beginning) instead of when we try to use an object later down the line:
 
 ```cs
 // Define our errors
@@ -1148,7 +1153,6 @@ public static class FollowerErrors
     public static Error NotFound(Guid id) => new Error(
         "Followers.NotFound", $"The follower with Id '{id}' was not found");
 }
-
 
 // Usse the Result pattern
 public sealed class FollowerService
