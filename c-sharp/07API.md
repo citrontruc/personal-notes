@@ -13,6 +13,7 @@
   - [Pagination](#pagination)
   - [Validation](#validation)
   - [Compress big payloads](#compress-big-payloads)
+  - [Idempotency key](#idempotency-key)
 
 ## Architecture
 
@@ -328,4 +329,15 @@ builder.Services.Configure<GzipCompressionProviderOptions>(options =>
 
 var app = builder.Build();
 app.UseResponseCompression();
+```
+
+## Idempotency key
+
+In order to avoid problems like double spending, you should add an idempotency key to each request. In order to generate them, there are several ways.
+
+Easiest is maybe using an ID:
+
+```cs
+var idempotencyKey = Guid.NewGuid().ToString("N");
+httpClient.DefaultRequestHeaders.Add("Idempotency-Key", idempotencyKey);
 ```

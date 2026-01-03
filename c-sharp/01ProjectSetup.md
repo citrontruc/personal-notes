@@ -21,7 +21,8 @@
 dotnet new console # Creates new project. Creates a csproj file, obj and bin files.
 dotnet new sln -n "name of project"
 dotnet sln add Game/snake-online-prototype.csproj
-dotnet run to run project.
+dotnet run .
+dotnet run --project <name of project if you have multiple projects in you sln>
 dotnet add package Raylib-cs
 dotnet new gitignore
 dotnet new tool-manifest
@@ -31,11 +32,6 @@ Automatic formatting for vs-code:
 on windows, shift + alt + f,
 linux ctrl + shift + I
 
-```bash
-dotnet format //deletes whitespaces. Linter.
-dotnet run --project <name of project if you have multiple projects in you sln>
-```
-
 ## Adding packages in dotnet
 
 The command to add packages to a dotnet project is:
@@ -44,7 +40,7 @@ The command to add packages to a dotnet project is:
 dotnet add package <name of package> --version <version number>
 ```
 
-Specifying a version number is very important because dotnet does not handle version compatibility but instead just checks if the latest version is compatible.
+Specifying a version number is very important because dotnet does not handle version compatibility but instead just checks if the latest version is compatible. If you run with an older version of dotnet, you will have problems.
 
 ## Project components
 
