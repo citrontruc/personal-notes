@@ -391,7 +391,7 @@ var total = sum(sequence);
 Console.WriteLine(total); // 15
 ```
 
-Actions can be used for example to debug
+Actions can be used for example to debug:
 
 ```cs
 Action<string> greet = name =>
@@ -402,7 +402,7 @@ Action<string> greet = name =>
 greet("World");
 ```
 
-**NOTE** : il est possible d'utiliser var quand on possède la flemme de définir les types des entrées et sorties :
+**NOTE** : il est possible d'utiliser var pour définir les types des entrées et sorties :
 
 ```cs
 var parse = (string s) => int.Parse(s);
