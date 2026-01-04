@@ -24,6 +24,8 @@
   - [Locks](#locks)
   - [Dispose of DbContext](#dispose-of-dbcontext)
   - [Global Query Filters](#global-query-filters)
+  - [Useful scripts](#useful-scripts)
+    - [Count employees](#count-employees)
 
 ## Notes on performances
 
@@ -443,3 +445,22 @@ dbContext
 ```
 
 Careful: when adding query filters, you make your requests less clear.
+
+## Useful scripts
+
+### Count employees
+
+A little script to get the number of employees from an SQL database.
+
+```cs
+// return number of employees from database
+public int GetEmployeesCount(string connectionString){
+    using var connection = new SqlConnection(connectionString);
+    connection.Open();
+
+    using var command = new SqlCommand("Select COUNT(Id) from Employees", connection);
+
+    int employeesCount = command.ExecuteNonQuery();
+    return employeesCount;
+}
+```
