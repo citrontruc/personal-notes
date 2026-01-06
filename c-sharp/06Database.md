@@ -157,7 +157,7 @@ BulkInsert has a few nifty options for optimization. You can have InsertIfNotExi
 
 **WARNING**: Use EF Core migrations to manage schema changes.
 
-Apply changes to data model.
+Apply changes to data model. **WARNING**: dotnet ef libraries are not backward compatible. Specify which version you want depending on your project.
 
 ```bash
 dotnet ef migrations add InitialCreate

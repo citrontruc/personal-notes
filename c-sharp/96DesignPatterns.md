@@ -420,6 +420,12 @@ You can create a webapp objects and add all the services to this webapp. When yo
 
 ### 🛠️ Service Lifetimes
 
+---
+
+**TL;DR**: Use Transient if you need to create multiple instances of an instance (example: in different threads). Use scoped for database instances to avoid unsynchronized instances. Use singletons when you have thread safe pure logic. No dependencies whatsoever.
+
+---
+
 The three methods register services with different lifetimes in the DI container. The choice depends on how you want the service's state to be managed and shared throughout your application.
 
 ```cs
