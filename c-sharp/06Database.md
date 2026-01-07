@@ -11,6 +11,7 @@
     - [Tip 4) Deploy in multiple regions](#tip-4-deploy-in-multiple-regions)
     - [Bulk insert](#bulk-insert)
   - [Migrations](#migrations)
+    - [WARNING EnsureCreated](#warning-ensurecreated)
   - [Filter data](#filter-data)
   - [Index](#index)
   - [Tracking](#tracking)
@@ -171,6 +172,33 @@ dotnet ef database update
 ```
 
 If your database is in the cloud / elsewhere, you can update your migrations with the connection string.
+
+To view migrations, type:
+
+```cs
+dotnet ef migrations list
+```
+
+If you want to go back to an earlier migration, just type:
+
+```bash
+dotnet ef database update <PreviousMigrationName>
+```
+
+and then update migrations.
+
+### WARNING EnsureCreated
+
+When you have migrations, don't create database with EnsureCreated. The following code will conflict with migrations.
+
+```cs
+// Create database if it doesn't exist. Don't do that, this is AI BS
+//using (var scope = app.Services.CreateScope())
+//{
+    //var context = scope.ServiceProvider.GetRequiredService<MusicDbContext>();
+    // context.Database.EnsureCreated(); // Don't do that, that is a very bad practice. Use migrations.
+//}
+```
 
 ## Filter data
 
