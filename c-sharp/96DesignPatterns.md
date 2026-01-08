@@ -6,6 +6,7 @@
   - [Table of content](#table-of-content)
   - [Decorator](#decorator)
   - [Option design pattern](#option-design-pattern)
+    - [Option pattern and validation](#option-pattern-and-validation)
   - [Extension](#extension)
     - [Classic approach](#classic-approach)
     - [Modern approach](#modern-approach)
@@ -155,6 +156,169 @@ public sealed class MyService
 ```
 
 **IOptionsMonitor** is the reloadable options object. It change automatically when values change.
+
+### Option pattern and validation
+
+In your options, you want to fail fast in order to see problems as early as possible. You could add validation to your data model, but that could be a problem because we want Separation of Concern.
+
+There is a library called FluentValidation <https://docs.fluentvalidation.net/en/latest/> that lets you write validation rules:
+
+```cs
+public class CustomerValidator : AbstractValidator<Customer>
+{
+    public CustomerValidator()
+    {
+        RuleFor(x => x.Surname).NotEmpty();
+        RuleFor(x => x.Forename).NotEmpty().WithMessage("Please specify a first name");
+        RuleFor(x => x.Discount).NotEqual(0).When(x => x.HasDiscount);
+        RuleFor(x => x.Address).Length(20, 250);
+        RuleFor(x => x.Postcode).Must(BeAValidPostcode).WithMessage("Please specify a valid postcode");
+    }
+
+    // On passe une règle de validation custom ici.
+    private bool BeAValidPostcode(string postcode)
+    {
+        // custom postcode validating logic goes here
+    }
+}
+```
+
+You can find under a custom validator for Github parameters:
+
+```cs
+public class GitHubSettings
+{
+    public const string ConfigurationSection = "GitHubSettings";
+
+    public string BaseUrl { get;init; }
+    public string AccessToken { get; init; }
+    public string RepositoryName { get; init; }
+}
+
+public class GitHubSettingsValidator : AbstractValidator<GitHubSettings>
+{
+    public GitHubSettingsValidator()
+    {
+        RuleFor(x => x.BaseUrl).NotEmpty();
+
+        RuleFor(x => x.BaseUrl)
+            .Must(baseUrl => Uri.TryCreate(BaseUrl, UriKind.Absolute, out _))
+            .When(x => !string.IsNullOrWhiteSpace(x.baseUrl))
+            .WithMessage($"{nameof(GitHubSettings.BaseUrl)} must be a valid URL");
+
+        RuleFor(x => x.AccessToken)
+            .NotEmpty();
+
+        RuleFor(x => x.RepositoryName)
+            .NotEmpty();
+    }
+}
+```
+
+We now need to integrate our Fluent Validation in our system:
+
+```cs
+using FluentValidation;
+using Microsoft.Extensions.Options;
+
+public class FluentValidateOptions<TOptions>
+    : IValidateOptions<TOptions>
+    where TOptions : class
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly string? _name;
+
+    public FluentValidateOptions(IServiceProvider serviceProvider, string? name)
+    {
+        _serviceProvider = serviceProvider;
+        _name = name;
+    }
+
+    public ValidateOptionsResult Validate(string? name, TOptions options)
+    {
+        if (_name is not null && _name != name)
+        {
+            return ValidateOptionsResult.Skip;
+        }
+
+        ArgumentNullException.ThrowIfNull(options);
+
+        using var scope = _serviceProvider.CreateScope();
+
+        var validator = scope.ServiceProvider.GetRequiredService<IValidator<TOptions>>();
+
+        var result = validator.Validate(options);
+        if (result.IsValid)
+        {
+            return ValidateOptionsResult.Success;
+        }
+
+        var type = options.GetType().Name;
+        var errors = new List<string>();
+
+        foreach (var failure in result.Errors)
+        {
+            errors.Add($"Validation failed for {type}.{failure.PropertyName} " +
+                       $"with the error: {failure.ErrorMessage}");
+        }
+
+        return ValidateOptionsResult.Fail(errors);
+    }
+}
+```
+
+To make our Validation easier, we can add a few extensions:
+
+```cs
+// Method to add to our builder the option validation.
+public static class OptionsBuilderExtensions
+{
+    public static OptionsBuilder<TOptions> ValidateFluentValidation<TOptions>(
+        this OptionsBuilder<TOptions> builder)
+        where TOptions : class
+    {
+        builder.Services.AddSingleton<IValidateOptions<TOptions>>(
+            serviceProvider => new FluentValidateOptions<TOptions>(
+                serviceProvider,
+                builder.Name));
+
+        return builder;
+    }
+}
+
+// Method to add fluent validation.
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddOptionsWithFluentValidation<TOptions>(
+        this IServiceCollection services,
+        string configurationSection)
+        where TOptions : class
+    {
+        services.AddOptions<TOptions>()
+            .BindConfiguration(configurationSection)
+            .ValidateFluentValidation() // Configure FluentValidation validation
+            .ValidateOnStart(); // Validate options on application start
+
+        return services;
+    }
+}
+```
+
+You then need to register your option pattern:
+
+```cs
+// Register the validator
+builder.Services.AddScoped<IValidator<GitHubSettings>, GitHubSettingsValidator>();
+
+// Configure options with validation
+builder.Services.AddOptions<GitHubSettings>()
+    .BindConfiguration(GitHubSettings.ConfigurationSection)
+    .ValidateFluentValidation() // Configure FluentValidation validation
+    .ValidateOnStart();
+
+// Use the convenience extension (other option)
+// builder.Services.AddOptionsWithFluentValidation<GitHubSettings>(GitHubSettings.ConfigurationSection);
+```
 
 ## Extension
 
