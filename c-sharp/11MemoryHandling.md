@@ -6,13 +6,15 @@
   - [Table of content](#table-of-content)
   - [How does it work](#how-does-it-work)
   - [Heap vs stack](#heap-vs-stack)
+    - [Value \& reference types](#value--reference-types)
+    - [Misc - Heap/Stack](#misc---heapstack)
   - [Garbage Collection](#garbage-collection)
   - [SOH and LOH](#soh-and-loh)
   - [Managed and unManaged](#managed-and-unmanaged)
   - [Lists](#lists)
     - [Information](#information)
     - [Composition](#composition)
-    - [Misc](#misc)
+    - [Misc - List](#misc---list)
     - [Contiguous](#contiguous)
   - [Dictionary](#dictionary)
     - [Data Structure](#data-structure)
@@ -32,7 +34,57 @@ There are two main locations to store elements in memory: the heap and the stack
 
 Quand on passe un objet static à une méthode, on passe une copie de l'objet et ainsi il n'est pas modifié. Si on veut que l'objet soit modifié, on passe avec le mot-clé **ref**. A ce moment là, on passe la référence précise de l'objet et il sera modifié. Il existe aussi le mot-clé **out**. Ce mot-clé sert à passer une référence pour un objet qui n'a pas été initialisé.
 
+```cs
+public static int AddTwoNumbers(int a, ref int b, out int c)
+{
+  b += 10;
+  int sum = a + b;
+  c = sum / 10;
+  return sum;
+}
+
+// We can then do something like that.
+int a = 100;
+int c;
+AddTwoNumbers(a, ref b, out c);
+```
+
 Si on passe une classe en ref, on crée un pointeur qui pointe sur la référence en stack de l'objet en heap. Cela rajoute une couche.
+
+### Value & reference types
+
+Value types:
+
+- User Defined
+  - Enum
+  - Struct
+- Predefined
+  - Integer
+  - Boolean
+
+Reference types
+
+- User Defined
+  - Class
+  - Inheritance
+- Predefined
+  - String
+  - Array
+
+Types are organized in NameSpaces.
+
+### Misc - Heap/Stack
+
+**String is a reference type** but strings are immutable. It can have an impact on performance. Use a string builder if you have loops.
+
+```cs
+using System.Text;
+
+StringBuilder stringbuilder = new StringBuilder();
+stringbuilder.Append("Employees");
+stringbuilder.AppendLine("BOB"); // Adds a linebreak.
+string list = stringBuilder.ToString();
+```
 
 ## Garbage Collection
 
@@ -70,7 +122,7 @@ Every time the size is equal to the capacity, we double the array capacity.
 
 With these elements: adding a new element to a list is complecity of O(1) but becomes O(n) when the list needs to be resized. Inserts have a complexity of O(n) because we have to move the other elements.
 
-### Misc
+### Misc - List
 
 A span is a struct that points to an element and the surrounding elements. Spans in fact just store a pointer.
 
