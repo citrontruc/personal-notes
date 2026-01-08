@@ -27,6 +27,7 @@
   - [Global Query Filters](#global-query-filters)
   - [Useful scripts](#useful-scripts)
     - [Count employees](#count-employees)
+  - [Examples](#examples)
 
 ## Notes on performances
 
@@ -474,6 +475,59 @@ dbContext
 
 Careful: when adding query filters, you make your requests less clear.
 
+Query filters are mostly used when you want to filter on a certain tenant value and make sure we retrieve only the data for our client.
+
+```cs
+public class ApplicationDbContext : DbContext
+{
+    private readonly Guid? _currentTenantId;
+    
+    public DbSet<Author> Authors { get; set; } = default!;
+    
+    public DbSet<Book> Books { get; set; } = default!;
+    
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        ITenantService tenantService) : base(options)
+    {
+        _currentTenantId = tenantService.GetCurrentTenantId();
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Book>()
+            .HasQueryFilter(x => x.TenantId == _currentTenantId);
+        
+        base.OnModelCreating(modelBuilder);
+        
+        // Rest of the code remains unchanged
+    }
+}
+
+// And We also need a class to retrieve the tenant id from the request headers.
+
+public interface ITenantService
+{
+    Guid? GetCurrentTenantId();
+}
+
+public class TenantService : ITenantService
+{
+    private readonly Guid? _currentTenantId;
+    
+    public TenantService(IHttpContextAccessor accessor)
+    {
+        var headers = accessor.HttpContext?.Request.Headers;
+
+        _currentTenantId = headers.TryGetValue("Tenant-Id", out var value) is true
+            ? Guid.Parse(value.ToString())
+            : null;
+    }
+
+    public Guid? GetCurrentTenantId() => _currentTenantId;
+}
+```
+
 ## Useful scripts
 
 ### Count employees
@@ -490,5 +544,61 @@ public int GetEmployeesCount(string connectionString){
 
     int employeesCount = command.ExecuteNonQuery();
     return employeesCount;
+}
+```
+
+## Examples
+
+Example complete DbContext with a query filter.
+
+```cs
+public class ApplicationDbContext : DbContext
+{
+    public DbSet<Author> Authors { get; set; } = default!;
+    
+    public DbSet<Book> Books { get; set; } = default!;
+    
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Book>()
+            .HasQueryFilter(x => !x.IsDeleted);
+        
+        base.OnModelCreating(modelBuilder);
+        
+        modelBuilder.Entity<Author>(entity =>
+        {
+            entity.ToTable("authors");
+
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.Name);
+            
+            entity.Property(x => x.Id).IsRequired();
+            entity.Property(x => x.Name).IsRequired();
+            entity.Property(x => x.Country).IsRequired();
+            
+            entity.HasMany(x => x.Books)
+                .WithOne(x => x.Author);
+        });
+        
+        modelBuilder.Entity<Book>(entity =>
+        {
+            entity.ToTable("books");
+
+            entity.HasKey(x => x.Id);
+            entity.HasIndex(x => x.Title);
+            
+            entity.Property(x => x.Id).IsRequired();
+            entity.Property(x => x.Title).IsRequired();
+            entity.Property(x => x.Year).IsRequired();
+            entity.Property(x => x.IsDeleted).IsRequired();
+
+            entity.HasOne(x => x.Author)
+                .WithMany(x => x.Books);
+        });
+    }
 }
 ```

@@ -5,6 +5,7 @@
 - [Visual Studio](#visual-studio)
   - [Table of Content](#table-of-content)
   - [Libraries](#libraries)
+  - [Test Explorer](#test-explorer)
   - [Debug](#debug)
 
 ## Libraries
@@ -12,6 +13,10 @@
 Visual studio has a Global usings file that imports a lot of the classic "using" statements that are used everywhere.
 
 Visual Studio uses the nuget package manager. We can just browse for the packages we want and add them to our project.
+
+## Test Explorer
+
+Used to visualize all the available tests. You can run them from here.
 
 ## Debug
 

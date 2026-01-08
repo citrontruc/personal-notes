@@ -19,7 +19,6 @@
   - [zip](#zip)
   - [Yield statement](#yield-statement)
   - [Partial classes](#partial-classes)
-  - [Action vs Func](#action-vs-func)
   - [with](#with)
 
 ## Hashtable vs Dictionary
@@ -347,68 +346,6 @@ public class Program
 // Employee is working.
 // Employee is at lunch.
 ```
-
-## Action vs Func
-
-A lambda function is an anonymous function most time short. Define it with the => operator.
-
-Actions don't return results. Both can be defined in a lambda way.
-
-```cs
-Func<int, int> square = x => x * x; // First argument is tyoe of input, the second is return type.
-Func<int, int, bool> testForEquality = (x, y) => x == y;
-Func<(int, int, int), (int, int, int)> doubleThem = ns => (2 * ns.Item1, 2 * ns.Item2, 2 * ns.Item3); // You can get creative with elements to put as input.
-Func<(int n1, int n2, int n3), (int, int, int)> doubleThem = ns => (2 * ns.n1, 2 * ns.n2, 2 * ns.n3);
-```
-
-Lambda functions can be used in LINQ to do operations on lists and arrays.
-
-```cs
-int[] numbers = { 2, 3, 4, 5 };
-var squaredNumbers = numbers.Select(x => x * x);
-Console.WriteLine(string.Join(" ", squaredNumbers));
-// Output:
-// 4 9 16 25
-```
-
-If you have a lot of parameters, you can use the params parameter to pass an array or a collection of parameters.
-
-```cs
-var sum = (params IEnumerable<int> values) =>
-{
-    int sum = 0;
-    foreach (var value in values) 
-        sum += value;
-    
-    return sum;
-};
-
-var empty = sum();
-Console.WriteLine(empty); // 0
-
-var sequence = new[] { 1, 2, 3, 4, 5 };
-var total = sum(sequence);
-Console.WriteLine(total); // 15
-```
-
-Actions can be used for example to debug:
-
-```cs
-Action<string> greet = name =>
-{
-    string greeting = $"Hello {name}!";
-    Console.WriteLine(greeting);
-};
-greet("World");
-```
-
-**NOTE** : il est possible d'utiliser var pour définir les types des entrées et sorties :
-
-```cs
-var parse = (string s) => int.Parse(s);
-```
-
-Il est important par contre que le type de sortie soit fixe ou object.
 
 ## with
 
