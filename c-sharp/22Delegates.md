@@ -39,7 +39,7 @@ A lambda function is an anonymous function most time short. Define it with the =
 
 ## Actions & Funcs
 
-Actions don't return results. Both can be defined in a lambda way.
+Actions don't return results. Both can be defined in a lambda way. Last argument in func is the return type.
 
 ```cs
 Func<int, int> square = x => x * x; // First argument is tyoe of input, the second is return type.
@@ -126,6 +126,8 @@ When we have a set of methods that are associated to an Event, we are using dele
 
 We have EventArgs to encapsulate data. With mouse events, we can have the position of the mouse or these kind of things.
 
+What do you need? First of, a class to define your EventArgs who contains your arguments. You then need an EventHandler that has a method to **Inwoke** an event passing the EventArgs. In order to define additional elements to pass, define your delegate with public delegate void EventHandler\<TeventArgs>(arguments). We then need to have senders who subscribe to our eventHandler.
+
 ```cs
 public class NaiveButton<T>
 {
@@ -163,7 +165,7 @@ public class AsyncVoidExample
         // Sender
         var button = new NaiveButton<bool>();
 
-        // These are delegates.
+        // These are the delegates.
         button.Clicked += OnButtonClicked1;
         button.Clicked += OnButtonClicked2Async;
         button.Clicked += OnButtonClicked3;
