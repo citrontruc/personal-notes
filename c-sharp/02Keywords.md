@@ -17,7 +17,6 @@
   - [readonly](#readonly)
   - [ref](#ref)
   - [zip](#zip)
-  - [Yield statement](#yield-statement)
   - [Partial classes](#partial-classes)
   - [with](#with)
 
@@ -252,61 +251,6 @@ var diffs = values
 ```
 
 translation: attach to values the value values.Skip(1) and for x, y, do operation.
-
-## Yield statement
-
-Use yield statement to return elements as an enumerator.
-It has nothing to do with asynchronicity (for asynchronicity, use **await**).
-
-Example:
-
-```cs
-Console.WriteLine(string.Join(" ", TakeWhilePositive(new int[] {2, 3, 4, 5, -1, 3, 4})));
-// Output: 2 3 4 5
-
-Console.WriteLine(string.Join(" ", TakeWhilePositive(new int[] {9, 8, 7})));
-// Output: 9 8 7
-
-IEnumerable<int> TakeWhilePositive(IEnumerable<int> numbers)
-{
-    foreach (int n in numbers)
-    {
-        if (n > 0)
-        {
-            yield return n;
-        }
-        else
-        {
-            yield break;
-        }
-    }
-}
-```
-
-You can do thinks in an asynchronous way with yield await.
-
-The result object being an enumerator lets you run the foreach (int value in result){ DoStuff(); }. Here is an example right under:
-
-```cs
-// 1. Call the generator method.
-// This does NOT execute the loop yet; it just creates the sequence object (IEnumerable<int>).
-IEnumerable<int> evenNumberSequence = GenerateEvenNumbers(startRange, endRange);
-
-// 2. Store the numbers in a List<int> using ToList().
-// Calling ToList() forces the generator to execute completely, fetching and storing every yielded result.
-List<int> evenNumbersList = evenNumberSequence.ToList();
-
-// --- Alternative: Manual Storage (without LINQ) ---
-/*
-List<int> manualList = new List<int>();
-// The generator executes step-by-step as the foreach loop requests the next item
-foreach (int number in GenerateEvenNumbers(10, 30))
-{
-    manualList.Add(number);
-}
-Console.WriteLine("\nManual List (10 to 30): " + string.Join(", ", manualList));
-*/
-```
 
 ## Partial classes
 
