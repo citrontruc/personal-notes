@@ -33,11 +33,15 @@ Si besoin de rajouter des informations sur un commit qui a déjà été écrit.
 
 **git switch and git checkout**. switch is newer and only for switching. git checkout is also for restoring branches.
 
-**git reset** + name of branch to indicate which branch to reset to.
+**git reset** + name of branch to indicate which branch to reset to. We can also do **git reset --soft HEAD~2** to go back 2 commits. If you use a hard reset, you can destroy previous commits. There is a reflog where you store locally some commits. We can use that to recover deleted commits.
 
 **git branch** + name of branch to create branch.
 
 **git checkout -b \<name of new branch>** : lets you create a new branche and switch to it.
+
+**git log --oneline**: shows history of commits.
+
+**git commit --amend** opens an editor to change your commit message.
 
 ## Git bisect
 

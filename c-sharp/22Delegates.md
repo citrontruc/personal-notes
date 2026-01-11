@@ -7,6 +7,7 @@
   - [What is it?](#what-is-it)
   - [Lambda function](#lambda-function)
   - [Actions \& Funcs](#actions--funcs)
+  - [Passing delegates](#passing-delegates)
   - [Multicasting](#multicasting)
   - [EventHandling](#eventhandling)
 
@@ -96,6 +97,25 @@ var parse = (string s) => int.Parse(s);
 ```
 
 Il est important par contre que le type de sortie soit fixe ou object.
+
+## Passing delegates
+
+```cs
+var convert = new ConversionDelegate(Conversion);
+DelegateReceiver(convert);
+
+static void DelegateReceiver(ConversionDelegate del)
+{
+    var result = del("123");
+}
+
+static int Conversion(string input)
+{
+    return int.Parse(input);
+}
+
+public delegate int ConversionDelegate(string input);
+```
 
 ## Multicasting
 
