@@ -23,3 +23,5 @@ Used to visualize all the available tests. You can run them from here.
 Using debugger mode in dotnet with f5. f10 step over (next line). f11 step into (zoom in in the class that does the operation) and shift + f11 to step out.
 
 When error, we are in break mode, we can check the values of our variables by hovering over.
+
+There are **diagnosis tools** in order to visualize the use of memory during the execution of our code.
