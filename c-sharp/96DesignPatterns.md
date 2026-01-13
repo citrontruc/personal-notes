@@ -1027,6 +1027,18 @@ public class Singleton<T> : MonoBehaviour
 }
 ```
 
+We can have a simplified version of the Singleton with a lazy implementation:
+
+```cs
+public sealed class Singleton
+{
+    private static Lazy<Singleton> _instance = new Lazy<Singleton>(() => Singleton());
+    public static Singleton Instance => _instance.Value;
+
+    private Singleton() { }
+}
+```
+
 ## Repository pattern
 
 Repository Pattern: An abstraction layer between your application logic and data access. It encapsulates the logic for retrieving and storing domain objects, providing a collection-like interface. The repository knows about your domain models and business logic.

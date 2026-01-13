@@ -6,6 +6,7 @@
   - [Table of Content](#table-of-content)
   - [Throw](#throw)
   - [try-catch](#try-catch)
+  - [Null errors](#null-errors)
 
 ## Throw
 
@@ -54,5 +55,30 @@ catch (ArgumentException e)
 catch (OperationCanceledException)
 {
     Console.WriteLine("Processing is cancelled.");
+}
+finally
+{
+    Console.WriteLine("That's all folks.");
+}
+```
+
+## Null errors
+
+Checking for null fields and throwing errors when we get a null value.
+
+```cs
+public class Person
+{
+    private string _emailAddress;
+    /// Give information on Exception if property is set to null value.
+    public string EmailAddress
+    {
+        get => emailAddress;
+        set
+        {
+            ArgumenyNullException.ThrowIfNull(value);
+            _emailAddress = value;
+        }
+    }
 }
 ```
