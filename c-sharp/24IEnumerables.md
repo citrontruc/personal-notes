@@ -6,6 +6,7 @@
   - [Table of Content](#table-of-content)
   - [Presentation](#presentation)
   - [Limits](#limits)
+  - [LINQ](#linq)
   - [Yield statement](#yield-statement)
   - [Iterators](#iterators)
   - [Warning](#warning)
@@ -19,6 +20,10 @@ You can only iterate on IEnumerables one element at a time. They are reference t
 IEnumerables do not have a Length, you can't access the element on position I, you can only iterate on an IEnumerable.
 
 You can however use foreach on an IEnumerable.
+
+## LINQ
+
+As long as the element implements IEnumerable, you can use Linq on it.
 
 ## Yield statement
 
