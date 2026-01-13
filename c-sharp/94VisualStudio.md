@@ -7,6 +7,7 @@
   - [Libraries](#libraries)
   - [Test Explorer](#test-explorer)
   - [Debug](#debug)
+  - [Profiler](#profiler)
 
 ## Libraries
 
@@ -25,3 +26,7 @@ Using debugger mode in dotnet with f5. f10 step over (next line). f11 step into 
 When error, we are in break mode, we can check the values of our variables by hovering over.
 
 There are **diagnosis tools** in order to visualize the use of memory during the execution of our code.
+
+## Profiler
+
+There is a profiler which lets you see how many objects are stored in memory and helps you see if you should do stuff with garbage collector.

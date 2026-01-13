@@ -4,7 +4,14 @@
 
 - [Communications with server](#communications-with-server)
   - [Table of content](#table-of-content)
+  - [HttpClient](#httpclient)
   - [Server sent events](#server-sent-events)
+
+## HttpClient
+
+HttpClient  are not disposed of by default so make sure to either mutualize them or dispose of them. Since HTTPclients are meant to have a long lifetime, mutualizing sounds like the optimal solution.
+
+There is an HttpClientFactory library that can handle creating an disposing of HttpClient. <https://code-maze.com/using-httpclientfactory-in-asp-net-core-applications/>
 
 ## Server sent events
 

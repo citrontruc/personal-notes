@@ -11,6 +11,10 @@
   - [Garbage Collection](#garbage-collection)
   - [SOH and LOH](#soh-and-loh)
   - [Managed and unManaged](#managed-and-unmanaged)
+  - [IDisposable](#idisposable)
+  - [IAsyncDisposable](#iasyncdisposable)
+    - [Best Practice](#best-practice)
+    - [Finalizers](#finalizers)
   - [Lists](#lists)
     - [Information](#information)
     - [Composition](#composition)
@@ -94,6 +98,14 @@ The fundamental operation of garbage collection in C# involves several key steps
 - **Sweeping**: After marking, the garbage collector sweeps through the heap to identify unmarked objects, which are considered unreachable. These objects are eligible for collection.
 - **Compacting**: To optimize memory usage, the GC may compact the heap by moving objects together, eliminating gaps left by collected objects. This compaction process helps in reducing fragmentation and allows for faster allocation of new objects.
 
+GC only triggers at some moments. For example, it triggers when you are about to create a new object in code to check that there is enough memory. Depending on the pressure the app is under, it decides if it runs only on Generation 0 of SOH or Gen 0 + Gen 1 or the full chebang.
+
+There is a method to call the garbage collector:
+
+```cs
+GC.SuppressFinalize(this);
+```
+
 ## SOH and LOH
 
 Small Object Heap and Large Object Heap. We want to avoid to have to check the whole heap for garbage collection. In order to avoid that, we have two kinds of heap. in the SOH, our data are separated in three parts called the generations. When an object is created, it is added to the generation 0. When it is full, we pass them to a higher generation. The garbage collector checks in priority elements on generation 0, sometimes check 1 and 2.
@@ -103,6 +115,43 @@ LOH is made of all objects of size > 85 kO.
 ## Managed and unManaged
 
 The garbage collector only handles objects that are managed, objects it itself created. For un-managed objects, it is the developer's task to handle them. Databases and files are unmanaged files. These files implement IDisposable.
+
+## IDisposable
+
+It has nothing to do with garbage collection, it just means that there is a mechanism to release unmanaged resources. IDisposable gives the action to free / release / reset unmanaged resource.
+
+Applications that interact with elements outside of dotnet handle unmanaged elements. If you handle files, data & connection, you have unmanaged elements.
+
+Data Streams, DbConnections & HttpClients implement IDisposable and expect you to tell when you are done with the resources.
+
+Standard way of working with IDisposable objects is:
+
+```cs
+using (var obj = new Custom())
+{
+  obj.DoStuff();
+} // Here, we dispose of the object. It behaves like a try and finally.
+```
+
+## IAsyncDisposable
+
+Handles asynchronous files. Came with C# 8. It contains a method called DisposeAsync. Same idea than previous paragraph.
+
+### Best Practice
+
+If you have an IDisposable object, dispose of it as soon as you are done with it. You don't want to forget about a connection that is still open.
+
+If you use IDisposable objects as instance fields, implement IDisposable.
+
+Make sure we can call the Dispose() method multiple times without exceptions.
+
+If you want to use tools to help, turn on the AnalysisMode with \<AnalysisMode>AllEnabledByDefault</AnalysisMode>
+
+Most times, just use the using command to make sure the objects are disposed of at the end of the operations, sometimes (for example with HttpClient), you want the object to last for a moment so make it a private variable and use it multiple times. Dispose of it when it is not needed anymore.
+
+### Finalizers
+
+Last chance to dispose of resources. Use a ~ to define your finalizer. If you have unmanaged resources, call the finalizer to Dispose of them.
 
 ## Lists
 

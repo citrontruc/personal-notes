@@ -431,6 +431,8 @@ catch (DbUpdateConcurrencyException ex)
 
 Be careful with the dbcontext, if you create one and never dispose of it, you can have a memory leak.
 
+Let the rest be handled by the Dependency Injection library.
+
 ```cs
 // BAD :
 private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
