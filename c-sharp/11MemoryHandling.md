@@ -185,6 +185,8 @@ Interesting article: <https://dotnetos.org/blog/2022-03-28-dictionary-implementa
 
 Actual implementation of a dictionary in dotnet: <https://medium.com/@vosarat1995/how-c-dictionary-actually-works-47f3a156055b>
 
+Note: due to the structure of a dictionary, the iteration is unordered and the order will change over time.
+
 ### Data Structure
 
 Dictionary has two main internal structures:
@@ -211,7 +213,7 @@ GetHashCode() and Equals() are critical: poor hash distribution hurts performanc
 
 ### Resizing
 
-When the number of items exceeds a certain load factor (~0.75 of the array size), the dictionary resizes:
+When the number of items exceeds a certain load factor / fill factor (~0.75 of the array size), the dictionary resizes:
 
 - Allocates a larger array for buckets and entries. (We double size of use prime numbers).
 - Recalculates bucket indices for all entries because hashCode % newArray.Length changes.

@@ -55,7 +55,7 @@ public class Kata
 
 ## Books
 
-1. The Pragmatic Programmer (Andy Hunt & Dave Thomas)
+1. The Pragmatic Programmer (Andy Hunt & Dave Thomas) :thumbsup:
 
     Practical lessons for every stage of your career.
     It teaches adaptability, curiosity, and continuous learning.
@@ -106,3 +106,9 @@ public class Kata
     Once you read it, you'll start seeing these patterns everywhere.
 
 Learning Domain-Driven Design: Aligning Software Architecture and Business Strategy
+
+The Mythical Man-Month: Essays on Software Engineering
+
+Peopleware: Productive Projects and Teams
+
+Dinosaur Brains: Dealing with All Those Impossible People at Work
