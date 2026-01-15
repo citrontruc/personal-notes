@@ -15,6 +15,9 @@
   - [XUnit](#xunit)
   - [Architecture tests](#architecture-tests)
   - [Mocks](#mocks)
+    - [Why?](#why)
+    - [Mocks, Stubs, Dummies, fakes](#mocks-stubs-dummies-fakes)
+    - [Implementation](#implementation)
 
 ## Tests
 
@@ -342,6 +345,23 @@ Asserts that all matching types must have names ending with CommandHandler.
 Executes the rule and returns the validation result (used by the test runner to fail/pass).
 
 ## Mocks
+
+### Why?
+
+Why use mocks? In order to avoid slow algorithms and simulate their result. In order to use external resources (databases, API, web services...) & paid services.
+
+We also want to support parallel development. While a service is not ready, we mock it.
+
+### Mocks, Stubs, Dummies, fakes
+
+- Fakes are working implementations but do not suitable for production (example: fake data).
+- Dummies are passed around but never used. They satisfy parameters.
+- Stubs provide working parameters & gets. They return values but are just not the right element.
+- Mocks verify calls and have properties.
+
+Making the difference is interesting but we refer to them as fakes without details.
+
+### Implementation
 
 In order to mock components, you can use the Moq library. Example: if a value depends on the day, we can use the following code:
 
