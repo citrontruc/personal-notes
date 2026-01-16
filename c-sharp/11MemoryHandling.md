@@ -25,6 +25,7 @@
     - [Adding new elements](#adding-new-elements)
     - [Resizing](#resizing)
     - [Conclusion](#conclusion)
+  - [Special Classes](#special-classes)
 
 ## How does it work
 
@@ -227,3 +228,7 @@ This ensures lookups stay O(1) on average.
 - The value of the bucket[i] contains the index of a record in entries.
 - The matching entry either matches the key or has another entry in the links chain that does (or the key doesn’t exist in a dictionary).
 - To find the actual value, Dictionary cycles by the links until it finds a matching key or stops at the dead-end (0 or -1 in next).
+
+## Special Classes
+
+For items that are immutable but need to be consulted regularly, there is a FrozenDictionary class that does exactly that. Optimized for reads. <https://learn.microsoft.com/en-us/dotnet/api/system.collections.frozen.frozendictionary-2?view=net-10.0>

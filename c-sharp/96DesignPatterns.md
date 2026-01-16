@@ -96,6 +96,8 @@ public class ExceptionReportingMessenger : MessengerDecorator
 
 ## Option design pattern
 
+You can find a tutorial over here: <https://dev.to/vimaltwit/understanding-the-options-pattern-in-net-core-j1j>
+
 Imagine, you have authentication information stored in appsettings.json:
 
 ```json

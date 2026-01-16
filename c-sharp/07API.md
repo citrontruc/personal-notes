@@ -200,6 +200,8 @@ app.Run();
 
 You can also have versioning in your header. Do this in case of frequent change, meaningless version numbers or if you are openAI.
 
+An example of versioning can be found over here: <https://github.com/dotnet/aspnet-api-versioning/blob/main/examples/AspNetCore/WebApi/MinimalOpenApiExample/Program.cs>
+
 ## Pagination
 
 There are two main types of pagination: by page or by cursor. In both cases, you will take **pageSize** number of elements. Difference is in the fact that in page, you will cycle through pages and skip elements while in cursor pagination, you sort elements by id and take the ids bigger than your cursor.
