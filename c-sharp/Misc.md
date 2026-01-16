@@ -112,3 +112,7 @@ The Mythical Man-Month: Essays on Software Engineering
 Peopleware: Productive Projects and Teams
 
 Dinosaur Brains: Dealing with All Those Impossible People at Work
+
+Fundamentals of Software Architecture: An Engineering Approach O'Reilly
+
+Software Architecture: The Hard Parts: Modern Trade-Off Analyses for Distributed Architectures O'Reilly

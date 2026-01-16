@@ -1,9 +1,26 @@
 # Security
 
 - [Security](#security)
+  - [Attack Surface](#attack-surface)
+  - [Threat model](#threat-model)
+  - [Logging](#logging)
   - [CIA Triad](#cia-triad)
   - [Store data securely](#store-data-securely)
   - [JWT](#jwt)
+
+## Attack Surface
+
+Designates the set of places where an attacker can interact with the system. It grows exponentially with the number of services you have. It counts endpoints, cookies, message queues, callbacks...
+
+Reduce unused systemms and features to reduce your attack surface.
+
+## Threat model
+
+If someone wanted to break the system, what would they do? There could be a lot of ways to do that. Spoofing, tampering, repudiation, disclose information, DDoS...
+
+## Logging
+
+Logs should answer a question. You log stuff that happens but you need to know why you log and what precisely you are logging.
 
 ## CIA Triad
 
