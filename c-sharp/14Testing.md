@@ -18,6 +18,14 @@
     - [Why?](#why)
     - [Mocks, Stubs, Dummies, fakes](#mocks-stubs-dummies-fakes)
     - [Implementation](#implementation)
+    - [Moq methods](#moq-methods)
+    - [Special method cases](#special-method-cases)
+    - [Mock properties](#mock-properties)
+    - [Behavior testing](#behavior-testing)
+    - [Exceptions \& Events](#exceptions--events)
+    - [Async Results](#async-results)
+    - [Capturing results](#capturing-results)
+    - [Linq Configuration](#linq-configuration)
 
 ## Tests
 
@@ -363,9 +371,11 @@ Making the difference is interesting but we refer to them as fakes without detai
 
 ### Implementation
 
-In order to mock components, you can use the Moq library. Example: if a value depends on the day, we can use the following code:
+In order to mock components, you can use the Moq library. Example: if a value depends on the day, we can use the following code (careful, code is outdated):
 
 ```cs
+using Moq;
+
 public interface IDateTimeProvider
 {
     DayOfWeek DayOfWeek();
@@ -381,7 +391,7 @@ public void GetPayRate_IsSunday_ReturnsHigherRate_Snippet4()
 {
     // Arrange
     var rateCalculator = new RateCalculator();
-    var dateTimeProviderMock = new Mock<IDateTimeProvider>();
+    var dateTimeProviderMock = new Mock<IDateTimeProvider>(); // Use dateTimeProviderMock.Object to access the mocked object. Code is old.
     dateTimeProviderMock.Setup(m => m.DayOfWeek()).Returns(DayOfWeek.Sunday);
 
     // Act
@@ -392,9 +402,15 @@ public void GetPayRate_IsSunday_ReturnsHigherRate_Snippet4()
 }
 ```
 
+### Moq methods
+
+**NOTE**: when mock creates a mock, it essentially overrides methods. We will have no problems with interfaces but we will have problems with regular classes. We can override virtual methods but not regular methods. THERE IS A LIBRARY TO OVERRIDE PROTECTED METHODS: using Moq.Protected;
+
 Moq can also do verifications, verify the number of executions and throw errors. You can setup a sequence of data in order to get results in a specified order:
 
 ```cs
+using Moq;
+
 // Arrange
 var mock = new Mock<IDateTimeProvider>();
 mock.SetupSequence(m => m.DayOfWeek())
@@ -408,4 +424,169 @@ var result = ExampleClass.ChecksSequenceIsCorrect(mockedObject: mock.Object);
 // Assert
 Assert.That(result, Is.EqualTo(true));
 mock.VerifyAll();
+```
+
+If we want to add a setup, we start by creating our mock and then t=we choose which method to setup. Example:
+
+```cs
+Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();
+
+mockValidator.Setup(x => x.NameOfMethod("valueOfInput")).Returns(returnValue);
+// We can specify a different return value for all types of inputs.
+mockValidator.Setup(x => x.NameOfMethod("valueOfInput2")).Returns(returnValue2);
+// Argument matching can make us more flexible.
+mockValidator.Setup(x => x.NameOfMethod(It.IsAny<string>())).Returns(returnValue2);
+// You can add all sort of constraints on input (range, lambda functions...).
+mockValidator.Setup(x => x.NameOfMethod(It.Is<string>(number => number.StartsWith("y")))).Returns(returnValue);d
+mockValidator.Setup(x => x.NameOfMethod(It.IsIn("zz", "az", "lol"))).Returns(returnValue);
+mockValidator.Setup(x => x.NameOfMethod(It.IsRegex("[write a valid regex here] [a-zA-Z]"))).Returns(returnValue);
+```
+
+There are different types of mocks. Loose mocks don't throw exceptions if methods are not setup. They return default values. Default bool for example is false. Strict Mocks throw an error if a method is not setup. Pass the type of MockObject in the constructor.
+
+### Special method cases
+
+If we need an **out** method, we can write the following code:
+
+```cs
+Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();
+
+bool isValid = true;
+// We will now have an out variable that will always take the value of isValid.
+mockValidator.Setup(x => x.NameOfMethod(It.IsAny<string>(), out isValid)).Returns(returnValue2);
+```
+
+When we have a **hierarchy**, moq can handle the hierarchy. For example, we can do that:
+
+```cs
+Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();
+
+// We don't need to mock the ServiceInformation, then the License, then the LicenseKey.
+// Mock handles the whole hierarchy.
+mockValidator.Setup(x => x.ServiceInformation.License.LicenseKey).Returns(returnValue);
+```
+
+**Mock by default**. When you have classes with hierarchy, you may have to create lots of mocks for your code to work. We can define the mocks to create for us all our mocks by default. WARNING: not recommended, it can hide a lot of problems. Most times, if you need to use this, maybe you have too many dependencies in your classes.
+
+```cs
+Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();
+
+mockValidator.DefaultValue = DefaultValue.Mock;
+```
+
+**Moq Protected**. We need the Moq.Protected package. We can then do our setup.
+
+```cs
+Mock<FraudValidator> mockfraudValidator = new Mock<FraudValidator>();
+
+// Our protected method needs to be specified as a string and we need to specify the return type.
+// We don't call the protected methods, we instead replace them.
+mockfraudValidator.Protected()
+                .Setup<bool>("MethodName", ItExpr.IsAny<ArgumentType>())
+                .Returns(true);
+```
+
+### Mock properties
+
+Strict mocks will cause problems if we haven't set our properties up. We default to loose so most time, we can be fine.
+
+Setup method also works for properties. We can also define a function to have dynamic properties.
+
+```cs
+Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();
+// return a fixed value for our property
+mockValidator.Setup(x => x.myProperty).Returns("myPropertyValue");
+// Return the result of a function for our property. Function is executed when the property is accessed.
+mockValidator.Setup(x => x.myProperty).Returns(myFunctionNameHere);
+```
+
+If we have a method to modify a properties, mock won't remember changes to the property except if you specify to setp the property:
+
+```cs
+Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();
+
+mockValidator.SetupProperty(x => x.ValidationMode); // From now on, we track change on the ValidationMode property.
+mockValidator.SetupAllProperties(); // If we want to keep track of changes for all of them. Call it at the beginning.
+```
+
+### Behavior testing
+
+We evaluate if a method was called and what happened. Can be helpful to verify if cache was called.
+
+```cs
+Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();
+
+// With this command, we check that the method was called with the correct arguments.
+mockValidator.Verify(x => x.MethodSupposedToBeCalled(arguments));
+// We can also use the IsAny method
+mockValidator.Verify(x => x.MethodSupposedToBeCalled(It.IsAny<string>(), "Custom error message output if it fails"));
+
+// We specify that the method should never be called; We can also specify that a method should be called a certain number of times. See documentation for more details.
+mockValidator.Verify(x => x.MethodSupposedToBeCalled(It.IsAny<string>(), Times.Never));
+
+// Verify that property was accessed.
+mockValidator.VerifyGet(x => x.myProperty);
+
+// Verify that we have set the property to its correct value.
+mockValidator.VerifySet(x => x.myProperty = value);
+mockValidator.VerifySet(x => x.myProperty = It.IsAny<typeOfProperty>());
+
+// Verify that no other methods were called.
+mockValidator.VerifyNoOtherCalls();
+```
+
+### Exceptions & Events
+
+```cs
+Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();
+
+// Throw exception
+mockValidator.Setup(x => x.NameOfMethod(It.IsAny<string>())).Throws(new Exception("Exception message"));
+
+// We raise an event and specify the event arguments to use.
+mockValidator.Raise(x => x.EventToThrow += null, EventArgs.Empty);
+
+// We can raise events when a method is called.
+mockValidator.Setup(x => x.NameOfMethod(It.IsAny<string>())).Returns(value)
+        .Raises(x => x.EventToThrow += null, EventArgs.Empty);
+```
+
+### Async Results
+
+If we have some async methods, we can ask a mock to return a completed task:
+
+```cs
+Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();
+
+mockValidator.Setup(x => x.NameAsyncOfMethod(It.IsAny<string>())).Returns(Task.CompletedTask);
+mockValidator.Setup(x => x.NameAsyncOfMethod2(It.IsAny<string>())).Returns(Task.FromResult(ResultValue));
+
+// You also have a simplified version with ReturnsAsync
+mockValidator.Setup(x => x.NameAsyncOfMethod(It.IsAny<string>())).ReturnsAsync(ResultValue);
+```
+
+### Capturing results
+
+We may want to capture results and store them in a variable.
+
+```cs
+Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();
+// We capture the arguments used in our method and store them in a list.
+var placeWeWantToCaptureValues = new List<string>();
+
+mockValidator.Setup(x => x.NameOfMethod(Capture.In(placeWeWantToCaptureValues)));
+```
+
+### Linq Configuration
+
+Linq language can be used to setup our mock. This is a fun option if we have a lot of configuration to do.
+
+```cs
+// We don't have Mock<IFrequentFlyerNumberValidator>, so we don't need to get the mockValidator.Object to get the mock value.
+IFrequentFlyerNumberValidator mockValidator = Mock.Of<IFrequentFlyerNumberValidator>
+(
+    validator =>
+    validator.property == "value" &&
+    validator.MethodToMock(It.IsAny<string>()) == resultValue
+);
 ```

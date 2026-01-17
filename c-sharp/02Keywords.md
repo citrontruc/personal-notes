@@ -15,7 +15,7 @@
   - [enum](#enum)
   - [static](#static)
   - [readonly](#readonly)
-  - [ref](#ref)
+  - [ref \& out](#ref--out)
   - [zip](#zip)
   - [Partial classes](#partial-classes)
   - [with](#with)
@@ -238,9 +238,32 @@ public class Test
 }
 ```
 
-## ref
+## ref & out
 
 Mot clé ref dans argument d'une méthode quand on veut passer la référence d'une variable. A ce moment, l'objet est modifié. ref n'exige pas que l'objet soit initialisé. out semble pareil mais besoin que l'objet soit initialisé.
+
+out is used when we need to return multiple values. It can be noisy to have tuples, using an out can be clearer.
+
+```cs
+string a, b;
+person.GetBothNames(out a, out b);
+```
+
+We have a use case for ref right under: we don't need to create a new value.
+
+```cs
+public ref int RefMax(ref int left, ref int right)
+{
+    if (left > right)
+    {
+        return ref left;
+    }
+    else
+    {
+        return ref right;
+    }
+}
+```
 
 ## zip
 
