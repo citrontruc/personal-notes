@@ -55,7 +55,7 @@ IEnumerable<int> TakeWhilePositive(IEnumerable<int> numbers)
 }
 ```
 
-You can do thinks in an asynchronous way with yield await.
+You can do things in an asynchronous way with yield await.
 
 The result object being an enumerator lets you run the foreach (int value in result){ DoStuff(); }. Here is an example right under:
 
