@@ -35,6 +35,21 @@ static async Task WaitAndApologizeAsync()
 }
 ```
 
+If we have to call a function that we have to await multiple times, it can be more optimal to launch all your processes together and wait for them all to finish rather than to await them one after another.
+
+```cs
+// Don't:
+
+task1 = await WaitAndApologizeAsync();
+task2 = await WaitAndApologizeAsync();
+
+// Do
+
+task1 = WaitAndApologizeAsync();
+task2 = WaitAndApologizeAsync();
+Task.WaitAll([task1, task2]);
+```
+
 Basic Example with a return value:
 
 ```cs
