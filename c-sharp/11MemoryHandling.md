@@ -115,7 +115,7 @@ LOH is made of all objects of size > 85 kO.
 
 ## Managed and unManaged
 
-The garbage collector only handles objects that are managed, objects it itself created. For un-managed objects, it is the developer's task to handle them. Databases and files are unmanaged files. These files implement IDisposable.
+The garbage collector only handles objects that are managed, objects it itself created. For un-managed objects, it is the developer's task to handle them. Databases and files are unmanaged files. These files must implement IDisposable. It specifies what to do when trying to dispose of objects.
 
 ## IDisposable
 
@@ -170,7 +170,7 @@ Lists are an array with capacity n with three main elements:
 
 Every time the size is equal to the capacity, we double the array capacity.
 
-With these elements: adding a new element to a list is complecity of O(1) but becomes O(n) when the list needs to be resized. Inserts have a complexity of O(n) because we have to move the other elements.
+With these elements: adding a new element to a list is complexity of O(1) but becomes O(n) when the list needs to be resized. Inserts have a complexity of O(n) because we have to move the other elements.
 
 ### Misc - List
 

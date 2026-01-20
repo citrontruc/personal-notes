@@ -5,6 +5,7 @@
 - [API](#api)
   - [Table of content](#table-of-content)
   - [Architecture](#architecture)
+  - [Launch profiles](#launch-profiles)
   - [Avoid confusion in variable origin](#avoid-confusion-in-variable-origin)
   - [Swagger](#swagger)
   - [Example controller](#example-controller)
@@ -18,6 +19,14 @@
 ## Architecture
 
 In order to avoid confusion and problems, it is recommended that you use DDD and organize your files by business functionalities rather than by technological parts (no "router" or "models", but "shipment" and "products").
+
+## Launch profiles
+
+In template, you have a by default multiple launch profiles that are created (http, https and other). The first one gets used. You can specify a launch profile at the moment you run the application with the launch-profile keyword.
+
+```sh
+dotnet run . --launch-profile https
+```
 
 ## Avoid confusion in variable origin
 

@@ -5,13 +5,20 @@
 - [New Versions](#new-versions)
   - [Table of Content](#table-of-content)
   - [C-sharp 10](#c-sharp-10)
+    - [File Based App](#file-based-app)
     - [Namespaces](#namespaces)
     - [Implicit Usings](#implicit-usings)
     - [Global Usings](#global-usings)
     - [Struct](#struct)
     - [record struct](#record-struct)
+    - [Server Sent events](#server-sent-events)
+    - [Extension keyword](#extension-keyword)
 
 ## C-sharp 10
+
+### File Based App
+
+You can now launch a prgm from only a .cs file. You don't need a csproj and an sln.
 
 ### Namespaces
 
@@ -77,3 +84,33 @@ public readonly record struct Coordinate(int X, int Y) { }
 ```
 
 You can also evaluate == with record structs.
+
+### Server Sent events
+
+```cs
+public record StockPriceEvent(string Id, string Symbol, decimal Price, DateTime Timestamp);
+
+public class StockService
+{
+    public async IAsyncEnumerable<StockPriceEvent> GenerateStockPrices(
+       [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+       var symbols = new[] { "MSFT", "AAPL", "GOOG", "AMZN" };
+
+       while (!cancellationToken.IsCancellationRequested)
+       {
+          var symbol = symbols[Random.Shared.Next(symbols.Length)];
+          var price = Math.Round((decimal)(100 + Random.Shared.NextDouble() * 50), 2);
+          var id = DateTime.UtcNow.ToString("o");
+
+          yield return new StockPriceEvent(id, symbol, price, DateTime.UtcNow);
+
+          await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken);
+       }
+    }
+}
+```
+
+### Extension keyword
+
+See keyword file. Idea is that you can define multiple extensions in the same group.
