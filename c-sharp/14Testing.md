@@ -32,9 +32,9 @@
 Using MSTest. WARNING: mstest is an aging framework, it is recommended to use XUnit instead. Link for setup example: <https://xunit.net/docs/getting-started/v3/getting-started#create-the-unit-test-project>
 
 ```bash
-dotnet new mstest
-dotnet sln add <path to project>
-dotnet add reference <path to project>
+dotnet new xunit
+dotnet sln add <path to project> # Do this from solution directory. Make sure to remove previous directories
+dotnet add reference ../CustomDict/CustomDict.csproj
 ```
 
 ```bash
