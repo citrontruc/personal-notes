@@ -5,6 +5,7 @@
 - [LLM](#llm)
   - [Table of content](#table-of-content)
   - [RAG](#rag)
+  - [Hybrid Search](#hybrid-search)
 
 ## RAG
 
@@ -53,3 +54,37 @@ var results = await db.Documents
 ```
 
 There are all the different types of distance available (cosine, euclidian, manhattan)...
+
+## Hybrid Search
+
+The RRF function lets you merge the score from multiple evaluation methods. You can also add weights. It gives a unified grade.
+
+```cs
+// Hybrid search with custom weights
+app.MapPost("/api/hybrid-search-weighted", async (
+    string query,
+    double[]? weights,
+    ApplicationDbContext db,
+    IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator) =>
+{
+    var embeddingResult = await embeddingGenerator.GenerateAsync([query]);
+    var queryVector = embeddingResult.Single().Vector.ToArray();
+    
+    var keywords = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    
+    var searchWeights = weights ?? [1.0, 1.0];
+    
+    var results = await db.Documents
+        .OrderBy(x => EF.Functions.Rrf(
+            new[] 
+            {
+                EF.Functions.FullTextScore(x.Content, keywords),
+                EF.Functions.VectorDistance(x.Embedding, queryVector)
+            },
+            weights: searchWeights))
+        .Take(20)
+        .AsNoTracking()
+        .ToListAsync();
+    return Results.Ok(results);
+});
+```

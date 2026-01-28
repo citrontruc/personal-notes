@@ -125,6 +125,12 @@ Avoid latency.
 
 ### Bulk insert
 
+Latencies happen when we insert a large amount of data because of multiple reasons. First one is because of the way SaveChanges work. You start by detecting changes and creating an SQL request. It creates individual insert requests per line of data. 10000 lines => 10000 insert requests. You do the operations, generate new ids for all your lines of data and finally you update the tracker (the thing that tracks changes in the database).
+
+You could send only one request to insert all your rows at once but then, you take the risks of having sql injections + if you change database and they use a weird variant of SQL, you are doomed...
+
+You should use **Bulk inserts** instead.
+
 Method to insert large volumes of data real fast. There are two main ways to do this, the first is SqlBulkCopy. Problem is that it only works for SQl.
 
 ```cs
