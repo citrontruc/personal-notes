@@ -36,3 +36,15 @@ public static class MyLinq
     }
 }
 ```
+
+A practical linq method is the .Aggregate method that lets you do a math operation on the whole list to return an aggregated version.
+
+```cs
+int productOfAllElementsOnList = myList.Aggregate(1, (product, next) => product * next);
+
+int[] ints = { 4, 8, 8, 3, 9, 0, 7, 8, 2 };
+
+// Count the even numbers in the array, using a seed value of 0.
+int numEven = ints.Aggregate(0, (total, next) =>
+                                    next % 2 == 0 ? total + 1 : total);
+```

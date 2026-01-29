@@ -43,3 +43,9 @@ bool isEqual = string.Equals(str1, str2, StringComparison.OrdinalIgnoreCase);
 // Dictionary usage
 var dict = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 ```
+
+Another example using the Distinct method in dotnet. Here, we treat capitalized and normal values in the same way:
+
+```cs
+result.Distinct(StringComparer.Ordinal)
+```

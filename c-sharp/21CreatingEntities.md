@@ -38,7 +38,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     }
 }
 
-// On peut map à des Json et ensuite faire ddes recherches via LinQ
+// On peut map à des Json et ensuite faire des recherches via LinQ
 // builder.ComplexProperty(i => i.BillingAddress, address => address.ToJson()); 
 ```
 
