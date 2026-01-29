@@ -4,6 +4,7 @@
 
 - [Design Patterns](#design-patterns)
   - [Table of content](#table-of-content)
+  - [Types of pattern](#types-of-pattern)
   - [Decorator](#decorator)
   - [Option design pattern](#option-design-pattern)
     - [Option pattern and validation](#option-pattern-and-validation)
@@ -24,6 +25,14 @@
   - [Declaration pattern](#declaration-pattern)
   - [Feature flag](#feature-flag)
   - [Result Pattern](#result-pattern)
+
+## Types of pattern
+
+Structural, Creational, Behavioural. Three original types created in the original books that mention design patterns.
+
+- Creational: deal with object creation. Object must has specific properties on creation.
+- Structural: deal with how objects interact with one another.
+- behavioral: deal with ways to commnuicate with objects.
 
 ## Decorator
 
@@ -1034,7 +1043,7 @@ We can have a simplified version of the Singleton with a lazy implementation:
 ```cs
 public sealed class Singleton
 {
-    private static Lazy<Singleton> _instance = new Lazy<Singleton>(() => Singleton());
+    private static Lazy<Singleton> _instance = new Lazy<Singleton>(() => new Singleton());
     public static Singleton Instance => _instance.Value;
 
     private Singleton() { }

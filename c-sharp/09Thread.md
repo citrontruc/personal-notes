@@ -4,12 +4,29 @@
 
 - [Threads](#threads)
   - [Table of content](#table-of-content)
+  - [How does it work?](#how-does-it-work)
   - [locks](#locks)
   - [New version of locks](#new-version-of-locks)
   - [Lock structures](#lock-structures)
   - [Semaphores](#semaphores)
   - [Deadlock](#deadlock)
   - [Thread-safe Structures](#thread-safe-structures)
+
+## How does it work?
+
+Idée est de faire de l'asynchrone. on possède un thread pool. On coupe le code. On lance une première méthode et tout ce qui est après le await est sur le premier thread disponible. Le nombre de thread existant est géré par le langage. C'est dynamique.
+
+Quand on a await, on change de thread constamment. Quand on fait .Wait(), on attend de façon synchrone.
+
+Quand on a des UI, on possède un thread de UI qui possède des droits privilégiés. Le framework sait quand on affiche une UI qu'il doit y avoir un thread UI. WPF est le framework utilisé dans notre cas.
+
+Si on a une UI avec un .Wait() sur une méthode qui contient un await à l'intérieur, on obtient un deadlock car le thread attend quelque chose qui attend et rien ne se passe.
+
+Afin de pouvoir faire en sorte que des frontends laissent d'autres threads se charger des tâches, on peut utiliser .ConfigureAwait(false).
+
+Synchronisation Context. Parfois, des threads sont dans un Synchronisation Context. Toutes les opérations faites sont dans ce contexte qui est un thread pool à part.
+
+Note : les éléments d'UI ne sont pas thread safe car sinon, ce serait trop gourmand. C'est pour ça qu'ils ne le sont pas. En contrepartie, on ne possède qu'un seul thread.
 
 ## locks
 
