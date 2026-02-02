@@ -19,7 +19,7 @@
 
 ```bash
 dotnet new console # Creates new project. Creates a csproj file, obj and bin files.
-dotnet new sln -n "name of project"
+dotnet new sln -n "name of project" -f net8.0
 dotnet sln add Game/snake-online-prototype.csproj
 dotnet run .
 dotnet run --project <name of project if you have multiple projects in you sln>
