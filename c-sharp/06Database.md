@@ -248,6 +248,17 @@ Index the most used data on the most searched on columns.
 
 ## Tracking
 
+By default, EFCore tracks entity, meaning that if an element that was queried by the database is then modified in the code, an update query will be sent when we call the save changes method.
+
+```cs
+var user = context.Users.Find(1);
+user.Name = "New Name"; // No database call yet
+
+// ... perform other logic ...
+
+context.SaveChanges(); // SQL UPDATE is sent here
+```
+
 By default, EF core tracks all queried entities even if they are not modified. That is unnecessary if you just do read operations ==> In order to avoid problems with tracking and speed up operations use .AsNoTracking()
 
 ```cs
