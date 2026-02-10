@@ -18,7 +18,7 @@ Idée est de faire de l'asynchrone. on possède un thread pool. On coupe le code
 
 Quand on a await, on change de thread constamment. Quand on fait .Wait(), on attend de façon synchrone.
 
-Quand on a des UI, on possède un thread de UI qui possède des droits privilégiés. Le framework sait quand on affiche une UI qu'il doit y avoir un thread UI. WPF est le framework utilisé dans notre cas.
+Quand on a des UI, on possède un thread pour l'UI qui possède des droits privilégiés. Le framework sait quand on affiche une UI qu'il doit y avoir un thread UI. WPF est le framework utilisé dans notre cas.
 
 Si on a une UI avec un .Wait() sur une méthode qui contient un await à l'intérieur, on obtient un deadlock car le thread attend quelque chose qui attend et rien ne se passe.
 
@@ -360,8 +360,6 @@ Afin d'éviter ce genre de mécanisme, il faut que :
 - Tous les locks se fassent dans le même ordre.
 - Avoir des timeouts et des mécanismes pour réessayer plus tard.
 - Limiter la durée des locks et les scopes des locks afin d'éviter des conflits.
-
-Il existe cependant des manières annexes de gérer les choses. Il est notamment conseillé de faire de l'**async**.
 
 ## Thread-safe Structures
 

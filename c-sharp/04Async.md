@@ -7,13 +7,22 @@
   - [Task](#task)
   - [EventHandling](#eventhandling)
   - [Errors to avoid](#errors-to-avoid)
+    - [Blocking](#blocking)
+    - [Async void](#async-void)
+    - [Errors not awaited](#errors-not-awaited)
+    - [.Result and .Wait()](#result-and-wait)
   - [AsyncStreams](#asyncstreams)
+  - [Tasks](#tasks)
+    - [Creating tasks](#creating-tasks)
+    - [Cancelling tasks](#cancelling-tasks)
 
 ## Task
 
 By default, a task is the result of an async method that returns no values. Task\<TResult> if you return a value.
 
 void for EventHandling.
+
+Async and await relieve the server from work. The server is free to do another task while the await happens.
 
 Basic example of an async method.
 
@@ -173,7 +182,23 @@ public class AsyncVoidExample
 
 ## Errors to avoid
 
+### Blocking
+
 **WARNING**: Avoid blocking. NEVER use GetDataAsync().Wait() or GetDataAsync().Result, because it will block your program.
+
+### Async void
+
+Errors in an async void cannot be caught. Indeed, the error does not return an error task but makes the thread crash.
+
+EventHandlers are the only elements to use async void.
+
+### Errors not awaited
+
+If you have a task that is not awaited and it fails, the task is a failure and nothing happens because it is forgotten.
+
+### .Result and .Wait()
+
+These methods make your code synchronous again because you wait for something in a synchronous way.
 
 ## AsyncStreams
 
@@ -194,3 +219,35 @@ await foreach (var n in GetNumbersAsync())
     Console.WriteLine(n);
 }
 ```
+
+## Tasks
+
+### Creating tasks
+
+Basic idea: We create a task, we define a very iportant operation and then do Task.Run(SomeMethod);
+
+```cs
+// Compiler infers the type of return so we don't need to specify the value returned.
+Task<T> task = Task.Run(() => { return new T();});
+Task task = Task.Run(() => { });
+
+// We can have a chain of tasks to run.
+task.ContinueWith(OtherOperation, TaskContinuationOptions.NotOnFaulted);
+// Use this to catch exceptions.
+task.ContinueWith(OtherOperation, TaskContinuationOptions.OnlyOnFaulted);
+// ContinueWith only reference the previous task. if you have an error on the first task, the second won't run with NotOnFaulted but the third one would ==> Make sure tasks only run if the previous task completed.
+task.ContinueWith((completedTask) => 
+// We can call result because the previous task will have already completed before we run this code.
+    { var resultOfPreviousOperation = completedTask.Result;} 
+    );
+```
+
+Careful: we can't update the UI thread by default when we use another thread. Only the UI thread can modify the UI. Use the Dispatcher to communicate with the UI thread, it pulls work back to the UI thread.
+
+### Cancelling tasks
+
+If you want to cancel a task, you need a cancellation token. We pass a token and the thread checks if a cancellation was requested.
+
+Next taks and task continuation will not run if task was cancelled. However, the current task will continue ==> You need to handle the cancellation gracefully (for example with a break).
+
+**NOTE**: HttpClient handles this way more easily.
