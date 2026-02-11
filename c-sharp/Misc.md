@@ -107,7 +107,7 @@ public class Kata
 
 Learning Domain-Driven Design: Aligning Software Architecture and Business Strategy
 
-The Mythical Man-Month: Essays on Software Engineering
+The Mythical Man-Month: Essays on Software Engineering :thumbsup:
 
 Peopleware: Productive Projects and Teams
 
