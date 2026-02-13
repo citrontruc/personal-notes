@@ -364,3 +364,5 @@ Afin d'éviter ce genre de mécanisme, il faut que :
 ## Thread-safe Structures
 
 There are some natively thread-safe structures: example is the ConcurrentDictionary or ConcurrentHashmap. Use the specific methods to access elements.
+
+List\<T> for example is not thread safe. Consider using a ConcurrentBag\<T> instead. You can use this to chain calls and update a value on the screen as tasks get results.

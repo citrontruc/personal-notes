@@ -15,6 +15,8 @@
   - [Tasks](#tasks)
     - [Creating tasks](#creating-tasks)
     - [Cancelling tasks](#cancelling-tasks)
+  - [Waiting on multiple tasks](#waiting-on-multiple-tasks)
+  - [ConfigureAwait](#configureawait)
 
 ## Task
 
@@ -246,8 +248,40 @@ Careful: we can't update the UI thread by default when we use another thread. On
 
 ### Cancelling tasks
 
-If you want to cancel a task, you need a cancellation token. We pass a token and the thread checks if a cancellation was requested.
+If you want to cancel a task, you need a cancellation token. We pass a token and the thread checks if a cancellation was requested. In order to do so, first create a cancellation token source and if you want to cancel the tasks attached to thhe cancellation token source, use the .Cancel() method.
+
+There is a method called .CancelAfter() that can be used in order to set a timeout value.
 
 Next taks and task continuation will not run if task was cancelled. However, the current task will continue ==> You need to handle the cancellation gracefully (for example with a break).
 
 **NOTE**: HttpClient handles this way more easily.
+
+## Waiting on multiple tasks
+
+Regroup tasks in list and launch Task.WhenAll. Returns an array of all the results.
+
+```cs
+var task1 = Task.Run(() => { return "string1"; });
+var task2 = Task.Run(() => { return "string2"; });
+
+var tasks = new [] {task1, task2};
+
+string[] result = await Task.WhenAll(tasks);
+```
+
+We can add a timeout by creating a delay task and then looking at which one finishes first from our delay task and our other task.
+
+```cs
+Task task1 = Task.Run( );
+Task task2 = Task.Delay(2000);
+
+var completedTask = await Task.WhenAny(task1, task2);
+if (completedTask == task2)
+{
+    //Cancel all our tasks using our cancellationTokenSource.
+}
+```
+
+## ConfigureAwait
+
+Specify that we allow the task to run on a different thread, we don't need the current thread to be available. Mostly unused now. Can create problems if you have an UI thread. Use it if you build a library.
