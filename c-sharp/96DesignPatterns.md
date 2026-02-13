@@ -611,9 +611,8 @@ services.AddTransient<TService, TImplementation>()
 
 When to use it:
 
-For lightweight, stateless services that perform a single operation.
-
-For services that should not share state and need to be isolated from other consumers.
+- For lightweight, stateless services that perform a single operation.
+- For services that should not share state and need to be isolated from other consumers.
 
 Examples: Simple utility classes, or a service that calculates a value and immediately returns it.
 
@@ -629,9 +628,8 @@ If the same client sends another request, a brand new instance will be created f
 
 When to use it:
 
-For services that need to maintain state during a single request but should not persist across requests.
-
-This is the most common lifetime for services interacting with request-specific data, such as a database context (like DbContext in Entity Framework Core).
+- For services that need to maintain state during a single request but should not persist across requests.
+- This is the most common lifetime for services interacting with request-specific data, such as a database context (like DbContext in Entity Framework Core).
 
 Examples: A service that coordinates multiple repository operations for a single transaction, or a service that holds request-specific user information.
 
@@ -643,9 +641,8 @@ services.AddSingleton<TService, TImplementation>()
 
 When to use it:
 
-For services that are stateless or must have a globally shared state (like configuration settings or a cache).
-
-For services that are expensive to create.
+- For services that are stateless or must have a globally shared state (like configuration settings or a cache).
+- For services that are expensive to create.
 
 **⚠️ Important Note**: Singleton services must never take a dependency on a Scoped or Transient service if that dependency holds request-specific state, as this can lead to subtle bugs where the Singleton service holds onto an outdated or incorrect Scoped instance across requests.
 
@@ -711,6 +708,30 @@ svc.Notify("Hello");
 ```
 
 Careful! You can have conflicts if you register twice a service with the same interface (exemple: if you register two IMessageSender, the lib won't know which one to use). You can add functions for that but it is not practical.
+
+**However**, there is a way to avoid this kind of problems wih Keyed Services.
+
+```cs
+// We add a key in order to differentiate the two services.
+builder.Services.AddKeyedTransient<INotificationService, EmailNotificationService>("email");
+builder.Services.AddKeyedTransient<INotificationService, SmsNotificationService>("sms");
+
+// We can now use this key in order to differentiate the two in our classess.
+public class NotificationProcessor(
+    [FromKeyedServices("email")] INotificationService emailService,
+    [FromKeyedServices("sms")] INotificationService smsService)
+{
+    public void Process()
+    {
+        emailService.Send("Processing email notification...");
+        smsService.Send("Processing SMS notification...");
+    }
+}
+
+// In order to get something dynamic, we can do that.
+var emailService = serviceProvider.GetRequiredKeyedService<INotificationService>("email");
+emailService.Send("Sending via Email Service");
+```
 
 **Service lifetime**: Transient, Scoped or Singleton.
 
