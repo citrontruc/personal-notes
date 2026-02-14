@@ -14,10 +14,13 @@
   - [AsyncStreams](#asyncstreams)
   - [More details on Tasks](#more-details-on-tasks)
     - [Creating tasks](#creating-tasks)
+    - [Creating tasks (more)](#creating-tasks-more)
     - [Cancelling tasks](#cancelling-tasks)
   - [Waiting on multiple tasks](#waiting-on-multiple-tasks)
   - [ConfigureAwait](#configureawait)
   - [Streams](#streams)
+  - [Progress](#progress)
+  - [TaskCompletionSource](#taskcompletionsource)
 
 ## Task
 
@@ -249,6 +252,12 @@ task.ContinueWith((completedTask) =>
 
 Careful: we can't update the UI thread by default when we use another thread. Only the UI thread can modify the UI. Use the Dispatcher to communicate with the UI thread, it pulls work back to the UI thread.
 
+### Creating tasks (more)
+
+Task.Run() is a shortcut. You can actually create more complex tasks with Task.Factory.StartNew. Some good overloads include the fact of giving a CancellationToken (already possible with Task.Run). Lots of things are possible. Task.Run is easier so stick with it if you can.
+
+**NOTE**: We can attach children tasks to parent tasks. Does not work by default.
+
 ### Cancelling tasks
 
 If you want to cancel a task, you need a cancellation token. We pass a token and the thread checks if a cancellation was requested. In order to do so, first create a cancellation token source and if you want to cancel the tasks attached to thhe cancellation token source, use the .Cancel() method.
@@ -297,4 +306,60 @@ Same as IEnumerables, we need to do a foreach in order to get all the elemnts of
 
 ```cs
 IAsyncEnumerables<T>
+```
+
+## Progress
+
+If you want to indicate progress, you can throw a callback. Use the Progress\<T> method in dotnet. There is a report method to report our progress. There is however no standardized way to compute progress in an application. Think about how you can communicate how your tasks go.
+
+## TaskCompletionSource
+
+They are a type of event whose vaue can change. You can manually specify when the task completes and how its value changes. It works kinda like an event but it iss one to one and you can only trigger it once (it is a ore concentrated version).
+
+```cs
+public class UserService
+{
+    private TaskCompletionSource<bool> _tcs;
+
+    public Task<bool> WaitForUserConfirmation()
+    {
+        _tcs = new TaskCompletionSource<bool>();
+        return _tcs.Task;
+    }
+
+    public void OnUserActionCompleted(bool isConfirmed)
+    {
+        _tcs.SetResult(isConfirmed);
+    }
+}
+
+public class Application
+{
+    private UserService _userService;
+
+    public async Task Run()
+    {
+        // Begin waiting for the user's confirmation.
+        Task<bool> confirmationTask = _userService.WaitForUserConfirmation();
+
+        // This line will await the user's confirmation.
+        bool confirmed = await confirmationTask;
+
+        // Now you can use the user's confirmation.
+        if (confirmed)
+        {
+            Console.WriteLine("User confirmed!");
+        }
+        else
+        {
+            Console.WriteLine("User didn't confirm.");
+        }
+    }
+
+    public void OnUserAction(bool isConfirmed)
+    {
+        // This would be called somewhere when user performs an action.
+        _userService.OnUserActionCompleted(isConfirmed);
+    }
+}
 ```
