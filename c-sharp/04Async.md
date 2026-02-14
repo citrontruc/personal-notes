@@ -12,11 +12,12 @@
     - [Errors not awaited](#errors-not-awaited)
     - [.Result and .Wait()](#result-and-wait)
   - [AsyncStreams](#asyncstreams)
-  - [Tasks](#tasks)
+  - [More details on Tasks](#more-details-on-tasks)
     - [Creating tasks](#creating-tasks)
     - [Cancelling tasks](#cancelling-tasks)
   - [Waiting on multiple tasks](#waiting-on-multiple-tasks)
   - [ConfigureAwait](#configureawait)
+  - [Streams](#streams)
 
 ## Task
 
@@ -222,7 +223,9 @@ await foreach (var n in GetNumbersAsync())
 }
 ```
 
-## Tasks
+## More details on Tasks
+
+Using the wait keyword is costly. Whenever possible, return a task and let all the awaiting be done in the central process so that you don't need to create multiple await situations.
 
 ### Creating tasks
 
@@ -285,3 +288,13 @@ if (completedTask == task2)
 ## ConfigureAwait
 
 Specify that we allow the task to run on a different thread, we don't need the current thread to be available. Mostly unused now. Can create problems if you have an UI thread. Use it if you build a library.
+
+## Streams
+
+streams return an IAsyncEnumerable. It provides asynchronous iterations. We must use the yield keyword to return a value.
+
+Same as IEnumerables, we need to do a foreach in order to get all the elemnts of the Enumerable. We do await foreach() to stream the elements.
+
+```cs
+IAsyncEnumerables<T>
+```
