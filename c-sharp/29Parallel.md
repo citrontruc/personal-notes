@@ -14,7 +14,7 @@ If you have a lot of tasks to run, you may want to process them in parallel and 
 
 ## The Parallel library
 
-Careful, the Parallel library blocks the calling thread ==> it is a powerful tool that needs to be used with care. You can do parallel in a Task.Run() to do that in new threads. Will have less threads available in this case. 
+Careful, the Parallel library blocks the calling thread ==> it is a powerful tool that needs to be used with care. You can do parallel in a Task.Run() to do that in new threads. Will have less threads available in this case.
 
 Parallel executes them in the most optimized way. It could be all in parallel or just the best way depending on your hardware.
 
