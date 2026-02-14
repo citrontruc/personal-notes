@@ -252,6 +252,8 @@ task.ContinueWith((completedTask) =>
 
 Careful: we can't update the UI thread by default when we use another thread. Only the UI thread can modify the UI. Use the Dispatcher to communicate with the UI thread, it pulls work back to the UI thread.
 
+If yu don't use it, the UI thread will never get back the result of the requests.
+
 ### Creating tasks (more)
 
 Task.Run() is a shortcut. You can actually create more complex tasks with Task.Factory.StartNew. Some good overloads include the fact of giving a CancellationToken (already possible with Task.Run). Lots of things are possible. Task.Run is easier so stick with it if you can.
