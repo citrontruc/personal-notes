@@ -39,9 +39,13 @@ Dans une liste, prendre les éléments à partir de la fin.
 
 ## array[2..5]
 
-Obtenir une trnache d'un array.
+Obtenir une tranche d'un array.*
+
+Lists have the GetRange() method that does exactly the same thing.
 
 ## Searches in lists
+
+You can use LinQ to do requests on lists (see LinQ).
 
 ```cs
 var result = people
@@ -54,7 +58,7 @@ var result = people
 
 ### foreach
 
-Iterateon all the elements. A month = key + value.
+Iterates on all the elements. A month = key + value.
 
 ```cs
 public static void SubDictionaryUsingForEach(Dictionary<int,string> monthsInYear)
