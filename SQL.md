@@ -14,7 +14,7 @@
 
 Select, Where and Having (difference is that having filters after having retrieved data, it is used after a group by). Having is often used after a sum or mean.
 
-Limit, order by to sort and limit values. **WARNING**: some sql types rather use Top than Limit.
+Limit, order by to sort and limit values. **WARNING**: some sql systems rather use Top than Limit.
 
 Count, sum, min, max, avg and group by to aggregate values.
 
