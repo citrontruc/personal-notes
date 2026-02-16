@@ -62,6 +62,24 @@ finally
 }
 ```
 
+When you catch an error, you can use throw or throw ex. It is recommended to use throw or else you break the stack trace:
+
+```cs
+try
+{
+    // Method that fails
+    DoWork();
+}
+catch (Exception ex)
+{
+    // Best practice: preserves original stack trace
+    throw; 
+    
+    // Bad practice: stack trace starts here, original info lost
+    // throw ex; 
+}
+```
+
 ## Null errors
 
 Checking for null fields and throwing errors when we get a null value.
