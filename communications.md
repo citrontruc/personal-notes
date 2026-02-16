@@ -12,15 +12,11 @@
 
 ## Protocols
 
-TCP. HTTP builds on TCP and HTTPS builds on HTTP.
-
-UDP. Lightweight, used for fast transmission with possible loss.
-
-Sockets.
-
-SMTP (Simple Mail Transfer Protocol). Used for email delivery. SFTP variant for files.
-
-SSH.
+- TCP. HTTP builds on TCP and HTTPS builds on HTTP.
+- UDP. Lightweight, used for fast transmission with possible loss.
+- Sockets.
+- SMTP (Simple Mail Transfer Protocol). Used for email delivery. SFTP variant for files.
+- SSH.
 
 ## Short polling
 

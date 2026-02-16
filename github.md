@@ -37,7 +37,7 @@ Si besoin de rajouter des informations sur un commit qui a déjà été écrit.
 
 **git branch** + name of branch to create branch.
 
-**git checkout -b \<name of new branch>** : lets you create a new branche and switch to it.
+**git checkout -b \<name of new branch>** : lets you create a new branch and switch to it.
 
 **git log --oneline**: shows history of commits.
 

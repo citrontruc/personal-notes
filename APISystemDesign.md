@@ -189,7 +189,7 @@ Example use case: on order, we start by locking an article, change quantity in s
 
 We gradually replace a legacy system with a microservice architecture. New system gradually takes responsabilities until fully replaced. Works well with api gateway.
 
-Reduces risk of migration. if you want test perdio, have legacy and new software compute solution and compare them. Legacy system sends solutions. No user disruption.
+Reduces risk of migration. If you want test that the systems compare, have legacy and new software compute solution and compare them. Legacy system sends solutions to customer to make sure there are no user disruption.
 
 **Careful**: more complicated for users. Requires additional infrastructure. Testing is more complex.
 
@@ -205,7 +205,7 @@ Gives reusable components of code, standardized implementation of traffic manage
 
 ## Anti-corruption layer
 
-Have a layer betweeen your services and outside services to normalize data and check their values before transmitting them.
+Have a layer between your services and outside services to normalize data and check their values before transmitting them.
 
 **CAREFUL**: bottleneck + you need to change it every time external services change.
 
