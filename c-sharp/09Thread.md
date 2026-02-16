@@ -8,6 +8,7 @@
   - [locks](#locks)
   - [New version of locks](#new-version-of-locks)
   - [Lock structures](#lock-structures)
+  - [Interlocked](#interlocked)
   - [Semaphores](#semaphores)
   - [Deadlock](#deadlock)
   - [Thread-safe Structures](#thread-safe-structures)
@@ -62,6 +63,8 @@ class Program {
     }
 }
 ```
+
+Do not share locks. It is the best possible way to do a deadlock.
 
 ## New version of locks
 
@@ -225,6 +228,15 @@ class Program
         }
     }
 }
+```
+
+## Interlocked
+
+The interlocked library lets you create temporary locks for atomic operations. Faster than using lock(value).
+
+```cs
+Interlocked.Increment(ref int thisValue);
+Interlocked.Add(ref int toBeUpdated, int withValue); // Careful, it only works for ints.
 ```
 
 ## Semaphores

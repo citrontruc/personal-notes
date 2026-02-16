@@ -13,6 +13,7 @@
     - [CountBy](#countby)
     - [Index](#index)
   - [Creating Linq methods](#creating-linq-methods)
+  - [PLINQ](#plinq)
 
 ## Presentation
 
@@ -183,3 +184,20 @@ int[] ints = { 4, 8, 8, 3, 9, 0, 7, 8, 2 };
 int numEven = ints.Aggregate(0, (total, next) =>
                                     next % 2 == 0 ? total + 1 : total);
 ```
+
+## PLINQ
+
+For parallel LINQ operations. We want to improve performance of operations.
+Careful, operations need to be independant.
+
+```cs
+var source = new [] {1, 2, 3, 4};
+var query = source.AsParallel().Select(Compute); // Compute query in parallel
+var result = query.Sum();
+```
+
+AsParallel has a bunch of options available (with cancellation, with degress of parallelism...)
+
+Don't abuse of AsParallel, because it adds overhead because you need to analyze the query.
+
+Trouble with parallel operations is that you don't always know in which order operations will take place. It is possible to do AsParallel().AsOrdered() in order to make surre that the order is kept. Be careful with what you do.

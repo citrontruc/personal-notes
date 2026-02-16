@@ -7,6 +7,8 @@
   - [Why?](#why)
   - [The Parallel library](#the-parallel-library)
   - [Error Handling](#error-handling)
+  - [Cancellation](#cancellation)
+  - [AyncLocal and ThreadLocal](#aynclocal-and-threadlocal)
 
 ## Why?
 
@@ -31,3 +33,25 @@ If you need, there are a lot of options that you can tinker (max degrees of para
 If a task failed, we start by running all the tasks and then we get the exception at the very end. Can be tricky to detect an error.
 
 If you want to break a loop and make it stop, there is a state parameter for that. Have a look if necessary.
+
+## Cancellation
+
+The Parallel library supports cancellation out of the box. When a cancellation token is sent, you interrupt your task but you don't rollback. If you want to rollback, you have to do it yourself.
+In order to do so, check:
+
+```cs
+
+Parallel.For(0, 100, options, _ => {
+  FirstExpensiveOperation();
+  if (cts.Token.IsCancellationRequested){
+
+  }
+  else{
+    SecondExpensiveOperation();
+  }
+})
+```
+
+## AyncLocal and ThreadLocal
+
+Allow to specify values for your asynchronous context or for your thread. AsyncLocal creates a copy for all async operations. Threadlocal creates variable for threads. Careful, since threads are reused, we can reuse variables.
