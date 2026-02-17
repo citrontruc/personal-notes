@@ -1,5 +1,14 @@
 # Object Type
 
+## Table of content
+
+- [Object Type](#object-type)
+  - [Table of content](#table-of-content)
+  - [Definition](#definition)
+  - [Methods](#methods)
+
+## Definition
+
 The type from which all dotnet objects inherit. It contains a few default methods that can be very useful. You can change the type of the value contained in an object, you can have lists of objects with elements of different types because object type is the tyope of every object.
 
 ## Methods
