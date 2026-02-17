@@ -22,7 +22,7 @@ Query language used to do operation on data inside IEnumerables.
 ```cs
 var numberAsString = numbers.Select(number => number.ToString()).ToList();
 var evenNumber = numbers.Select(number => number % 2 == 0).ToList();
-var sum = nummbers.Sum();
+var sum = numbers.Sum();
 ```
 
 Careful, Linq methods are lazy. Nothing happens until they are forced to run (example: with a ToArray() or a ToList()). Careful if you need a lot of time to access value.
