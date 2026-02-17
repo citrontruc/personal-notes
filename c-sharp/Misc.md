@@ -1,5 +1,13 @@
 # Misc
 
+## Table of Content
+
+- [Misc](#misc)
+  - [Table of Content](#table-of-content)
+  - [All methods of initializing arrays](#all-methods-of-initializing-arrays)
+  - [Codewars](#codewars)
+  - [Books](#books)
+
 ## All methods of initializing arrays
 
 ```cs

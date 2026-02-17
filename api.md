@@ -9,6 +9,7 @@
   - [Idempotency](#idempotency)
   - [Status codes](#status-codes)
   - [Api Testing](#api-testing)
+  - [Api healthchecks](#api-healthchecks)
 
 ## What does a rest API even mean?
 
@@ -57,3 +58,13 @@ Risk: double billing if request failed when trying to reach server or when serve
 - Data validation (do it both for success and failure, test field level constraints (size & other)).
 - Integration testing => Ordering a product updates stocks and launches the payment methods.
 - Injection testing (sanitize requests).
+
+## Api healthchecks
+
+You may want to check the status of your API. Is it up and running? Can you make calls? Which endpoints have problems? In order to do so, you might want to create a /health endpoint that launches operations and tests.
+
+Dotnet has specific libraries to do that if you are doing dotnet:
+
+```sh
+dotnet add package Microsoft.Extensions.Diagnostics.HealthChecks
+```

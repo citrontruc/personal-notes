@@ -39,7 +39,7 @@ Dans une liste, prendre les éléments à partir de la fin.
 
 ## array[2..5]
 
-Obtenir une tranche d'un array.*
+Obtenir une tranche d'un array.
 
 Lists have the GetRange() method that does exactly the same thing.
 
