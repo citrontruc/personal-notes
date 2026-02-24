@@ -15,6 +15,7 @@
   - [Validation](#validation)
   - [Compress big payloads](#compress-big-payloads)
   - [Idempotency key](#idempotency-key)
+  - [Resilience](#resilience)
 
 ## Architecture
 
@@ -352,3 +353,9 @@ Easiest is maybe using an ID:
 var idempotencyKey = Guid.NewGuid().ToString("N");
 httpClient.DefaultRequestHeaders.Add("Idempotency-Key", idempotencyKey);
 ```
+
+## Resilience
+
+There is a microsoft library for resilience: Microsoft.Extensions.Resilience. It can take care automatically of retry & other things.
+
+You have functions to do expi-onential backoff when trying to call an endpoint for example.
