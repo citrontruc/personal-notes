@@ -12,6 +12,7 @@
     - [Takes slices](#takes-slices)
     - [CountBy](#countby)
     - [Index](#index)
+    - [Groupby](#groupby)
   - [Creating Linq methods](#creating-linq-methods)
   - [PLINQ](#plinq)
 
@@ -152,6 +153,92 @@ var orders = new List<Order>
 foreach (var (index, item) in orders.Index())
 {
     Console.WriteLine($"Order #{index}: {item}");
+}
+```
+
+### Groupby
+
+Method to group items of a list on a key value. Example right under:
+
+```cs
+class Pet
+{
+    public string Name { get; set; }
+    public double Age { get; set; }
+}
+
+public static void GroupByEx4()
+{
+    // Create a list of pets.
+    List<Pet> petsList =
+        new List<Pet>{ new Pet { Name="Barley", Age=8.3 },
+                       new Pet { Name="Boots", Age=4.9 },
+                       new Pet { Name="Whiskers", Age=1.5 },
+                       new Pet { Name="Daisy", Age=4.3 } };
+
+    // Group Pet.Age values by the Math.Floor of the age.
+    // Then project an anonymous type from each group
+    // that consists of the key, the count of the group's
+    // elements, and the minimum and maximum age in the group.
+    var query = petsList.GroupBy(
+        pet => Math.Floor(pet.Age),
+        pet => pet.Age,
+        (baseAge, ages) => new
+        {
+            Key = baseAge,
+            Count = ages.Count(),
+            Min = ages.Min(),
+            Max = ages.Max()
+        });
+
+    // Iterate over each anonymous type.
+    foreach (var result in query)
+    {
+        Console.WriteLine("\nAge group: " + result.Key);
+        Console.WriteLine("Number of pets in this age group: " + result.Count);
+        Console.WriteLine("Minimum age: " + result.Min);
+        Console.WriteLine("Maximum age: " + result.Max);
+    }
+
+    /*  This code produces the following output:
+
+        Age group: 8
+        Number of pets in this age group: 1
+        Minimum age: 8.3
+        Maximum age: 8.3
+
+        Age group: 4
+        Number of pets in this age group: 2
+        Minimum age: 4.3
+        Maximum age: 4.9
+
+        Age group: 1
+        Number of pets in this age group: 1
+        Minimum age: 1.5
+        Maximum age: 1.5
+    */
+}
+```
+
+The example above transforms the data but you don't need to do that to use the method, here is an example that just takes the values and puts them in a list:
+
+```cs
+public Dictionary<string, List<Trade>> RegroupTradesByTraderIdWithGroupby()
+{
+    Dictionary<string, List<Trade>> result = new();
+    var inter = _dailyTrades.GroupBy(trade => trade.TraderId, (TraderId, trades) => new
+            {
+                Key = TraderId,
+                AllTrades = trades
+            }
+        );
+
+    foreach (var value in inter)
+    {
+        result[value.Key] = value.AllTrades.ToList();
+    }
+
+    return result;
 }
 ```
 

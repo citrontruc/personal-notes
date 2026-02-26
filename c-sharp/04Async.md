@@ -10,7 +10,6 @@
     - [Blocking](#blocking)
     - [Async void](#async-void)
     - [Errors not awaited](#errors-not-awaited)
-    - [.Result and .Wait()](#result-and-wait)
   - [AsyncStreams](#asyncstreams)
   - [More details on Tasks](#more-details-on-tasks)
     - [Creating tasks](#creating-tasks)
@@ -62,7 +61,7 @@ task2 = await WaitAndApologizeAsync();
 
 task1 = WaitAndApologizeAsync();
 task2 = WaitAndApologizeAsync();
-Task.WaitAll([task1, task2]);
+Task.WaitAll([task1, task2]); // Wait all actively waits, you have WhenAll that can also do the job.
 ```
 
 Basic Example with a return value:
@@ -99,7 +98,7 @@ static async Task<int> GetLeisureHoursAsync()
 }
 ```
 
-Waiting on multiple calls
+If you have multiple calls that can be be parallelized, you can use Task.WhenAll();
 
 ```cs
 var t1 = GetDataAsync();
@@ -192,6 +191,8 @@ public class AsyncVoidExample
 
 **WARNING**: Avoid blocking. NEVER use GetDataAsync().Wait() or GetDataAsync().Result, because it will block your program.
 
+These methods make your code synchronous again because you wait for something in a synchronous way.
+
 ### Async void
 
 Errors in an async void cannot be caught. Indeed, the error does not return an error task but makes the thread crash.
@@ -201,10 +202,6 @@ EventHandlers are the only elements to use async void.
 ### Errors not awaited
 
 If you have a task that is not awaited and it fails, the task is a failure and nothing happens because it is forgotten.
-
-### .Result and .Wait()
-
-These methods make your code synchronous again because you wait for something in a synchronous way.
 
 ## AsyncStreams
 
@@ -228,11 +225,11 @@ await foreach (var n in GetNumbersAsync())
 
 ## More details on Tasks
 
-Using the wait keyword is costly. Whenever possible, return a task and let all the awaiting be done in the central process so that you don't need to create multiple await situations.
+Using the wait keyword is costly. When you use the async keyword, the compiler creates a lot of code. Whenever possible, return a task and let all the awaiting be done in the central process so that you don't need to create multiple await situations.
 
 ### Creating tasks
 
-Basic idea: We create a task, we define a very iportant operation and then do Task.Run(SomeMethod);
+Basic idea: We create a task, we define a very important operation and then do Task.Run(SomeMethod);
 
 ```cs
 // Compiler infers the type of return so we don't need to specify the value returned.
@@ -250,7 +247,7 @@ task.ContinueWith((completedTask) =>
     );
 ```
 
-Careful: we can't update the UI thread by default when we use another thread. Only the UI thread can modify the UI. Use the Dispatcher to communicate with the UI thread, it pulls work back to the UI thread.
+**Careful**: we can't update the UI thread by default when we use another thread. Only the UI thread can modify the UI. Use the Dispatcher to communicate with the UI thread, it pulls work back to the UI thread.
 
 If yu don't use it, the UI thread will never get back the result of the requests.
 
