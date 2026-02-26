@@ -5,7 +5,7 @@
 - [Using files](#using-files)
   - [Table of Content](#table-of-content)
   - [Methods](#methods)
-  - [Using JSons](#using-jsons)
+  - [Using Jsons](#using-jsons)
 
 ## Methods
 
@@ -24,7 +24,7 @@ Using System.IO.File, we can:
 - ReadAllText // Returns an array of text.
 - WriteAllText
 
-## Using JSons
+## Using Jsons
 
 You can open json files and deserialize the content to access it as an object. However, you must have defined beforehand your classes and they must have the { get; init; } or { get; set; } properties.
 

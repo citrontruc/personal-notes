@@ -4,12 +4,12 @@
 
 - [Practices](#practices)
   - [Table of Content](#table-of-content)
-  - [POO](#poo)
+  - [OOP](#oop)
   - [Booleans](#booleans)
   - [using](#using)
   - [StringComparison](#stringcomparison)
 
-## POO
+## OOP
 
 Favor Object composition over class inheritance. If we have inheritance, we see the "insides" of a class. If the parent class changes, we don't always see the consequences for our child class. In composition, you know that the object you are using must obey an interface but you don't need more.
 
