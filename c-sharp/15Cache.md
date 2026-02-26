@@ -15,7 +15,7 @@
 
 ## Example
 
-You have to configure cache in your application with timeout and parameters. You can then put data in cache. When you want to access them, just cache.TryGetValue.
+You have to configure cache in your application with timeout and parameters. You can then put data in cache. When you want to access them, just cache.In the cache, you can then TryGetValue.
 
 You can store cache in multiple places. It can be in the memory of your application, in a distributed cache (ex: redis). There is a third option called HybridCache that does the best of both worlds.
 
@@ -180,7 +180,7 @@ public class CacheAsideProductService(IMemoryCache cache, IProductRepository rep
 
 ## Read Through cache
 
-Whenever you do a search, you look for the data in the cache which handles itelf. You don't do anything in the cache directly, you let it fill itself.
+Whenever you do a search, you look for the data in the cache which handles itelf. You don't do anything in the cache directly, you let it fill itself. The cache should handle getting new values.
 
 Note: can be combined with write around and other types of cache.
 
@@ -254,7 +254,7 @@ public class WriteAroundCacheProductService(IMemoryCache cache, IProductReposito
 
 ## Write back
 
-Data is written in cache and then there is a write in database. This approach can improve writes (they are done at a better time). Problem is that you need good conflict handling. Useful for shopping carts.
+Data is written in cache and then there is a write in database. This approach can improve writes (they are done at a better time). Problem is that you need good conflict handling if you have written to multiple caches. Useful for shopping carts.
 
 ```cs
 public class WriteBackCacheProductCartService(

@@ -124,7 +124,7 @@ Private methods are the details of the implementation. They are not meant to be 
 
 XUnit has two main test methods: Fact and Theory
 
-**Fact**: Represents a test method that should be true under the given circumstances. It is typically used for tests that have no inputs or outputs. Use it only if you g=have results that don't change.
+**Fact**: Represents a test method that should be true under the given circumstances. It is typically used for tests that have no inputs or outputs. Use it only if you have results that don't change.
 
 ```cs
 public class MathOperations
@@ -341,16 +341,11 @@ Types.InAssembly(ApplicationAssembly)
 .GetResult();
 ```
 
-- Types.InAssembly(ApplicationAssembly)
-Selects all types defined in ApplicationAssembly.
-- .That().ImplementInterface(typeof(ICommandHandler<>))
-Filters types that implement ICommandHandler\<T>.
-- .Or().ImplementInterface(typeof(ICommandHandler<,>))
-Also includes types implementing ICommandHandler<TCommand, TResult>.
-- .Should().HaveNameEndingWith("CommandHandler")
-Asserts that all matching types must have names ending with CommandHandler.
-- .GetResult()
-Executes the rule and returns the validation result (used by the test runner to fail/pass).
+- Types.InAssembly(ApplicationAssembly): Selects all types defined in ApplicationAssembly.
+- .That().ImplementInterface(typeof(ICommandHandler<>)): Filters types that implement ICommandHandler\<T>.
+- .Or().ImplementInterface(typeof(ICommandHandler<,>)): Also includes types implementing ICommandHandler<TCommand, TResult>.
+- .Should().HaveNameEndingWith("CommandHandler"): Asserts that all matching types must have names ending with CommandHandler.
+- .GetResult(): Executes the rule and returns the validation result (used by the test runner to fail/pass).
 
 ## Mocks
 
@@ -426,7 +421,7 @@ Assert.That(result, Is.EqualTo(true));
 mock.VerifyAll();
 ```
 
-If we want to add a setup, we start by creating our mock and then t=we choose which method to setup. Example:
+If we want to add a setup, we start by creating our mock and then we choose which method to setup. Example:
 
 ```cs
 Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();
@@ -500,7 +495,7 @@ mockValidator.Setup(x => x.myProperty).Returns("myPropertyValue");
 mockValidator.Setup(x => x.myProperty).Returns(myFunctionNameHere);
 ```
 
-If we have a method to modify a properties, mock won't remember changes to the property except if you specify to setp the property:
+If we have a method to modify a properties, mock won't remember changes to the property except if you specify to setup the property:
 
 ```cs
 Mock<IFrequentFlyerNumberValidator> mockValidator = new Mock<IFrequentFlyerNumberValidator>();

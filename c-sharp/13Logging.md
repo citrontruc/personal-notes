@@ -17,7 +17,7 @@
 
 Debugging, performance monitoring (log execution times, memory usage & other) and security auditing. A log has to have one of these 3 uses or else it is useless.
 
-We want to avoid useless, scattered logs without any context.
+We want to avoid useless, scattered logs without any context. If logs make it less clear what is happening, consider changing them.
 
 ## Best Practices
 
@@ -230,7 +230,7 @@ public class ExceptionLoggingMiddleware : IloggerMiddleware
 ```
 
 ```cs
-// Create aa logger to write to two different files.
+// Create a logger to write to two different files.
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()

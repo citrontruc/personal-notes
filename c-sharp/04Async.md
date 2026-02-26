@@ -26,7 +26,7 @@
 
 By default, a task is the result of an async method that returns no values. Task\<TResult> if you return a value.
 
-void for EventHandling.
+You can use void for EventHandling but it is the only case. Problem is that you can't detect exceptions with void.
 
 Async and await relieve the server from work. The server is free to do another task while the await happens.
 
