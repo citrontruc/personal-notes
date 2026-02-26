@@ -146,7 +146,7 @@ When we have a set of methods that are associated to an Event, we are using dele
 
 We have EventArgs to encapsulate data. With mouse events, we can have the position of the mouse or these kind of things.
 
-What do you need? First of, a class to define your EventArgs who contains your arguments. You then need an EventHandler that has a method to **Inwoke** an event passing the EventArgs. In order to define additional elements to pass, define your delegate with public delegate void EventHandler\<TeventArgs>(arguments). We then need to have senders who subscribe to our eventHandler.
+What do you need? First of, a class to define your EventArgs who contains your arguments. You then need an EventHandler that has a method to **Invoke** an event passing the EventArgs. In order to define additional elements to pass, define your delegate with public delegate void EventHandler\<TeventArgs>(arguments). We then need to have senders who subscribe to our eventHandler.
 
 ```cs
 public class NaiveButton<T>

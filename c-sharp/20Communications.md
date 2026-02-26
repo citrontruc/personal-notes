@@ -4,12 +4,21 @@
 
 - [Communications with server](#communications-with-server)
   - [Table of content](#table-of-content)
+  - [IP, UDP and TCP](#ip-udp-and-tcp)
   - [HttpClient](#httpclient)
   - [Server sent events](#server-sent-events)
 
+## IP, UDP and TCP
+
+Protocol: IP handles addressing and wrapping calls. It makes sure the packages get to an address (IPV4 or IPV6). It is a best effort protocol. NextHops and addresses. Uses DNS. Have a look at network courses to check how the DNS updates.
+
+Protocol: UDP does not need a connection, no handshake protocols and no ack. You don't detect when packages are lost. Used for streaming.
+
+Protocol: TCP has handshake to create a connection. Packages have ack. Slower but more secure. Used for web, email...
+
 ## HttpClient
 
-HttpClient  are not disposed of by default so make sure to either mutualize them or dispose of them. Since HTTPclients are meant to have a long lifetime, mutualizing sounds like the optimal solution.
+HttpClient are not disposed of by default so make sure to either mutualize them or dispose of them. Since HTTPclients are meant to have a long lifetime, mutualizing sounds like the optimal solution.
 
 There is an HttpClientFactory library that can handle creating an disposing of HttpClient. <https://code-maze.com/using-httpclientfactory-in-asp-net-core-applications/>
 
