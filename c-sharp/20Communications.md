@@ -10,11 +10,11 @@
 
 ## IP, UDP and TCP
 
-Protocol: IP handles addressing and wrapping calls. It makes sure the packages get to an address (IPV4 or IPV6). It is a best effort protocol. NextHops and addresses. Uses DNS. Have a look at network courses to check how the DNS updates.
+**IP Protocol**: IP handles addressing and wrapping calls. It makes sure the packages get to an address (IPV4 or IPV6). It is a best effort protocol. NextHops and addresses. Uses DNS. Have a look at network courses to check how the DNS updates.
 
-Protocol: UDP does not need a connection, no handshake protocols and no ack. You don't detect when packages are lost. Used for streaming.
+**UDP Protocol**: UDP does not need a connection, no handshake protocols and no ack. You don't detect when packages are lost. Used for streaming.
 
-Protocol: TCP has handshake to create a connection. Packages have ack. Slower but more secure. Used for web, email...
+**TCP Protocol**: TCP has handshake to create a connection. Packages have ack. Slower but more secure. Used for web, email...
 
 ## HttpClient
 

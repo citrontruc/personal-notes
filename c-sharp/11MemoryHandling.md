@@ -109,7 +109,7 @@ GC.SuppressFinalize(this);
 
 ## SOH and LOH
 
-Small Object Heap and Large Object Heap. We want to avoid to have to check the whole heap for garbage collection. In order to avoid that, we have two kinds of heap. in the SOH, our data are separated in three parts called the generations. When an object is created, it is added to the generation 0. When it is full, we pass them to a higher generation. The garbage collector checks in priority elements on generation 0, sometimes check 1 and 2.
+Small Object Heap and Large Object Heap. We want to avoid to have to check the whole heap for garbage collection. In order to avoid that, we have two kinds of heap. In the SOH, our data are separated in three parts called the generations. When an object is created, it is added to the generation 0. When it is full, we pass them to a higher generation. The garbage collector checks in priority elements on generation 0, sometimes check 1 and 2.
 
 LOH is made of all objects of size > 85 kO.
 
