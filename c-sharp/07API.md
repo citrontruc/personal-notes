@@ -31,7 +31,9 @@ dotnet run . --launch-profile https
 
 ## Avoid confusion in variable origin
 
-You can ask parameters [FromBody] or [FromQuery].
+You can ask parameters [FromBody] or [FromQuery]. Note: on get operations, you cannot send a body so this is important only on post values. ==> A client SHOULD NOT generate content in a GET request unless it is made directly to an origin server that has previously indicated, in or out of band, that such a request has a purpose and will be adequately supported. An origin server SHOULD NOT rely on private agreements to receive content, since participants in HTTP communication are often unaware of intermediaries along the request chain.
+
+Use the query string or if you end up with massive query strings, use a "search" endpoint on which you can post.
 
 ## Swagger
 
