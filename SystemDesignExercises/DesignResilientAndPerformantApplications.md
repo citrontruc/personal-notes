@@ -14,8 +14,12 @@
     - [Take off the developer hat](#take-off-the-developer-hat)
   - [What is latency ?](#what-is-latency-)
     - [Main components](#main-components)
-    - [Diagnosis](#diagnosis)
+    - [Diagnosis: why are systems considered slow?](#diagnosis-why-are-systems-considered-slow)
     - [Possible roads to action ?](#possible-roads-to-action-)
+  - [Performant protocols](#performant-protocols)
+    - [What goes inside the TCP protocol?](#what-goes-inside-the-tcp-protocol)
+    - [Risks when two systems talk to each other with TCP](#risks-when-two-systems-talk-to-each-other-with-tcp)
+    - [The UDP protocol](#the-udp-protocol)
   - [You need performant databases](#you-need-performant-databases)
     - [Relational or not relational?](#relational-or-not-relational)
     - [Questions to ask](#questions-to-ask)
@@ -83,17 +87,71 @@ Most requests are fast, some are slow. Use percentiles to measure speed.
 
 SLOs and SLAs describe agreements for users.
 
-### Diagnosis
+### Diagnosis: why are systems considered slow?
 
-The smallest bandwidth conditions the whole system (imagine multiple pipes with different sizes). Smallest sizes conditions the other pipes.
+The smallest bandwidth conditions the whole system (imagine multiple pipes with different sizes). Smallest sizes conditions the other pipes. Bandwidth is rarely the culprit. We have good optic fiber & compact data.
 
 When you have a system that needs multiple parallel operations / calls. The slowest call slows down the whole transaction ==> optimize for slowest calls.
 
+BufferBloat: We get a lot of requests that end up in the buffer because we don't have the mean to treat them all.
+
+**The last mile problem**: During most of the travel, requests have the spped of light. Problems appear in last mile when we have to redirect requests in areas that are densely populated. Lots of machines. Use traceroute to check that.
+
 ### Possible roads to action ?
 
-We often talk about scaling up (vertical scaling) vs scaling out (hoorizontal scaling). Truth is you need a bit of both. Elastic scaling is good for spikes but mostly unpredictable.
+We could increase treatment speed of items in queue: We often talk about scaling up (vertical scaling) vs scaling out (hoorizontal scaling). Truth is you need a bit of both. Elastic scaling is good for spikes but mostly unpredictable.
 
-This can be complicated to put in place since the task of deploying and developing is not always handled by the same teams.
+Reducing the distance between machines could be a solution but it isn't always possible and last mile is the problem. In order reduce to the number of calls and the distance of calls, we can use a mix of CDN and cache. ==> Most obvious way to increase the efficiency of calls and reduce latency is by making more efficient protocols. Or to **send less data**.
+
+All measures can be complicated to put in place since the task of deploying / handling architectures and developing are not always handled by the same teams.
+
+## Performant protocols
+
+A bit of vocabulary:
+
+**IP Protocol**: IP handles addressing and wrapping calls. Delivers based on IP addresses. It makes sure the packages get to an address (IPV4 or IPV6). It is a best effort protocol. NextHops and addresses. Source and desitnation Address.
+
+**UDP Protocol**: UDP does not need a connection, no handshake protocols and no ack. You don't detect when packages are lost. Used for streaming.
+
+**TCP Protocol**: Protocole de communication pour pouvoir discuter de façon sécurisé et fiable sur un réseau mouvementé. Orienté connexion. TCP has handshake to create a connection. Packages have ack. Slower but more secure. Used for web, email...
+
+**NAT**: network address translation. NAT serves as in intermediary for networks. Networks have reserved ranges, careful.
+
+**DNS**: phonebook of the internet (translates addresses to IP address).
+
+We will not focus too much on the modality of exchanging between machines (sockets vs ServerSentUpdates).
+
+### What goes inside the TCP protocol?
+
+TCP has a three way handshake (Syn, SynAck and Ack). You need three round trips before transporting any meaningful message. Creating connections is complicated ==> Reuse connections.
+
+There have been improvements on TCP but we still need that round trip.
+
+If you don't need every frame or don't need correction, you can use UDP (ex: streaming).
+
+### Risks when two systems talk to each other with TCP
+
+**Congestion collapse**: if one of the systems has a higher bandwitdh / rate than the other, he will send a lot of copies of the same message and not wait for response. We fill the other system's buffer ==> collapse.
+
+==> Flow control. Flow control is a mechanism that manages the data transmission rate between two nodes to ensure a fast sender does not overwhelm a slow receiver. It prevents data loss by coordinating the flow before the receiver's buffer overflows. How do we handle that?
+
+- Stop-and-Wait: The sender transmits one packet and waits for an acknowledgment (ACK) before sending the next.
+- Sliding Window: The sender can transmit multiple packets (defined by a "window size") before requiring an ACK. This is used in TCP.
+- Signal size of buffer in every message.
+
+==> Congestion control / Congestion avoidance. We want to avoid overwhelming the network. Start with small window and increase gradually. Exponential growth and multiplicative decrease (decrease size by 2). Be careful to not start too slow. If you only double size, don't start at 2.
+
+We make the assumption that packets will be lost and try to program our way around this. We use packet loss as an indicator.
+
+**Warning**: receiver does not look inside the packets until it has received every one of them.
+
+### The UDP protocol
+
+In UDP datagrams, information for IP packets are optional (example: source port and checksum can be dropped). No guarantee on message delivery & no guarantee on delivery order. No congestion control.
+
+NATS and UDP: Since UDP is not connection oriented and UDP does not create connections. NATs are used to create a connection and close it when it is finished, in UDP, we don't know when to start and when to end. When we want to use UDP behind a NAT, we tend to use a different protocol to bypass the NAT (STUN or TURN).
+
+Careful, you will also have to reimplement congestion avoidance, retransmission on loss and control rate of transmission.
 
 ## You need performant databases
 
