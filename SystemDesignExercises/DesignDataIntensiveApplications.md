@@ -15,6 +15,12 @@
     - [Main components](#main-components)
     - [Diagnosis](#diagnosis)
     - [Possible roads to action ?](#possible-roads-to-action-)
+  - [Digression on databases](#digression-on-databases)
+    - [Relational or not relational?](#relational-or-not-relational)
+    - [Questions to ask](#questions-to-ask)
+    - [What about other databases?](#what-about-other-databases)
+    - [How do we use databases to improve performance?](#how-do-we-use-databases-to-improve-performance)
+    - [Digression: B-Trees](#digression-b-trees)
 
 ## Context
 
@@ -78,3 +84,49 @@ When you have a system that needs multiple parallel operations / calls. The slow
 We often talk about scaling up (vertical scaling) vs scaling out (hoorizontal scaling). Truth is you need a bit of both. Elastic scaling is good for spikes but mostly unpredictable.
 
 This can be complicated to put in place since the task of deploying and developing is not always handled by the same teams.
+
+## Digression on databases
+
+### Relational or not relational?
+
+SQL has been the most popular format for years. NoSQL has gained traction. Notably because you can keep all the data in a json in the same place. You can have your whole resume as a JSON and not split it in multiple tables. Trouble is: you do not enforce a schema in NoSQL. Errors are more complicated to detect and handle.
+
+Furthermore, you need to implement standards at a moment and it can be easier to do it by column (example: city names).
+
+NoSQL allows for easier individual updates (just add a field / change the field) but makes for more complicated mass updates. You need to support all old formats on read.
+
+### Questions to ask
+
+- Do I have to retrieve all of the data at once or do I need to retrieve just a part everytime?
+- Would my schema change often?
+- Do I have many to one relationships (relational is better for that).
+- What volume of data do I have?
+- How should I optimize my code?
+
+SQL has imperative language, which is hard to parallelize. NoSQl is often declarative (you declare which result you need), which is easier to parallelize. CSS is declarative. MapReduce is in the middle.
+
+### What about other databases?
+
+Graphs: Very practical when relationships between entities are varied or numerous. Easy to add relationships, can be complicated to delete them or delete nodes. Not widespread because can cost a lot.
+
+Triple Store: (subject, predicate, value). (Alice, BirthYear, 1964).
+
+A lot of other things too. We will not study all of them.
+
+### How do we use databases to improve performance?
+
+Data bases are basicallly machines to store data. You need an index to access a specific data and avoid having to reread every sequential information.
+
+Choosing an index is crucial. Indexes speed up read but slow down write (adds overhead).
+
+==> How do we search indexes? Exact matching but fuzzy matching is also possible (we define distance measure and accepted distance). Example: Search index, cosine and 0.1. Can be really tricky.
+
+### Digression: B-Trees
+
+B-trees are a data structure where each node contains an id value. Each child contains the child ids (example: parent has 200, children are 2X0. Child of 2YO are the 2YX value). Can also be used for search systems where you have to give most common searches starting by a substring.
+
+In our case, each node have 10 children. We can split to 5 or 20 children. We want to be balanced.
+
+Like a hotel.
+
+==> Logging B-Trees. In order to avoid problems, you can store all the operations as logs so yo can rebuild your B-Tree. Each B-Tree node can be saved separately.
