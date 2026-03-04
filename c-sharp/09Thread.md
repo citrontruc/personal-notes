@@ -12,6 +12,7 @@
   - [Semaphores](#semaphores)
   - [Deadlock](#deadlock)
   - [Thread-safe Structures](#thread-safe-structures)
+  - [Concurrent Stack](#concurrent-stack)
 
 ## How does it work?
 
@@ -378,3 +379,88 @@ Afin d'éviter ce genre de mécanisme, il faut que :
 There are some natively thread-safe structures: example is the ConcurrentDictionary or ConcurrentHashmap. Use the specific methods to access elements.
 
 List\<T> for example is not thread safe. Consider using a ConcurrentBag\<T> instead. You can use this to chain calls and update a value on the screen as tasks get results.
+
+## Concurrent Stack
+
+Easiest way would be to create a regular stack and add locks to it. In this situation, Pop and Push operations need a lock.
+
+```cs
+public class SafeStack<T>
+{
+    private readonly Stack<T> _stack = new();
+    private readonly object _lock = new();
+
+    public void Push(T item)
+    {
+        lock (_lock)
+        {
+            _stack.Push(item);
+        }
+    }
+
+    public bool TryPop(out T item)
+    {
+        lock (_lock)
+        {
+            if (_stack.Count == 0)
+            {
+                item = default!;
+                return false;
+            }
+            item = _stack.Pop();
+            return true;
+        }
+    }
+}
+```
+
+Problem is that it takes more time to do each operations beceuse we block the stack everytime. We can do more efficient than that.
+
+Compare and swap approach: locate if element located at position X with value Y has not changed in between. If it has, restart from the beginning.
+
+```cs
+public class LockFreeStack<T>
+{
+    private class Node
+    {
+        public T Value;
+        public Node Next;
+    }
+
+    private Node _head;
+
+    public void Push(T value)
+    {
+        var newNode = new Node { Value = value };
+        while (true)
+        {
+            Node currentHead = _head;
+            newNode.Next = currentHead;
+            
+            // CAS: Replace _head with newNode only if it still matches currentHead
+            if (Interlocked.CompareExchange(ref _head, newNode, currentHead) == currentHead)
+                break;
+        }
+    }
+
+    public bool TryPop(out T value)
+    {
+        while (true)
+        {
+            Node currentHead = _head;
+            if (currentHead == null)
+            {
+                value = default;
+                return false;
+            }
+
+            // CAS: Move _head to the next node if it hasn't changed
+            if (Interlocked.CompareExchange(ref _head, currentHead.Next, currentHead) == currentHead)
+            {
+                value = currentHead.Value;
+                return true;
+            }
+        }
+    }
+}
+```
