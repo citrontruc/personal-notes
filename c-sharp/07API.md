@@ -10,6 +10,7 @@
   - [Swagger](#swagger)
   - [Example controller](#example-controller)
   - [Data Transfer Objects](#data-transfer-objects)
+  - [Status codes](#status-codes)
   - [Versioning](#versioning)
   - [Pagination](#pagination)
   - [Validation](#validation)
@@ -54,7 +55,7 @@ using TodoApi.Models;
 
 namespace TodoApi.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/[controller]")] // Uses prefix of our class.
 [ApiController]
 public class TodoItemsController : ControllerBase
 {
@@ -184,6 +185,10 @@ Data Transfer Objects are the objects that are manipulated by your applications.
 
 There are libraries to do the mapping between the objects. Can be a double edge sword. Do it by hand.
 
+## Status codes
+
+Your requests can return all types of results (JsonResults or other type of results). Use the generic IActionResults. There exists some default code values like OkResult, NoContent... ==> You answer should be ActionResult\<value> with value your DTO.
+
 ## Versioning
 
 Only do it when you add new stuff (you don't need it if you add optional fields or new endpoints). Put the number in the url path.
@@ -206,7 +211,7 @@ builder.Services.AddApiVersioning(options =>
 
 var app = builder.Build();
 
-app.MapControllers();
+app.MapControllers(); // Instead of MapControllers, we can do it in two steps: first UseRouting and then UseEndpointss with the MapControllers() function.
 app.Run();
 ```
 
