@@ -4,6 +4,7 @@
 
 - [Design Data Intensive Applications](#design-data-intensive-applications)
   - [Table of content](#table-of-content)
+  - [Sources](#sources)
   - [Context](#context)
   - [Performance is a feature](#performance-is-a-feature)
     - [Engineers are data engineers](#engineers-are-data-engineers)
@@ -15,12 +16,19 @@
     - [Main components](#main-components)
     - [Diagnosis](#diagnosis)
     - [Possible roads to action ?](#possible-roads-to-action-)
-  - [Digression on databases](#digression-on-databases)
+  - [You need performant databases](#you-need-performant-databases)
     - [Relational or not relational?](#relational-or-not-relational)
     - [Questions to ask](#questions-to-ask)
     - [What about other databases?](#what-about-other-databases)
     - [How do we use databases to improve performance?](#how-do-we-use-databases-to-improve-performance)
     - [Digression: B-Trees](#digression-b-trees)
+    - [Column Storage](#column-storage)
+    - [Materialized views](#materialized-views)
+
+## Sources
+
+DesignDataIntensiveApplications
+HighPerformanceBrowserNetworking
 
 ## Context
 
@@ -77,6 +85,8 @@ SLOs and SLAs describe agreements for users.
 
 ### Diagnosis
 
+The smallest bandwidth conditions the whole system (imagine multiple pipes with different sizes). Smallest sizes conditions the other pipes.
+
 When you have a system that needs multiple parallel operations / calls. The slowest call slows down the whole transaction ==> optimize for slowest calls.
 
 ### Possible roads to action ?
@@ -85,7 +95,17 @@ We often talk about scaling up (vertical scaling) vs scaling out (hoorizontal sc
 
 This can be complicated to put in place since the task of deploying and developing is not always handled by the same teams.
 
-## Digression on databases
+## You need performant databases
+
+A bit of vocabulary:
+
+- OLTP (Online Transaction processing) Access pattern for transactions. Prioritize small fetch with random access.
+- OLAP (Online analytics processing) Access pattern optimized for analytics. For very large data. Optimized for bulk import.
+- Data Lake (raw data)
+- Data Warehouse (Normalized data)
+- Data Mart (Aggregated data)
+- Star Schema: A fact table in the middle and dimension tables to the side.
+- Snowflake if even more broken down with multiple fact tables.
 
 ### Relational or not relational?
 
@@ -121,6 +141,8 @@ Choosing an index is crucial. Indexes speed up read but slow down write (adds ov
 
 ==> How do we search indexes? Exact matching but fuzzy matching is also possible (we define distance measure and accepted distance). Example: Search index, cosine and 0.1. Can be really tricky.
 
+==> Know what you are optimizing for (read / write / updates...)
+
 ### Digression: B-Trees
 
 B-trees are a data structure where each node contains an id value. Each child contains the child ids (example: parent has 200, children are 2X0. Child of 2YO are the 2YX value). Can also be used for search systems where you have to give most common searches starting by a substring.
@@ -130,3 +152,13 @@ In our case, each node have 10 children. We can split to 5 or 20 children. We wa
 Like a hotel.
 
 ==> Logging B-Trees. In order to avoid problems, you can store all the operations as logs so yo can rebuild your B-Tree. Each B-Tree node can be saved separately.
+
+### Column Storage
+
+Store your data columns by columns. Practical if at a given moment, you only need to access one column at a time. Example: parquet format. Very good for data compression because you don't need to store every value since value repetition is very common in most columns.
+
+Just be careful when writing new data, you might need to decompress & recompress (more optimal writes be done with LSM trees).
+
+### Materialized views
+
+The result of a function on data. Used to sum, get min, max count... Result is cached if no change happens on data.
