@@ -12,3 +12,5 @@
 - Bad Data. We want to do AI but our data is crap so our results are biased and innacurate. We should sstart with Data Governance.
 - PoC that never scales. Project stays a toy forever because too specific and can't scale infrastructure and costs.
 - Users are uninsterested. Users are not briefed, they are scared of a tool that they don't know how to use.
+
+There are also concerns about wolatility. Should I invest now, knowing that prices are always decreasing? Which tool should I use? Is it not safer to internalize my Ai skills.
