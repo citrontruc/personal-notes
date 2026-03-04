@@ -20,6 +20,8 @@
     - [What goes inside the TCP protocol?](#what-goes-inside-the-tcp-protocol)
     - [Risks when two systems talk to each other with TCP](#risks-when-two-systems-talk-to-each-other-with-tcp)
     - [The UDP protocol](#the-udp-protocol)
+    - [Why is it a generally bad idea to reinvent the wheel](#why-is-it-a-generally-bad-idea-to-reinvent-the-wheel)
+    - [TLS / SSL](#tls--ssl)
   - [You need performant databases](#you-need-performant-databases)
     - [Relational or not relational?](#relational-or-not-relational)
     - [Questions to ask](#questions-to-ask)
@@ -119,6 +121,8 @@ A bit of vocabulary:
 
 **DNS**: phonebook of the internet (translates addresses to IP address).
 
+Know your hierarchy: Http defines the content of the page. It uses TCP to ensure reliability, breaks in segment, checks for error and sens them in order. I handles routing to the target. Moves accross routers.
+
 We will not focus too much on the modality of exchanging between machines (sockets vs ServerSentUpdates).
 
 ### What goes inside the TCP protocol?
@@ -152,6 +156,30 @@ In UDP datagrams, information for IP packets are optional (example: source port 
 NATS and UDP: Since UDP is not connection oriented and UDP does not create connections. NATs are used to create a connection and close it when it is finished, in UDP, we don't know when to start and when to end. When we want to use UDP behind a NAT, we tend to use a different protocol to bypass the NAT (STUN or TURN).
 
 Careful, you will also have to reimplement congestion avoidance, retransmission on loss and control rate of transmission.
+
+### Why is it a generally bad idea to reinvent the wheel
+
+On internet, we tend to have much more intermediaries than we think (proxy, nat, dns...) Each of them can change packets and can flag them as dangerous if they are not recognised. Since most of the intermediary won't look inside, they won't be able to handle your custom solution. Do not deviate from standard solution too much if you don't want to be flagged.
+
+Websockets and smart stuff tend to wrap their solutions in TCP or HTTPS tunnels in order to avoid problems.
+
+### TLS / SSL
+
+(note: TLS is an upgraded version of SSL). We use both kinda interchangeably.
+
+TLS is one below UDP and TCP. First step is TCP connection then TLS handshake, then HTTP.
+
+Encryption protocol. Added on top of TCP. HTTPS = HTTP Secured.
+
+TLS offers encryption, authentication and integrity (detect message tampering). TLS uses **Public key cryptography**. We use public key cryptography to exchange a private key and then use symmetric key cryptography which is much quicker.
+
+PORT 80 reserved for http and 443 for https.
+
+TLS creates a new session. Try to reuse session to avoid another roundtrip for the TLS handshake. Session ID and Session ticket to indicate the data to use (session state stored in a ticket).
+
+Certificate verification to verify trusted authorities. We use this to avoid having to verify each website keys. We have certificate authorities which verify certificate keys. In case a certificate is breached, we revocate the certificate.
+
+Don't include unecessary certificates in your browser, it takes time to check certificates.
 
 ## You need performant databases
 
