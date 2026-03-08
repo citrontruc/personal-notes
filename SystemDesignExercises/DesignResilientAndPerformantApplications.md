@@ -22,6 +22,7 @@
     - [The UDP protocol](#the-udp-protocol)
     - [Why is it a generally bad idea to reinvent the wheel](#why-is-it-a-generally-bad-idea-to-reinvent-the-wheel)
     - [TLS / SSL](#tls--ssl)
+    - [Physical limitations to communications](#physical-limitations-to-communications)
   - [You need performant databases](#you-need-performant-databases)
     - [Relational or not relational?](#relational-or-not-relational)
     - [Questions to ask](#questions-to-ask)
@@ -163,7 +164,7 @@ Careful, you will also have to reimplement congestion avoidance, retransmission 
 
 ### Why is it a generally bad idea to reinvent the wheel
 
-On internet, we tend to have much more intermediaries than we think (proxy, nat, dns...) Each of them can change packets and can flag them as dangerous if they are not recognised. Since most of the intermediary won't look inside, they won't be able to handle your custom solution. Do not deviate from standard solution too much if you don't want to be flagged.
+On internet, we tend to have much more intermediaries than we think (proxy, nat, dns...) Each of them can change packets and can flag them as dangerous if they are not recognized. Since most of the intermediary won't look inside, they won't be able to handle your custom solution. Do not deviate from standard solution too much if you don't want to be flagged.
 
 Websockets and smart stuff tend to wrap their solutions in TCP or HTTPS tunnels in order to avoid problems.
 
@@ -184,6 +185,12 @@ TLS creates a new session. Try to reuse session to avoid another roundtrip for t
 Certificate verification to verify trusted authorities. We use this to avoid having to verify each website keys. We have certificate authorities which verify certificate keys. In case a certificate is breached, we revocate the certificate.
 
 Don't include unecessary certificates in your browser, it takes time to check certificates.
+
+### Physical limitations to communications
+
+In order to send a message, you need a frequency range on which to send your message. All frequencies don't have the same performance. You have codified spectrum allocation so you can't do much about that but it is a limiation.
+
+You also need to avoid sending noise for noise take space on your signal. The more you have noise on your channel, the stronger your signal will need to be.
 
 ## You need performant databases
 
