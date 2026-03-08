@@ -30,6 +30,10 @@
     - [Digression: B-Trees](#digression-b-trees)
     - [Column Storage](#column-storage)
     - [Materialized views](#materialized-views)
+    - [Encoding](#encoding)
+  - [Things to take care of](#things-to-take-care-of)
+    - [Know what is going on](#know-what-is-going-on)
+    - [Use the correct intermediary](#use-the-correct-intermediary)
 
 ## Sources
 
@@ -199,7 +203,11 @@ SQL has been the most popular format for years. NoSQL has gained traction. Notab
 
 Furthermore, you need to implement standards at a moment and it can be easier to do it by column (example: city names).
 
-NoSQL allows for easier individual updates (just add a field / change the field) but makes for more complicated mass updates. You need to support all old formats on read.
+NoSQL allows for easier individual updates (just add a field / change the field) but makes for more complicated mass updates and migrations. You need to support all old formats on read.
+
+In all cases, you will need to have a certain amount of backward compatibility, because users won't update directly when the code format change and you will change your own format to add new information when specs change.
+
+**IMPORTANT**: one of the hidden merits of having a schema is that it is easier to document and version. Since everybody has the same schema, we can archive it and communicate when it changes.
 
 ### Questions to ask
 
@@ -248,3 +256,30 @@ Just be careful when writing new data, you might need to decompress & recompress
 ### Materialized views
 
 The result of a function on data. Used to sum, get min, max count... Result is cached if no change happens on data.
+
+### Encoding
+
+Regardless of the data type, you will have to pass your info around. Therefore, you need encoding. Careful with language encoding library, they may not be compatible with other languages. Keep to standardized structures and even they have problems ==> csv does not differenciate string containing ints adn strings. ==> Always check how your data is encoded.
+
+Note: we can have optional and required fields. More often than not, it means we check for the presence of a value but our encoding will be the same.
+
+**Reader Schema vs Writer schema**: you encode data in a schema and read it into another. You don't need the schemas to be the same, just to be compatible. You can have some values required on write and uninteresting at read (example: version number).
+
+## Things to take care of
+
+### Know what is going on
+
+**Question**: what happens if an older version of the code reads a new data and have to write on it? Does it switch back the code to the old version? Answer should be no. Make sure it is when implementing your code. Make sure you also don't delete a field buy accident. Make sure you write back all the fields in the type they were before.
+
+**Question2**: When you have APIs which interact, make sure you always get an answer if a system fails and the logs. If an API / A thread silently crashes, you are doomed.
+
+Make sure you know when you are calling a distant service and handle it accordingly.
+
+### Use the correct intermediary
+
+If you have a lot of requests, use a message broker. It might use some more time but:
+
+- Retries when needed.
+- Stores failure.
+- If coded well, you can afford your message broker failing.
+- Message broker can have it's own redirect table so if there is a change in the IPs, you can handle it at the broker level.

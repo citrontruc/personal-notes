@@ -11,6 +11,7 @@
   - [GraphQL vs REST](#graphql-vs-rest)
   - [Versioning](#versioning)
   - [Transform Data](#transform-data)
+  - [Documentation](#documentation)
 
 ## Definition
 
@@ -41,3 +42,7 @@ You don't have exact versioning but you can evolve the schema in the Graph. We c
 ## Transform Data
 
 In GraphQL, there are ways to do Groupby or data transformation but they are suboptimal. The best use case for graphQL would be for data that is already transformed. Ideally on the data mart level.
+
+## Documentation
+
+On possède qu'un seul endpoint qui englobe toutes les query. Le schéma GraphQL est une documentation en soit.
