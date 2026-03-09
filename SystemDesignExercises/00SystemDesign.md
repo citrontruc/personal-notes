@@ -32,6 +32,7 @@ What you need to do:
 - List every feature the system needs at launch. You don’t need to prioritise it yet. Just brain dump it in written form.
 - Identify which features are truly critical vs. nice-to-have.
 - Flag any features that feel complex, risky, or unclear.
+- Identify the users.
 
 **Step 2**: Extract the non-functional requirements (NFRs)
 
@@ -46,8 +47,13 @@ What you need to do:
 - Read each requirement and ask: "What happens when this breaks? What happens under 10x load? What are the security demands?"
 - Map business language to architectural characteristics. "We can't afford downtime" → Availability. "We're handling payments" → Compliance + Security. "We're expecting a spike at launch" → Scalability.
 - Prioritise ruthlessly. You cannot optimise for everything. Pick the 3-5 that are the most critical. Accept that strengthening one will weaken another.
+- Make educated guesses based on who your users are.
 
 (Business stakeholders will never hand you this list. The quality of the questions you ask here matters more than any framework you choose.)
+
+**Step 2.5**: Estimate size.
+
+Do a few calculus to evaluate the scales of your components. It can help also see the costs of each feature.
 
 **Step 3**: Apply your real-world constraints.
 
@@ -91,5 +97,7 @@ What you need to do:
 - Write an Architecture Decision Record (ADR) capturing: the context, the decision, the alternatives considered, and the trade-offs accepted.
 - Store it alongside the code, where developers will actually find it.
 - Share it with your team before they start building.
+- Talk about drawbacks, bottlenecks, tradeoffs.
+- Mention a bit of asynchronous, caching...
 
 To repeat, the goal of this process isn't to find the perfect architecture.
