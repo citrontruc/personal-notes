@@ -35,6 +35,11 @@
   - [Things to take care of](#things-to-take-care-of)
     - [Know what is going on](#know-what-is-going-on)
     - [Use the correct intermediary](#use-the-correct-intermediary)
+  - [Distributed data](#distributed-data)
+    - [Why?](#why)
+    - [What?](#what)
+    - [Handling special cases](#handling-special-cases)
+    - [Replication in practice](#replication-in-practice)
 
 ## Sources
 
@@ -290,3 +295,47 @@ If you have a lot of requests, use a message broker. It might use some more time
 - Stores failure.
 - If coded well, you can afford your message broker failing.
 - Message broker can have it's own redirect table so if there is a change in the IPs, you can handle it at the broker level.
+
+## Distributed data
+
+### Why?
+
+- Scalable? Maybe your data is too big and you need multiple machines to store it all.
+- Fault tolerance? Maybe you need to have backup in case of trouble or you need high availability.
+- Latency? You have users around the world and you need to get data as quickly as possible to users that are far away. Note: if you have problems with servers being too far away, you can't scale vertically your way out of this problem. You have to scale horizontally.
+
+### What?
+
+- Replication. More of the same data elsewhere.
+- Partitioning.Split your whole data in smaller subsets so that different partitions can be assigned to different nodes. Sharding.
+
+Both of the methods are not mutually exclusive. In fact, you will probably need both.
+
+First step: Synchronous or asynchronous replication? How do we handle failed replicas? A common solution is the leader based replication. We have a leader that handles replication on other nodes. Writes only happen through the leader who communicates the changes to the followers. Reads can happen through any off the replicas.
+
+Note: leader / follower can be synchronous or asynchronous. If synchronous: be careful. Whenever a node is down, you will endlessly retry to communicate change to it. Advantage is that at least you are sure that all the data are synchronized with no risk of falling out. Having everybody synchronous is too complicated so sometimes, we have one synchronous to serve as backup in case the leader dies and the rest is asynchronous.
+
+Asynchronous is therefore most times prefered.
+
+In order to add replication nodes, start by tacking a dump from the data and then request all changes from the leader that have taken place since last value.
+
+### Handling special cases
+
+Node outages (voluntary like security patch or unvoluntary). You need to have a catch up protocol. If you have a leader failure, it can be trickier. You need to promote one of your followers to leader. The new leaders communicate to all the followers that it is the new leader.
+
+You can detect which node has failed with the heartbeat protocol.
+
+**How do we handle changes from the old leader that have not been communicated yet?**
+Also make sure that we don't have 2 leaders or that in our heartbeat protocol, our calls were not just delayed. Our old leader needs to be really dead in order to replace him.
+
+### Replication in practice
+
+We could use queries but this could lead to problems ==> Autoincrement or datetime.Now statements are not guaranteed to give the same result if run on another machine. These are only but two examples and there are more so we will try to rely on other methods for our replication.
+
+A better method would be that every new data is written to the logs and we have systems to notify that the logs have been updated with new values. BUT Be very careful to check if your logs are compatible with newer versions / other versions of your system. You wouldn't want to have to update all of your databases at the same time.
+
+**Replication Lag**: Since data is read asynchronously, you can see discrepancies if the data you just added has not been replicated yet to our followers. Eventual consistency. ==> Read after write consistency. If a user writes something, he should be able to read his result right after that. ==> Some things should be read from the leader (example: the user profile can be modified. You want to show the last version to the user ==> Read it from the leader). You could also track time since last edit and choose from where to read it accordingly... The bigger your system becomes, the more complicated it is to handle that you end up with the same leader in the same datacenter....
+
+**Monotonic Reads**: If yu read the same result from two followers with one of them slower than the other, you might end up with a situation where you see a result and then the results disappear because they do not exist yet in the follower with the old data. ==> Each user must read data from the same follower.
+
+**Coonsistent prefix reads**: You must show data in the correct order. ==> Keep causal dependencies of data.
