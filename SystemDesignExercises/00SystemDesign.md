@@ -5,7 +5,9 @@
 - [System Design general tips](#system-design-general-tips)
   - [Table of Content](#table-of-content)
   - [Questions to ask at the beginning of the project](#questions-to-ask-at-the-beginning-of-the-project)
+  - [Document decisions](#document-decisions)
   - [Must Do steps](#must-do-steps)
+  - [Choosing the right architecture](#choosing-the-right-architecture)
 
 ## Questions to ask at the beginning of the project
 
@@ -16,6 +18,12 @@ Do not try to satisfy too many constraints at once. Start with the 5 main constr
 - How many users do you expect in 12 months?
 - Which part of the system, if it broke or slowed down, would cause the most damage?
 - Is there anything in this system with legal, compliance, or security implications?
+
+## Document decisions
+
+When making architectural decisions, document why you are doing things. When constraints disappear or you have a change in your process, you want to be able to detect changes as early as possible. You also want to check if your solution stills holds up.
+
+Don't do twice the same work.
 
 ## Must Do steps
 
@@ -101,3 +109,20 @@ What you need to do:
 - Mention a bit of asynchronous, caching...
 
 To repeat, the goal of this process isn't to find the perfect architecture.
+
+## Choosing the right architecture
+
+There are three main choices when it comes to architectures of code:
+
+- **Monolith**: Everything runs in a single deployable unit. One codebase, one deployment, one process. A well-structured monolith is fast to build, easy to debug, and perfectly suited to most early-stage and medium-sized systems. It gets a bad reputation because of undisciplined monoliths, not the style itself. The 2 most popular monolith styles are Clean Architecture and the Vertical Slice Architecture, although you can combine them as well.
+- **Modular Monolith**: Still one deployable unit, but the codebase is split into well-defined, independently organised modules. Each module represents a part of a business domain. The modules enforce boundaries without the operational complexity of separate services. The sweet spot for bigger teams that need internal structure but aren't ready (or don't need) independent deployments.
+- **Microservices**: Each domain runs as its own independently deployable service, communicating over the network. Maximum flexibility, scalability, and team autonomy. The cost? You add the operational complexity, distributed systems challenges, and infrastructure overhead.
+
+Evaluate tradeoffs:
+
+- Simplicity + speed to market is the top priority - Monolith wins almost every time at this stage.
+- Complex domain, growing team, need clean internal boundaries - Modular Monolith is the natural fit.
+- Independent scaling per domain, multiple autonomous teams, global traffic - Microservices become genuinely justified.
+- Small internal tool - Vertical Slice Architecture provides you with the ability to implement quickly and in an organized way.
+
+CAREFUL: some choices are complicated to implement with reduced staff and budget (microservices can be tricky to put in place for example). You can have traps where you build the right architecture too early and end up with something that does not fit with your need or takes too long & the project is canceled.
