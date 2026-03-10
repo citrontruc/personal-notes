@@ -23,6 +23,7 @@
     - [Why is it a generally bad idea to reinvent the wheel](#why-is-it-a-generally-bad-idea-to-reinvent-the-wheel)
     - [TLS / SSL](#tls--ssl)
     - [Physical limitations to communications](#physical-limitations-to-communications)
+    - [Size of a web app](#size-of-a-web-app)
   - [You need performant databases](#you-need-performant-databases)
     - [Relational or not relational?](#relational-or-not-relational)
     - [Questions to ask](#questions-to-ask)
@@ -196,6 +197,14 @@ Don't include unecessary certificates in your browser, it takes time to check ce
 In order to send a message, you need a frequency range on which to send your message. All frequencies don't have the same performance. You have codified spectrum allocation so you can't do much about that but it is a limiation.
 
 You also need to avoid sending noise for noise take space on your signal. The more you have noise on your channel, the stronger your signal will need to be.
+
+### Size of a web app
+
+Everytime you load a web application, you load more than 1Mb of code and data coming from multiple sources. Data is sometimes streamed from multiple sources. Since page size is growing fast, you need a fast network to send all of this data.
+
+**You need to let your user interact with the page before it is fully loaded**.
+
+When we open a webpage or a web application, we fetch hundreds of small resources ==> The limiting factor is roundtrip latency. We wouldn't get much from having a faster network. Except when streaming video or something.
 
 ## You need performant databases
 
