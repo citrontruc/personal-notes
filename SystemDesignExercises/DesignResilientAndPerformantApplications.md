@@ -206,6 +206,10 @@ Everytime you load a web application, you load more than 1Mb of code and data co
 
 When we open a webpage or a web application, we fetch hundreds of small resources ==> The limiting factor is roundtrip latency. We wouldn't get much from having a faster network. Except when streaming video or something.
 
+Make sure you compress all of your data before sending them, avoid redirects if you can. They lead to DNS lookups, TCP connections...
+
+KeepAlive and reuse sessions. On average, we have ~100 connections to server. If we had to create a new connection everytime, it means, ~ 100 round trip time to add to our total time.
+
 ## You need performant databases
 
 A bit of vocabulary:
