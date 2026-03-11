@@ -20,6 +20,7 @@
   - [Resilience](#resilience)
   - [Return formats](#return-formats)
   - [FluentValidation](#fluentvalidation)
+  - [note on exceptions](#note-on-exceptions)
 
 ## Architecture
 
@@ -685,4 +686,17 @@ builder.Services.AddOptions<GitHubSettings>()
 
 // Use the convenience extension (other option)
 // builder.Services.AddOptionsWithFluentValidation<GitHubSettings>(GitHubSettings.ConfigurationSection);
+```
+
+## note on exceptions
+
+Do not return to the user the content of the exception. Log it with your logger as LogCritical and then send a StatusCode 500 to your user.
+
+In order to avoid having to do try catch for all the operations, add a middleware.
+
+You must not expose your internal workings to your user.
+
+```cs
+// Throws clean message error messages.
+builder.Services.AddProblemDetails();
 ```
