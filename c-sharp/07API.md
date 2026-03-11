@@ -17,6 +17,7 @@
   - [Compress big payloads](#compress-big-payloads)
   - [Idempotency key](#idempotency-key)
   - [Resilience](#resilience)
+  - [Return formats](#return-formats)
 
 ## Architecture
 
@@ -174,6 +175,79 @@ public class TodoItemsController : ControllerBase
            Name = todoItem.Name,
            IsComplete = todoItem.IsComplete
        };
+}
+```
+
+Other example:
+
+```cs
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
+
+namespace CityInfo.API.Controllers;
+
+[Route("api/v{version:apiVersion}/files")] 
+[Authorize]
+[ApiController]
+public class FilesController(
+    FileExtensionContentTypeProvider fileExtensionContentTypeProvider) : ControllerBase
+{
+
+    private readonly FileExtensionContentTypeProvider _fileExtensionContentTypeProvider = fileExtensionContentTypeProvider
+            ?? throw new System.ArgumentNullException(
+                nameof(fileExtensionContentTypeProvider));
+
+    [HttpGet("{fileId}")]
+    [ApiVersion(0.1, Deprecated = true)]
+    public ActionResult GetFile(string fileId)
+    {
+        // look up the actual file, depending on the fileId...
+        // demo code
+        var pathToFile = "getting-started-with-rest-slides.pdf";
+
+        // check whether the file exists
+        if (!System.IO.File.Exists(pathToFile))
+        {
+            return NotFound();
+        }
+
+        // We specify what is the type of our file.
+        if (!_fileExtensionContentTypeProvider.TryGetContentType(
+            pathToFile, out var contentType))
+        {
+            contentType = "application/octet-stream";
+        }
+
+        var bytes = System.IO.File.ReadAllBytes(pathToFile);
+        return File(bytes, contentType, Path.GetFileName(pathToFile));
+    }
+
+    [HttpPost]
+    [ApiVersion(1)]
+    public async Task<ActionResult> CreateFile(IFormFile file)
+    {
+        // Validate the input. Put a limit on filesize to avoid large uploads attacks. 
+        // Only accept .pdf files (check content-type)
+        if (file.Length == 0 || file.Length > 20971520 || file.ContentType != "application/pdf")
+        { 
+            return BadRequest("No file or an invalid one has been inputted.");
+        }
+
+        // Create the file path.  Avoid using file.FileName, as an attacker can provide a
+        // malicious one, including full paths or relative paths.  
+        var path = Path.Combine(
+            Directory.GetCurrentDirectory(),  
+            $"uploaded_file_{Guid.NewGuid()}.pdf");
+
+        using (var stream = new FileStream(path, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        return Ok("Your file has been uploaded successfully.");
+    }
 }
 ```
 
@@ -366,3 +440,15 @@ httpClient.DefaultRequestHeaders.Add("Idempotency-Key", idempotencyKey);
 There is a microsoft library for resilience: Microsoft.Extensions.Resilience. It can take care automatically of retry & other things.
 
 You have functions to do expi-onential backoff when trying to call an endpoint for example.
+
+## Return formats
+
+By default, our APIs will return json formatted responses. If we want to ask for a different return format (for example xml), we will still return json by default. However, when we create our controller, we can specify that we should return a 406 unacceptable whenever we find a request we can't answer to. The other solution is to support every format.
+
+```cs
+builder.Services.AddControllers(options => {
+    options.ReturnHttpNotAcceptable = true; // If we want to return 406 unacceptable for requests that we can't answer to.
+}).AddXmlDataContractSerializerFormatters(); // Adds formatter for XML.
+```
+
+By default, json is the deafult, we can change the order of formatters to change the default format.
