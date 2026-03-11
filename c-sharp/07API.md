@@ -5,6 +5,7 @@
 - [API](#api)
   - [Table of content](#table-of-content)
   - [Architecture](#architecture)
+  - [Standard calls](#standard-calls)
   - [Launch profiles](#launch-profiles)
   - [Avoid confusion in variable origin](#avoid-confusion-in-variable-origin)
   - [Swagger](#swagger)
@@ -18,10 +19,82 @@
   - [Idempotency key](#idempotency-key)
   - [Resilience](#resilience)
   - [Return formats](#return-formats)
+  - [FluentValidation](#fluentvalidation)
 
 ## Architecture
 
 In order to avoid confusion and problems, it is recommended that you use DDD and organize your files by business functionalities rather than by technological parts (no "router" or "models", but "shipment" and "products").
+
+Code example at <https://github.com/KevinDockx/AspNetCoreWebApiFundamentals/tree/latest-and-greatest>.
+
+## Standard calls
+
+PUT replaces all values in our data while PATCH only changes some of the fields.
+
+With patch, you can have json and fill just the fields to replace or have different endpoints depending on the fields to replace. Second option is recommended. We need some libraries for that : using Microsoft.AspNetCore.JsonPatch and NewtonSoftJson.
+
+```cs
+[HttpPut("{pointofinterestid}")]
+public async Task<ActionResult> UpdatePointOfInterest(int cityId, int pointOfInterestId,
+    PointOfInterestForUpdateDto pointOfInterest)
+{
+    if (!await _cityInfoRepository.CityExistsAsync(cityId))
+    {
+        return NotFound();
+    }
+
+    var pointOfInterestEntity = await _cityInfoRepository
+        .GetPointOfInterestForCityAsync(cityId, pointOfInterestId);
+    if (pointOfInterestEntity == null)
+    {
+        return NotFound();
+    }
+
+    _mapper.Map(pointOfInterest, pointOfInterestEntity);
+
+    await _cityInfoRepository.SaveChangesAsync();
+
+    return NoContent();
+}
+
+[HttpPatch("{pointofinterestid}")]
+public async Task<ActionResult> PartiallyUpdatePointOfInterest(
+    int cityId, int pointOfInterestId,
+    JsonPatchDocument<PointOfInterestForUpdateDto> patchDocument)
+{
+    if (!await _cityInfoRepository.CityExistsAsync(cityId))
+    {
+        return NotFound();
+    }
+
+    var pointOfInterestEntity = await _cityInfoRepository
+        .GetPointOfInterestForCityAsync(cityId, pointOfInterestId);
+    if (pointOfInterestEntity == null)
+    {
+        return NotFound();
+    }
+
+    var pointOfInterestToPatch = _mapper.Map<PointOfInterestForUpdateDto>(
+        pointOfInterestEntity);
+
+    patchDocument.ApplyTo(pointOfInterestToPatch, ModelState); // ModelState checks if the model we passed is not invalid.
+
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+
+    if (!TryValidateModel(pointOfInterestToPatch)) // Check if the changes do not cause problem with our previous model (example: we delete a required).
+    {
+        return BadRequest(ModelState);
+    }
+
+    _mapper.Map(pointOfInterestToPatch, pointOfInterestEntity);
+    await _cityInfoRepository.SaveChangesAsync();
+
+    return NoContent();
+}
+```
 
 ## Launch profiles
 
@@ -33,7 +106,7 @@ dotnet run . --launch-profile https
 
 ## Avoid confusion in variable origin
 
-You can ask parameters [FromBody] or [FromQuery]. Note: on get operations, you cannot send a body so this is important only on post values. ==> A client SHOULD NOT generate content in a GET request unless it is made directly to an origin server that has previously indicated, in or out of band, that such a request has a purpose and will be adequately supported. An origin server SHOULD NOT rely on private agreements to receive content, since participants in HTTP communication are often unaware of intermediaries along the request chain.
+You can ask parameters [FromBody] (from complex type), [FromRoute], [FromHeader] or [FromQuery]. Note: if you do things well, you will never need any of these parameters. Note: on get operations, you cannot send a body so this is important only on post values. ==> A client SHOULD NOT generate content in a GET request unless it is made directly to an origin server that has previously indicated, in or out of band, that such a request has a purpose and will be adequately supported. An origin server SHOULD NOT rely on private agreements to receive content, since participants in HTTP communication are often unaware of intermediaries along the request chain.
 
 Use the query string or if you end up with massive query strings, use a "search" endpoint on which you can post.
 
@@ -121,7 +194,7 @@ public class TodoItemsController : ControllerBase
             return NotFound();
         }
 
-        return NoContent();
+        return NoContent(); // 204 no content because the user already knows all the information.
     }
     // </snippet_Update>
 
@@ -452,3 +525,164 @@ builder.Services.AddControllers(options => {
 ```
 
 By default, json is the deafult, we can change the order of formatters to change the default format.
+
+## FluentValidation
+
+A library to validate input values. Very useful to use for your apis. There are elements in the Design pattern file about this.
+
+```cs
+public class CustomerValidator : AbstractValidator<Customer>
+{
+    public CustomerValidator()
+    {
+        RuleFor(x => x.Surname).NotEmpty();
+        RuleFor(x => x.Forename).NotEmpty().WithMessage("Please specify a first name");
+        RuleFor(x => x.Discount).NotEqual(0).When(x => x.HasDiscount);
+        RuleFor(x => x.Address).Length(20, 250);
+        RuleFor(x => x.Postcode).Must(BeAValidPostcode).WithMessage("Please specify a valid postcode");
+    }
+
+    // On passe une règle de validation custom ici.
+    private bool BeAValidPostcode(string postcode)
+    {
+        // custom postcode validating logic goes here
+    }
+}
+```
+
+You can find under a custom validator for Github parameters:
+
+```cs
+public class GitHubSettings
+{
+    public const string ConfigurationSection = "GitHubSettings";
+
+    public string BaseUrl { get;init; }
+    public string AccessToken { get; init; }
+    public string RepositoryName { get; init; }
+}
+
+public class GitHubSettingsValidator : AbstractValidator<GitHubSettings>
+{
+    public GitHubSettingsValidator()
+    {
+        RuleFor(x => x.BaseUrl).NotEmpty();
+
+        RuleFor(x => x.BaseUrl)
+            .Must(baseUrl => Uri.TryCreate(BaseUrl, UriKind.Absolute, out _))
+            .When(x => !string.IsNullOrWhiteSpace(x.baseUrl))
+            .WithMessage($"{nameof(GitHubSettings.BaseUrl)} must be a valid URL");
+
+        RuleFor(x => x.AccessToken)
+            .NotEmpty();
+
+        RuleFor(x => x.RepositoryName)
+            .NotEmpty();
+    }
+}
+```
+
+We now need to integrate our Fluent Validation in our system:
+
+```cs
+using FluentValidation;
+using Microsoft.Extensions.Options;
+
+public class FluentValidateOptions<TOptions>
+    : IValidateOptions<TOptions>
+    where TOptions : class
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly string? _name;
+
+    public FluentValidateOptions(IServiceProvider serviceProvider, string? name)
+    {
+        _serviceProvider = serviceProvider;
+        _name = name;
+    }
+
+    public ValidateOptionsResult Validate(string? name, TOptions options)
+    {
+        if (_name is not null && _name != name)
+        {
+            return ValidateOptionsResult.Skip;
+        }
+
+        ArgumentNullException.ThrowIfNull(options);
+
+        using var scope = _serviceProvider.CreateScope();
+
+        var validator = scope.ServiceProvider.GetRequiredService<IValidator<TOptions>>();
+
+        var result = validator.Validate(options);
+        if (result.IsValid)
+        {
+            return ValidateOptionsResult.Success;
+        }
+
+        var type = options.GetType().Name;
+        var errors = new List<string>();
+
+        foreach (var failure in result.Errors)
+        {
+            errors.Add($"Validation failed for {type}.{failure.PropertyName} " +
+                       $"with the error: {failure.ErrorMessage}");
+        }
+
+        return ValidateOptionsResult.Fail(errors);
+    }
+}
+```
+
+To make our Validation easier, we can add a few extensions:
+
+```cs
+// Method to add to our builder the option validation.
+public static class OptionsBuilderExtensions
+{
+    public static OptionsBuilder<TOptions> ValidateFluentValidation<TOptions>(
+        this OptionsBuilder<TOptions> builder)
+        where TOptions : class
+    {
+        builder.Services.AddSingleton<IValidateOptions<TOptions>>(
+            serviceProvider => new FluentValidateOptions<TOptions>(
+                serviceProvider,
+                builder.Name));
+
+        return builder;
+    }
+}
+
+// Method to add fluent validation.
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddOptionsWithFluentValidation<TOptions>(
+        this IServiceCollection services,
+        string configurationSection)
+        where TOptions : class
+    {
+        services.AddOptions<TOptions>()
+            .BindConfiguration(configurationSection)
+            .ValidateFluentValidation() // Configure FluentValidation validation
+            .ValidateOnStart(); // Validate options on application start
+
+        return services;
+    }
+}
+```
+
+You then need to register your option pattern:
+
+```cs
+// Register the validator
+builder.Services.AddScoped<IValidator<GitHubSettings>, GitHubSettingsValidator>();
+
+// Configure options with validation
+builder.Services.AddOptions<GitHubSettings>()
+    .BindConfiguration(GitHubSettings.ConfigurationSection)
+    .ValidateFluentValidation() // Configure FluentValidation validation
+    .ValidateOnStart();
+
+// Use the convenience extension (other option)
+// builder.Services.AddOptionsWithFluentValidation<GitHubSettings>(GitHubSettings.ConfigurationSection);
+```
