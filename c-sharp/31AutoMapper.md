@@ -86,6 +86,7 @@ namespace CityInfo.API.Controllers
             Response.Headers.Add("X-Pagination",
                 JsonSerializer.Serialize(paginationMetadata));
 
+            // We can map a list of elements all at once. We write the type we want to map to.
             return Ok(_mapper.Map<IEnumerable<CityWithoutPointsOfInterestDto>>(cityEntities));
         }
     }
