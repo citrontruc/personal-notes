@@ -40,7 +40,8 @@
     - [Why?](#why)
     - [What?](#what)
     - [Handling special cases](#handling-special-cases)
-    - [Replication in practice](#replication-in-practice)
+    - [Simple leader replication](#simple-leader-replication)
+    - [Multi leader Replication](#multi-leader-replication)
 
 ## Sources
 
@@ -341,7 +342,7 @@ You can detect which node has failed with the heartbeat protocol.
 **How do we handle changes from the old leader that have not been communicated yet?**
 Also make sure that we don't have 2 leaders or that in our heartbeat protocol, our calls were not just delayed. Our old leader needs to be really dead in order to replace him.
 
-### Replication in practice
+### Simple leader replication
 
 We could use queries but this could lead to problems ==> Autoincrement or datetime.Now statements are not guaranteed to give the same result if run on another machine. These are only but two examples and there are more so we will try to rely on other methods for our replication.
 
@@ -351,4 +352,25 @@ A better method would be that every new data is written to the logs and we have 
 
 **Monotonic Reads**: If yu read the same result from two followers with one of them slower than the other, you might end up with a situation where you see a result and then the results disappear because they do not exist yet in the follower with the old data. ==> Each user must read data from the same follower.
 
-**Coonsistent prefix reads**: You must show data in the correct order. ==> Keep causal dependencies of data.
+**Consistent prefix reads**: You must show data in the correct order. ==> Keep causal dependencies of data.
+
+### Multi leader Replication
+
+We have seen the challenges of having a simple leader replication. What should we do to avoid that? We can have multiple leaders. We use this architecture when we have multiple datacenters in order to avoid having writes that can happen only in one datacenter.
+
+Multi leader architecture lets us tolerate a complete datacenter outage and gives us better performance. If we have local network issue, we are resilient. CAREFUL: we can't use autoincrement in a distributed environment. Use key described in System Design course.
+
+Multiple editing in a document is a database replication problem. Take the changes of all the users, log them in a database and make sure the change is synchronized on all the databases. Double booking problem.
+
+How to avoid conflicts in a multi leader situation. Conflict resolution can be done on read or on write.
+
+- Each write has an ID, biggest ID wins ==> Careful, we will always have data loss.
+- Each leader has an ID, biggest ID wins ==> Careful, we will always have data loss.
+- Merge values somehow (ex: git).
+- Record all the changes and merge at a later time.
+
+**Topology**: Do all leaders send their changes to all the other leaders? Do we have a star shaped topology, do all leaders only send to their neighbor?... Each approach ahs their own challenges: if neighbors or star replication, what happens if a node fails? In everyone sends to everyone, we send a lot of messages. Problem of causality too.
+
+**NOTE**: leaderless replication. You have no leader. It's like if everybody is the leader. In order to have the last information, you need to have n_read + n_write > n; With n_read the number of machines queried to read an information and n_write the nuber of machine the new data is written to. Choose n_write and n_read dependingg on what you want:  fast load or fast write or a middle of both. It is also a good practice to have mechanisms to "repair" data.
+
+The trouble with quorum is if we have part of the network that is down / disonnected and we don't have as many answers as expected. There are some ways to still work (sloppy quorum where we consult less than n nodes overall). These ways of working are risky. Careful.
