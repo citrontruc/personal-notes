@@ -28,6 +28,7 @@
   - [Useful scripts](#useful-scripts)
     - [Count employees](#count-employees)
   - [Examples](#examples)
+  - [Entitites and IDs](#entitites-and-ids)
 
 ## Notes on performances
 
@@ -619,5 +620,33 @@ public class ApplicationDbContext : DbContext
                 .WithMany(x => x.Books);
         });
     }
+}
+```
+
+## Entitites and IDs
+
+If you want your IDs to be generated automatically as int, you can use the DatabaseGenerated function:
+
+```cs
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace CityInfo.API.Entities;
+
+public class City(string name)
+{
+    [Key] // There is also the keyword ForeignKey to specify that an element is a ForeignKey.
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+
+    [Required]
+    [MaxLength(50)] // We don't need constraints on Dto, but maybe on database.
+    public string Name { get; set; } = name;
+
+    [MaxLength(200)]
+    public string? Description { get; set; }
+
+    public ICollection<PointOfInterest> PointsOfInterest { get; set; }
+           = [];
 }
 ```

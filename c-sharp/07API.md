@@ -26,7 +26,7 @@
 
 In order to avoid confusion and problems, it is recommended that you use DDD and organize your files by business functionalities rather than by technological parts (no "router" or "models", but "shipment" and "products").
 
-Code example at <https://github.com/KevinDockx/AspNetCoreWebApiFundamentals/tree/latest-and-greatest>.
+Code example at <https://github.com/KevinDockx/AspNetCoreWebApiFundamentals/tree/latest-and-greatest> && <https://github.com/KevinDockx/AspNetCoreWebAPIDeepDive/tree/latest-and-greatest>.
 
 ## Standard calls
 

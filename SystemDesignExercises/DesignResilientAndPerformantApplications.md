@@ -42,6 +42,7 @@
     - [Handling special cases](#handling-special-cases)
     - [Simple leader replication](#simple-leader-replication)
     - [Multi leader Replication](#multi-leader-replication)
+  - [Partition](#partition)
 
 ## Sources
 
@@ -374,3 +375,7 @@ How to avoid conflicts in a multi leader situation. Conflict resolution can be d
 **NOTE**: leaderless replication. You have no leader. It's like if everybody is the leader. In order to have the last information, you need to have n_read + n_write > n; With n_read the number of machines queried to read an information and n_write the nuber of machine the new data is written to. Choose n_write and n_read dependingg on what you want:  fast load or fast write or a middle of both. It is also a good practice to have mechanisms to "repair" data.
 
 The trouble with quorum is if we have part of the network that is down / disonnected and we don't have as many answers as expected. There are some ways to still work (sloppy quorum where we consult less than n nodes overall). These ways of working are risky. Careful.
+
+## Partition
+
+Test
