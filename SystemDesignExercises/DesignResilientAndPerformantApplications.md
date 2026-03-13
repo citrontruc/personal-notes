@@ -43,6 +43,8 @@
     - [Simple leader replication](#simple-leader-replication)
     - [Multi leader Replication](#multi-leader-replication)
   - [Partition](#partition)
+    - [Deparate data in smaller databases](#deparate-data-in-smaller-databases)
+    - [How should data be separated?](#how-should-data-be-separated)
 
 ## Sources
 
@@ -378,4 +380,16 @@ The trouble with quorum is if we have part of the network that is down / disonne
 
 ## Partition
 
-Test
+### Deparate data in smaller databases
+
+See Sharding and consistent hashing (System Design interview book is the best).
+
+Other approaches to store data is by key range.
+
+Make sure to have good IDs in order to have a way to retrieve data in a certain time frame.
+
+### How should data be separated?
+
+You should separate data on a value you search on. As much as possible, you should separate data to avoid skews. Question is: what happens if we have secondary keys? You will have to create your partition in all your shards and search on all your shards which would increase latency.
+
+**Proposal**: have a global index which routes data based on all partitions. You will have to partition this global index but you can partition it differently than other nodes in order to avoid splitting partitions.
