@@ -392,4 +392,8 @@ Make sure to have good IDs in order to have a way to retrieve data in a certain 
 
 You should separate data on a value you search on. As much as possible, you should separate data to avoid skews. Question is: what happens if we have secondary keys? You will have to create your partition in all your shards and search on all your shards which would increase latency.
 
-**Proposal**: have a global index which routes data based on all partitions. You will have to partition this global index but you can partition it differently than other nodes in order to avoid splitting partitions.
+**Proposal**: have a global index which routes data based on all partitions. You will have to partition this global index but you can partition it differently than other nodes in order to avoid splitting partitions...
+
+**REBALANCE**: you most liklely won't get it right from the get go. Make sure you have some rebalancing mechanisms. How do we even do that? Consistent hashing is still good. Make sure to have ways to evaluate your rebalancing and that it makes sens for your problem.
+
+**What about routing**? Our data is separated in shards. How do we route the user to the correct shard? Easiest way is to have a routing intermediary. The user should not know about the way the data is organized and the nodes should not be aware that there are other nodes.
