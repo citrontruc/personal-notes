@@ -8,6 +8,9 @@
   - [Document decisions](#document-decisions)
   - [Must Do steps](#must-do-steps)
   - [Choosing the right architecture](#choosing-the-right-architecture)
+  - [Scaling](#scaling)
+    - [Steps to improve](#steps-to-improve)
+    - [Questions to ask](#questions-to-ask)
 
 ## Questions to ask at the beginning of the project
 
@@ -126,3 +129,31 @@ Evaluate tradeoffs:
 - Small internal tool - Vertical Slice Architecture provides you with the ability to implement quickly and in an organized way.
 
 CAREFUL: some choices are complicated to implement with reduced staff and budget (microservices can be tricky to put in place for example). You can have traps where you build the right architecture too early and end up with something that does not fit with your need or takes too long & the project is canceled.
+
+## Scaling
+
+### Steps to improve
+
+Step 1. Make the app boringly fast for one user. Fix your queries before you touch a single piece of infrastructure. This step alone can produce a 10x-100x improvement.
+
+Step 2. Add caching for expensive operations. Start in-memory. Move to Redis when you need cross-instance consistency.
+
+Step 3. Push static content to a CDN. Your API should never serve images or files. Move that responsibility to the edge.
+
+Step 4. Offload slow work to the background. Emails, reports, exports, notifications. If the user doesn't need data immediately, don’t process it as a part of the main API request.
+
+Step 5. Add a load balancer and scale horizontally. Multiple instances, distributed traffic. This way, one machine is no longer the ceiling.
+
+Step 6. Enable autoscaling. Let the infrastructure respond to demand automatically, so you're not paying for maximum capacity at minimum load.
+
+Step 7. Introduce message queues. Decouple the API from background workers so each can scale independently.
+
+Step 8. Scale the database. Read replicas for read-heavy workloads. Writes stay centralised. Reads get distributed.
+
+### Questions to ask
+
+- Have you profiled your frequently accessed slow endpoints? Do you know whether the bottleneck is in the query, the code, or the infrastructure?
+- Which data in your system is read far more often than it changes? (That's your caching candidate.)
+- What work is currently running in your request pipeline that the user doesn't need to wait for?
+- If your traffic doubled tomorrow, which part of your system would break first?
+- Which of the 8 steps above have you already implemented? And which was skipped, but it could be added next?

@@ -410,7 +410,7 @@ Reminder:
 - Isolation (independant transactions)
 - Durability (durable changes)
 
-**IMPORTANT**: ACID is a theoretical situation. A lot of databases with ACID in fact adopt weaker versions of ACID and there can still be concurrency issues.
+**IMPORTANT**: ACID is a theoretical situation. A lot of databases with ACID in fact adopt weaker versions of ACID and there can still be concurrency issues. In order to keep things simple: **KEEP transactions small**!
 
 In order to have 1 and 3, you can have a commit system for transactions (SaveChanges) as well as compare and swap. Locks and this kind of thing. Careful with race condition. Very hard to test consistently.
 
@@ -436,3 +436,10 @@ We could end up with big problems if a dirty read happens in a backup of before 
 In the case of counter increment. If both users want to increment counter by one, we will still have an increment by two. How do we do that?
 
 **Consistent snapshots**: Each transaction must have an ID and know from which version it is making a transaction from. Writes made by aborted transactions are ignored. Writes by transactions with a larger ID are ignored.
+
+**Write skews**: You have two request. They each ask for something and check a condition. Since they were launched at the same time, they both check the condition and launch the operation. Example: double spending. You see a value in the past and therefore do updates. We could create dedicated variables to identify and avoid race condition but this is not sustainable and could cause headaches.
+
+**Serialization**: the fact that the result of a parallel execution is the same as if we had executed each query one after another.
+
+- You could execute all transactions in order andd not in parallel but be careful ==> Long transactions would penalize other transactions.
+- 2 phase locking (2PL) Readers could block writers. Readers don't block writers. Problem is that if transactions are long or have trouble, you can end up stuck. You can have deadlocking and so on...
