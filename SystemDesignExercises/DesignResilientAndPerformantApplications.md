@@ -45,6 +45,9 @@
   - [Partition](#partition)
     - [Deparate data in smaller databases](#deparate-data-in-smaller-databases)
     - [How should data be separated?](#how-should-data-be-separated)
+  - [Transactions \& ACID](#transactions--acid)
+    - [Failure and retry](#failure-and-retry)
+    - [Handling concurrency](#handling-concurrency)
 
 ## Sources
 
@@ -397,3 +400,39 @@ You should separate data on a value you search on. As much as possible, you shou
 **REBALANCE**: you most liklely won't get it right from the get go. Make sure you have some rebalancing mechanisms. How do we even do that? Consistent hashing is still good. Make sure to have ways to evaluate your rebalancing and that it makes sens for your problem.
 
 **What about routing**? Our data is separated in shards. How do we route the user to the correct shard? Easiest way is to have a routing intermediary. The user should not know about the way the data is organized and the nodes should not be aware that there are other nodes.
+
+## Transactions & ACID
+
+Reminder:
+
+- Atomicity (works or fails completely)
+- Consistency (valid state to valid state)
+- Isolation (independant transactions)
+- Durability (durable changes)
+
+**IMPORTANT**: ACID is a theoretical situation. A lot of databases with ACID in fact adopt weaker versions of ACID and there can still be concurrency issues.
+
+In order to have 1 and 3, you can have a commit system for transactions (SaveChanges) as well as compare and swap. Locks and this kind of thing. Careful with race condition. Very hard to test consistently.
+
+Having transactions help us ground the whole discussion on handling data. There are ways to do without transactions.
+
+### Failure and retry
+
+**Failure and retry**: Retrying on failure is a good way to work with transactions. However, there can be trouble (example: if query costs too much memory, it will always fail). ORMs do not always have an automatic retry system.
+
+Basic security principles for retries:
+
+- Log results of transactions.
+- Max number of retries with exponential backoff.
+
+### Handling concurrency
+
+- Dirty reads when on a read, you can view data that has been committed but not push. Have a way to remember old values during transactions so you can return them in a read.
+- Dirty write when you can write on data committed but not pushed (if two writes happen at the same time, the second one must wait for the first to finish). We don't know in which order they will happen though. **Row level locks** are sometimes used to prevent dirty writes.
+
+Having a read database can avoid problems (the read database is updated every so often). We don't want reads to block writes, we don't want writes to block reads and we don't want reads to see intermediary results currently being modified by writes.
+We could end up with big problems if a dirty read happens in a backup of before automatic launches of requests.
+
+In the case of counter increment. If both users want to increment counter by one, we will still have an increment by two. How do we do that?
+
+**Consistent snapshots**: Each transaction must have an ID and know from which version it is making a transaction from. Writes made by aborted transactions are ignored. Writes by transactions with a larger ID are ignored.
