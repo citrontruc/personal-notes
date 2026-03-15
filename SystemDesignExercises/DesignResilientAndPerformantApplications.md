@@ -48,6 +48,10 @@
   - [Transactions \& ACID](#transactions--acid)
     - [Failure and retry](#failure-and-retry)
     - [Handling concurrency](#handling-concurrency)
+  - [Distributed systems and Murphy's law](#distributed-systems-and-murphys-law)
+    - [Murphy's law](#murphys-law)
+    - [Clocks](#clocks)
+    - [Quorum and consensus](#quorum-and-consensus)
 
 ## Sources
 
@@ -443,3 +447,31 @@ In the case of counter increment. If both users want to increment counter by one
 
 - You could execute all transactions in order andd not in parallel but be careful ==> Long transactions would penalize other transactions.
 - 2 phase locking (2PL) Readers could block writers. Readers don't block writers. Problem is that if transactions are long or have trouble, you can end up stuck. You can have deadlocking and so on...
+
+## Distributed systems and Murphy's law
+
+### Murphy's law
+
+Always assume something is not working. It is very dangerous for a system to give bad results. We would rather they crashed completely - most times -. The bigger a system, the more likely it is that somethin is broken somewhere. Cloud services make it easier to just "rebuild" a new instance of a machine.
+
+When you spot an error, a solution is just to fail and recover / restart. This can work with systems that are separated in microservices. This can be more difficult on other services. The important element is **detecting faults**. There are a lot of subtle problems that can show up (example: packet received but crashed before handling).
+
+Timeouts: Short => There might be some false positives where actions are marked failed when they completed and we end up doing the work twice. Long => You have to wait a lot before detecting faults.
+
+### Clocks
+
+There are two different times that interest us: durations and precise times. Precise times mean launching tasks at a precise moment whereas durations ean waiting for some time. For precise time, you need clock synchronizations. For durations too : if you have a timeout of 5 minutes and a machine that runs 5 minutes late, all of its request will be interpreted as timed out.
+
+There is also the question of timezones.
+
+Leap seconds?
+
+If you can it is safer to trigger elements in a series of events one after another rather than triggering them on time. Problem is if an intermediary step fails, you need a way to relaunch the whole thing.
+
+### Quorum and consensus
+
+The truth is what the majority thinks. If all the nodes think a node is dead, act as if it is.
+
+In order to avoid an old leader to try do stuff, there is a token indicating the current "cycle". Everytime the leader is renewed, the cycle is incremented. An old leader will have the old token and its writes will be rejected. That is called fencing.
+
+See Byzantine fault tolerance. This can be necessary in critical environments but not for most problems.
