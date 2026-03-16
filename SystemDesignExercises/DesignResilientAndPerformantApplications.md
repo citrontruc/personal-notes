@@ -55,6 +55,7 @@
     - [Linearizable systems](#linearizable-systems)
       - [Serializable but NOT Linearizable](#serializable-but-not-linearizable)
       - [Linearizable but NOT Serializable](#linearizable-but-not-serializable)
+    - [Ordering requests](#ordering-requests)
 
 ## Sources
 
@@ -481,7 +482,9 @@ See Byzantine fault tolerance. This can be necessary in critical environments bu
 
 ### Linearizable systems
 
-A system is linearizable if it seems that steps are made in a specific update. If a value updates for a user, it must update for all the other users too. Yoou need this to prevent double booking and duplicates. In order to have a linearizable system, you need to have a single leader, you can't have linearizability with multiple leaders. In order to have linearizability, you can ask for a read repair everytime the user asks for a read. The cost in performance can be very high and the gains are not great (if you don't know you are supposed to have another answer from the database, you don't notice).
+A system is linearizable if it seems that steps are made in a specific order and that there are no concurrent operations. If a value updates for a user, it must update for all the other users too. Yoou need this to prevent double booking and duplicates. In order to have a linearizable system, you need to have a single leader, you can't have linearizability with multiple leaders. In order to have linearizability, you can ask for a read repair everytime the user asks for a read. The cost in performance can be very high and the gains are not great (if you don't know you are supposed to have another answer from the database, you don't notice).
+
+**NOTE**: if your system is linearizable, it has causal consistency. We know what is supposed to have caused what. This is not guaranteed if we have parallel calls.
 
 Serializability != Linearizability.
 
@@ -519,3 +522,15 @@ Why this fits:
 
 - It IS Linearizable: Every individual Read and Write operation was processed perfectly. When User B read the counter, it was indeed 0. When User A wrote 1, the register updated instantly. There is no stale data or "time travel."
 - It is NOT Serializable: If these were true serializable transactions, the result should be 2 (as if User A went, then User B went). Because the steps of the transactions interleaved, the result is 1, which is impossible in any serial execution (0→1→2).
+
+### Ordering requests
+
+If you want to generate sequences of numbers and increment values in a distributed system, you need to include the ID of the machine who did the operation and the counter value. This way, each iteration can now be uniquely identified by the id of the node that did the operation.
+
+This also gives us a way to know who had which information when they incremented. They include the maximum they have currently seen on every request. When a node receives a request or response with a maximum counter value greater than its own counter value, it immediately increases its own counter to that maximum.
+
+Problem is that most times, you need to be able to check if a value is the last value right now and not wait to compare with the others (example: double booking).
+
+**TOTAL Order Broadcast**: we guarantee that the apps will see the messages, all of them and in the same order. We don't guarantee WHEN they will see them. It is like if you had a big log pile and have to check the logs every so often. When you want to do an operation, you check the logs. All logs are delivered in the same order.
+
+Problem is always a question of: how do we have a big pile of logs and everybody agrees on their order?
