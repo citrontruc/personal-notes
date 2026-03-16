@@ -22,6 +22,7 @@
   - [Anti-corruption layer](#anti-corruption-layer)
   - [Circuit breaker](#circuit-breaker)
   - [Bulkhead pattern](#bulkhead-pattern)
+  - [BFF Design pattern](#bff-design-pattern)
 
 ## Heuristics to find solutions
 
@@ -224,3 +225,11 @@ Meant for system resilience. You encapsulate services in order to isolate them. 
 Bulkhead needs redundancy and isolation. Improved if each of the resources can scale up independently from the others.
 
 **Careful**: can be expensive becaause we have multiple resources and channels.
+
+## BFF Design pattern
+
+Stands for Backend For Frontend (BFF). In a frontend application, we have a backend application. This is done so that the frontend applications avoids to directly hit the API and handle the answers. We have an intermediary.
+
+Each frontend interacts with its own backend who knows how to do things.
+
+Benefits are that we have a centralized point for data aggreation, we reduce client complexity and make it easier to scale because we can scale each BFF independently. Having aggregation on the server side makes it easier for the frontend.
