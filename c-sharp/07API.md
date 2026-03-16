@@ -16,6 +16,7 @@
   - [Pagination](#pagination)
   - [Validation](#validation)
   - [Compress big payloads](#compress-big-payloads)
+  - [Good practices to fetch data](#good-practices-to-fetch-data)
   - [Idempotency key](#idempotency-key)
   - [Resilience](#resilience)
   - [Return formats](#return-formats)
@@ -107,7 +108,7 @@ dotnet run . --launch-profile https
 
 ## Avoid confusion in variable origin
 
-You can ask parameters [FromBody] (from complex type), [FromRoute], [FromHeader] or [FromQuery]. Note: if you do things well, you will never need any of these parameters. Note: on get operations, you cannot send a body so this is important only on post values. ==> A client SHOULD NOT generate content in a GET request unless it is made directly to an origin server that has previously indicated, in or out of band, that such a request has a purpose and will be adequately supported. An origin server SHOULD NOT rely on private agreements to receive content, since participants in HTTP communication are often unaware of intermediaries along the request chain.
+You can ask parameters [FromBody] (from complex type), [FromRoute], [FromHeader] or [FromQuery]. You can even have [FromQuery(Name = "ArtistName")] if you use a different name than the name of your function argument. Note: if you do things well, you will never need any of these parameters. Note: on get operations, you cannot send a body so this is important only on post values. ==> A client SHOULD NOT generate content in a GET request unless it is made directly to an origin server that has previously indicated, in or out of band, that such a request has a purpose and will be adequately supported. An origin server SHOULD NOT rely on private agreements to receive content, since participants in HTTP communication are often unaware of intermediaries along the request chain.
 
 Use the query string or if you end up with massive query strings, use a "search" endpoint on which you can post.
 
@@ -496,6 +497,49 @@ builder.Services.Configure<GzipCompressionProviderOptions>(options =>
 
 var app = builder.Build();
 app.UseResponseCompression();
+```
+
+## Good practices to fetch data
+
+In order to avoid problems if you fetch data all at once, it is recommended to do all the filtering on the database before fetching data. In order to do so, use the context as an IQueryAble and do add all your filters before doing ToListAsync operations.
+
+```cs
+public class CityInfoRepository : ICityInfoRepository
+    {
+    private readonly CityInfoContext _context;
+
+    public async Task<(IEnumerable<City>, PaginationMetadata)> GetCitiesAsync(
+        string? name, string? searchQuery, int pageNumber, int pageSize)
+    {
+        // collection to start from
+        var collection = _context.Cities as IQueryable<City>;
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            name = name.Trim();
+            collection = collection.Where(c => c.Name == name);
+        }
+
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            searchQuery = searchQuery.Trim();
+            collection = collection.Where(a => a.Name.Contains(searchQuery)
+                || (a.Description != null && a.Description.Contains(searchQuery)));
+        }
+
+        var totalItemCount = await collection.CountAsync();
+
+        var paginationMetadata = new PaginationMetadata(
+            totalItemCount, pageSize, pageNumber);
+
+        var collectionToReturn = await collection.OrderBy(c => c.Name)
+            .Skip(pageSize * (pageNumber - 1))
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (collectionToReturn, paginationMetadata);
+    }
+}
 ```
 
 ## Idempotency key

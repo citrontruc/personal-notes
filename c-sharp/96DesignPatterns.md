@@ -774,7 +774,7 @@ public class AlbumsController : ControllerBase
     // GET: api/albums
     [HttpGet]
     public async Task<ActionResult<object>> GetAlbums(
-        [FromQuery] string? artist = null,
+        [FromQuery(Name = "ArtistName")] string? artist = null, // If the name of the parameter is not the same as the argument.
         [FromQuery] string? genre = null,
         [FromQuery] int? page = null,
         [FromQuery] int? pageSize = null)
