@@ -52,6 +52,9 @@
     - [Murphy's law](#murphys-law)
     - [Clocks](#clocks)
     - [Quorum and consensus](#quorum-and-consensus)
+    - [Linearizable systems](#linearizable-systems)
+      - [Serializable but NOT Linearizable](#serializable-but-not-linearizable)
+      - [Linearizable but NOT Serializable](#linearizable-but-not-serializable)
 
 ## Sources
 
@@ -475,3 +478,44 @@ The truth is what the majority thinks. If all the nodes think a node is dead, ac
 In order to avoid an old leader to try do stuff, there is a token indicating the current "cycle". Everytime the leader is renewed, the cycle is incremented. An old leader will have the old token and its writes will be rejected. That is called fencing.
 
 See Byzantine fault tolerance. This can be necessary in critical environments but not for most problems.
+
+### Linearizable systems
+
+A system is linearizable if it seems that steps are made in a specific update. If a value updates for a user, it must update for all the other users too. Yoou need this to prevent double booking and duplicates. In order to have a linearizable system, you need to have a single leader, you can't have linearizability with multiple leaders. In order to have linearizability, you can ask for a read repair everytime the user asks for a read. The cost in performance can be very high and the gains are not great (if you don't know you are supposed to have another answer from the database, you don't notice).
+
+Serializability != Linearizability.
+
+- Serializability is about multi-operation transactions. It ensures that if you run a bunch of transactions, the end result is the same as if you ran them one by one in some order. It doesn't care about real-time order.
+- Linearizability is about single-operation consistency on individual objects. It ensures that once an operation completes, every subsequent operation (in real-time) sees that result. It is essentially "strong consistency" for a single point in time.
+
+#### Serializable but NOT Linearizable
+
+This happens when the system guarantees that transactions occurred in some valid serial order, but that order violates the actual timing of when the transactions happened.
+The Scenario:
+
+Imagine a distributed database with two nodes (Node A and Node B) using asynchronous replication.
+
+- Transaction 1 (T1​): At 10:00 AM, Alice updates her profile picture on Node A. The system confirms the update.
+- Transaction 2 (T2​): At 10:05 AM, Bob looks at Alice’s profile on Node B. Because of a network lag, Node B hasn't received the update yet, so Bob sees the old picture.
+
+Why this fits:
+
+- It IS Serializable: There is a valid serial order (T2​ then T1​). If Bob had looked before Alice updated, the result would be identical. The database history is a "legal" sequence.
+- It is NOT Linearizable: In real-time, T1​ finished before T2​ started. A linearizable system requires that once T1​ is committed, any subsequent read (T2​) must reflect that change. Since Bob saw "stale" data after the write finished, linearizability is broken.
+
+#### Linearizable but NOT Serializable
+
+This occurs when every single read and write is instantaneous and reflects the absolute latest state, but the system allows "interleaving" that ruins the atomicity of a multi-step transaction.
+The Scenario:
+
+Imagine two people trying to increment a counter that starts at 0. Each "transaction" consists of two separate steps: Read the current value, then Write (Value + 1).
+
+- User A reads the counter (0).
+- User B reads the counter (0).
+- User A writes 1.
+- User B writes 1.
+
+Why this fits:
+
+- It IS Linearizable: Every individual Read and Write operation was processed perfectly. When User B read the counter, it was indeed 0. When User A wrote 1, the register updated instantly. There is no stale data or "time travel."
+- It is NOT Serializable: If these were true serializable transactions, the result should be 2 (as if User A went, then User B went). Because the steps of the transactions interleaved, the result is 1, which is impossible in any serial execution (0→1→2).
