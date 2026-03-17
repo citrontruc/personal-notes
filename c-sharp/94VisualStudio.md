@@ -10,6 +10,7 @@
   - [Profiler](#profiler)
   - [Documentation generation](#documentation-generation)
   - [Publishing projects](#publishing-projects)
+  - [Viewing SQL bottlenecks](#viewing-sql-bottlenecks)
 
 ## Libraries
 
@@ -42,3 +43,7 @@ You can then specify the name of the file you want to generate.
 ## Publishing projects
 
 Right click on your project and click "publish". This should let you define a publishing profile for the project.
+
+## Viewing SQL bottlenecks
+
+How to immediately find bottlenecks in your EF Core queries: Visualize the SQL query plan inside Visual Studio so you can immediately improve the EF Core query. How to achieve this? Use the EFCore.Visualizer Visual Studio extension.
