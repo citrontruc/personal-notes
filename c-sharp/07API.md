@@ -122,6 +122,84 @@ You can use scalar to do your documentation: <https://www.mykolaaleksandrov.dev/
 
 tuto scalar : <https://darthpedro.net/2025/03/16/using-scalar-with-net9-webapi-projects/>.
 
+In the swaggerGen command, you can add information:
+
+```cs
+builder.Services.AddEndpointsApiExplorer();
+
+var apiVersionDescriptionProvider = builder.Services.BuildServiceProvider()
+  .GetRequiredService<IApiVersionDescriptionProvider>();
+
+builder.Services.AddSwaggerGen(setupAction =>
+{
+    foreach (var description in
+        apiVersionDescriptionProvider.ApiVersionDescriptions)
+    {
+        setupAction.SwaggerDoc(
+            $"{description.GroupName}",
+            new()
+            {
+                Title = "City Info API",
+                Version = description.ApiVersion.ToString(),
+                Description = "Through this API you can access cities and their points of interest."
+            });
+    }
+
+    var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"; // Take our xml documentation from our XML file.
+    var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+
+    setupAction.IncludeXmlComments(xmlCommentsFullPath); // Add xml comments to our swagger documentation
+
+    setupAction.AddSecurityDefinition("CityInfoApiBearerAuth", new() // Add security information.
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        Description = "Input a valid token to access this API"
+    });
+
+    setupAction.AddSecurityRequirement(new() // Add authentication to our swagger. The calls now include jwt.
+    {
+        {
+            new ()
+            {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "CityInfoApiBearerAuth" }
+            },
+            new List<string>()
+        }
+    });
+});
+
+app.UseSwagger();
+app.UseSwaggerUI(setupAction =>
+{
+    var descriptions = app.DescribeApiVersions();
+    foreach (var description in descriptions)
+    {
+        setupAction.SwaggerEndpoint(
+            $"/swagger/{description.GroupName}/swagger.json",
+            description.GroupName.ToUpperInvariant());
+    }
+});
+```
+
+However, be careful, the possible response type need to be added and commented in order to be taken into account:
+
+```cs
+/// <summary>
+/// Get a city by id
+/// </summary>
+/// <param name="cityId">The id of the city to get</param>
+/// <param name="includePointsOfInterest">Whether or not to include the points of interest</param>
+/// <response code="200">Returns the requested city</response>
+/// <returns>A city with or without points of interest</returns>
+[HttpGet("{cityId}")]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status200OK)]
+```
+
 ## Example controller
 
 ```cs

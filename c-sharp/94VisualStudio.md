@@ -8,6 +8,7 @@
   - [Test Explorer](#test-explorer)
   - [Debug](#debug)
   - [Profiler](#profiler)
+  - [Documentation generation](#documentation-generation)
 
 ## Libraries
 
@@ -30,3 +31,9 @@ There are **diagnosis tools** in order to visualize the use of memory during the
 ## Profiler
 
 There is a profiler which lets you see how many objects are stored in memory and helps you see if you should do stuff with garbage collector.
+
+## Documentation generation
+
+You can ask visual studio to automatically generate a documentation from xml comments. in order to do so, you need to go in the vuild > output and check the box indicating to generate the documentation automatically on build.
+
+You can then specify the name of the file you want to generate.
