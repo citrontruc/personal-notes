@@ -5,6 +5,7 @@
 - [Proxy](#proxy)
   - [table of content](#table-of-content)
   - [Different types of proxy](#different-types-of-proxy)
+  - [Dealing with proxy in your api](#dealing-with-proxy-in-your-api)
 
 ## Different types of proxy
 
@@ -46,3 +47,7 @@ app.MapReverseProxy();
 
 app.Run();
 ```
+
+## Dealing with proxy in your api
+
+If you have a proxy or load balancer, you can have some information that is lost because it goes through the proxy. For example, the initial sender or the original scheme (http/https). In order to keep the information, you should add them to the X-Forwarded fields.

@@ -21,7 +21,11 @@
   - [Resilience](#resilience)
   - [Return formats](#return-formats)
   - [FluentValidation](#fluentvalidation)
-  - [note on exceptions](#note-on-exceptions)
+  - [Note on exceptions](#note-on-exceptions)
+  - [Test API](#test-api)
+    - [Httprepl](#httprepl)
+    - [.http file](#http-file)
+  - [Configuring request forwarding](#configuring-request-forwarding)
 
 ## Architecture
 
@@ -810,7 +814,7 @@ builder.Services.AddOptions<GitHubSettings>()
 // builder.Services.AddOptionsWithFluentValidation<GitHubSettings>(GitHubSettings.ConfigurationSection);
 ```
 
-## note on exceptions
+## Note on exceptions
 
 Do not return to the user the content of the exception. Log it with your logger as LogCritical and then send a StatusCode 500 to your user.
 
@@ -821,4 +825,74 @@ You must not expose your internal workings to your user.
 ```cs
 // Throws clean message error messages.
 builder.Services.AddProblemDetails();
+```
+
+## Test API
+
+Dotnet tool HTTP_REPL is a dotnet tool that can do tests on API. Also .http file.
+
+### Httprepl
+
+```bash
+dotnet tool install -g Microsoft.dotnet-httprepl
+```
+
+To use the tool, go on your project and type "httprepl" to launch it. You navigate through your api like a folder structure. In order to do so, you have to connect to your documentation.
+
+**NOTE**: You can navigate between endpoints but we can have some bugs if we have multiple arguments in you url. For example: if you have api/cities/{id} and api/cities/{cityId}/{otherId}, http repl can get confused if you ask for "api/cities/1/1/".
+
+To have authenticated call, you can use 'set header Authorization "Bearer \<token value>"'.
+
+### .http file
+
+Create a .http file. We can click on send request in order to see the results of the call.
+
+HOWEVER, we can't write code so complicated for authentication => We can't ask for a token and use that token to authenticate all of the requests after that.
+
+```.http
+@schema=https
+@hostname=localhost
+@port=7169
+
+GET {{schema}}://{{hostname}}:{{port}}/api/v2/cities
+
+### //Separator
+GET {{schema}}://{{hostname}}:{{port}}/api/v2/cities
+Accept:application/xml // header value
+
+###
+POST {{schema}}://{{hostname}}:{{port}}/api/v2/cities
+Accept: application/json
+Content-Type: application/json
+
+{ // Request body
+    "name": "name for testing",
+    "description": "description for testing"
+}
+```
+
+Positive is that in "View" > "Other Windows", we can have a look at the endpoint explorer in order to see all of our endpoints. We can generate a .http file from the file explorer. It is nice and you can do some stuff with it but kinda whatever.
+
+## Configuring request forwarding
+
+In order to add forwarded fields to your api (for example when you have a proxy or an api gateway), you need ForwardedHeadersOptions. Put at the beginning of the code so that it is used before the others.
+
+```cs
+// We define our forwarding middleware here.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor
+    | ForwardedHeaders.XForwardedProto;
+});
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler();
+}
+
+// We use it before the other ones because forwarding is one of the first operations we do.
+app.UseForwardedHeaders();
 ```
