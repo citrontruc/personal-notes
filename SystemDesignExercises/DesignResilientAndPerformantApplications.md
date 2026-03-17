@@ -56,6 +56,9 @@
       - [Serializable but NOT Linearizable](#serializable-but-not-linearizable)
       - [Linearizable but NOT Serializable](#linearizable-but-not-serializable)
     - [Ordering requests](#ordering-requests)
+    - [Consensus: making sure that all our nodes agree](#consensus-making-sure-that-all-our-nodes-agree)
+      - [Two phase commit](#two-phase-commit)
+      - [Other algorithm](#other-algorithm)
 
 ## Sources
 
@@ -534,3 +537,21 @@ Problem is that most times, you need to be able to check if a value is the last 
 **TOTAL Order Broadcast**: we guarantee that the apps will see the messages, all of them and in the same order. We don't guarantee WHEN they will see them. It is like if you had a big log pile and have to check the logs every so often. When you want to do an operation, you check the logs. All logs are delivered in the same order.
 
 Problem is always a question of: how do we have a big pile of logs and everybody agrees on their order?
+
+### Consensus: making sure that all our nodes agree
+
+#### Two phase commit
+
+In order to check that all the nodes agree on which data to use, you can have a two phase commit: prepare everyone for commit and then commit. We can only go to the next phase if everybody is ready. We need a coordinator to coordinate all the nodes to prepare and commit.
+
+If during preparation, someone says no, we abort the write. If during commit someone does not answer, we retry until everybody says yes.
+
+If the coordinator dies, we have to wait for him to restart, pick up his transaction log and procede.
+
+Problem is that the when the system breaks, it breaks hard. it is not particularly quick either. The coordinator must be at least replicated. The replicator logs to know where we are at is a crucial information. It must be kept somewhere.
+
+#### Other algorithm
+
+In order to have consensus without the risks of the coordinator dying, we can try to have an elected leader. The difficulty is to have the election done. We must also make sure that the election process does not take too long or we lose time and don't do work.
+
+We also have got to decide haow to do stuff when the number of nodes change and scale. A membership service and service discovery system can help with that.
