@@ -9,6 +9,7 @@
   - [Debug](#debug)
   - [Profiler](#profiler)
   - [Documentation generation](#documentation-generation)
+  - [Publishing projects](#publishing-projects)
 
 ## Libraries
 
@@ -37,3 +38,7 @@ There is a profiler which lets you see how many objects are stored in memory and
 You can ask visual studio to automatically generate a documentation from xml comments. in order to do so, you need to go in the vuild > output and check the box indicating to generate the documentation automatically on build.
 
 You can then specify the name of the file you want to generate.
+
+## Publishing projects
+
+Right click on your project and click "publish". This should let you define a publishing profile for the project.

@@ -12,6 +12,7 @@
   - [Middleware](#middleware)
   - [Visualize logs](#visualize-logs)
   - [Logging options](#logging-options)
+  - [Logging in azure](#logging-in-azure)
 
 ## Why log?
 
@@ -297,3 +298,24 @@ Update appsettings.json file accordingly and maybe we need to add information in
 ## Logging options
 
 <https://antondevtips.com/blog/logging-requests-and-responses-for-api-requests-and-httpclient-in-aspnetcore>
+
+## Logging in azure
+
+In order to get logs in azure, you need to use application insights. It is more thatn logging but you can use it for it. In order to do that, you need a logging sink.
+
+```cs
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+if (environment != Environments.Development)
+{
+  // We configure our sink with serilog.
+  builder.Host.UseSerilog(
+      (context, loggerConfiguration) => loggerConfiguration
+          .MinimumLevel.Debug()
+          .WriteTo.Console()
+          .WriteTo.File("logs/cityinfo.txt", rollingInterval: RollingInterval.Day)
+          .WriteTo.ApplicationInsights(new TelemetryConfiguration
+          {
+              InstrumentationKey = builder.Configuration["ApplicationInsightsInstrumentationKey"] // We use our key here. We can store it in the configuration file.
+          }, TelemetryConverter.Traces));
+}
+```
