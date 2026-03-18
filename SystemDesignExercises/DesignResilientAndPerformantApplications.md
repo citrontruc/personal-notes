@@ -59,6 +59,8 @@
     - [Consensus: making sure that all our nodes agree](#consensus-making-sure-that-all-our-nodes-agree)
       - [Two phase commit](#two-phase-commit)
       - [Other algorithm](#other-algorithm)
+  - [Philosohpy to follow](#philosohpy-to-follow)
+    - [Pipe logic: Connect simple parts](#pipe-logic-connect-simple-parts)
 
 ## Sources
 
@@ -555,3 +557,13 @@ Problem is that the when the system breaks, it breaks hard. it is not particular
 In order to have consensus without the risks of the coordinator dying, we can try to have an elected leader. The difficulty is to have the election done. We must also make sure that the election process does not take too long or we lose time and don't do work.
 
 We also have got to decide haow to do stuff when the number of nodes change and scale. A membership service and service discovery system can help with that.
+
+## Philosohpy to follow
+
+### Pipe logic: Connect simple parts
+
+Connect programs like pipe who do one action very well and return a clear result. For this kind of logic to work, you need good interfaces and a standardization of input and outputs.
+
+With pipes, it is also pretty easy to identify what is going on in which order and to test each part individually.
+
+MapReduce follows this logic.
