@@ -61,6 +61,8 @@
       - [Other algorithm](#other-algorithm)
   - [Philosohpy to follow](#philosohpy-to-follow)
     - [Pipe logic: Connect simple parts](#pipe-logic-connect-simple-parts)
+    - [Consumer Offset](#consumer-offset)
+    - [User Actions as immutable](#user-actions-as-immutable)
 
 ## Sources
 
@@ -567,3 +569,15 @@ Connect programs like pipe who do one action very well and return a clear result
 With pipes, it is also pretty easy to identify what is going on in which order and to test each part individually.
 
 MapReduce follows this logic.
+
+### Consumer Offset
+
+If you have a pipeline of messages and a user wants to see what the new messages are, look at his offset and send him only the messages with an offset that is superior to his offset.
+
+Problem is if a consumer lags so far behind its offset points to a deleted message. If a consumer falls too far behind, raise an alert so that a human can try to fix this.
+
+### User Actions as immutable
+
+It is a better practice to write user actions as logs or immutable events rather than noting the effects to the database as mutable results. Commands are not user events. If the user tries to register a username, it is a command. It can fail because the username is already taken. We can create a user event if it succeeds.
+
+If you want to make some analysis, it is useful to log all the events and not just the results. Indeed, knowing that a user put an item in the cart and put is back is important.
