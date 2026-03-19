@@ -59,10 +59,12 @@
     - [Consensus: making sure that all our nodes agree](#consensus-making-sure-that-all-our-nodes-agree)
       - [Two phase commit](#two-phase-commit)
       - [Other algorithm](#other-algorithm)
-  - [Philosohpy to follow](#philosohpy-to-follow)
-    - [Pipe logic: Connect simple parts](#pipe-logic-connect-simple-parts)
+  - [Streams](#streams)
     - [Consumer Offset](#consumer-offset)
     - [User Actions as immutable](#user-actions-as-immutable)
+    - [Processing streams](#processing-streams)
+  - [Misc](#misc)
+    - [Pipe logic: Connect simple parts](#pipe-logic-connect-simple-parts)
 
 ## Sources
 
@@ -560,15 +562,7 @@ In order to have consensus without the risks of the coordinator dying, we can tr
 
 We also have got to decide haow to do stuff when the number of nodes change and scale. A membership service and service discovery system can help with that.
 
-## Philosohpy to follow
-
-### Pipe logic: Connect simple parts
-
-Connect programs like pipe who do one action very well and return a clear result. For this kind of logic to work, you need good interfaces and a standardization of input and outputs.
-
-With pipes, it is also pretty easy to identify what is going on in which order and to test each part individually.
-
-MapReduce follows this logic.
+## Streams
 
 ### Consumer Offset
 
@@ -581,3 +575,25 @@ Problem is if a consumer lags so far behind its offset points to a deleted messa
 It is a better practice to write user actions as logs or immutable events rather than noting the effects to the database as mutable results. Commands are not user events. If the user tries to register a username, it is a command. It can fail because the username is already taken. We can create a user event if it succeeds.
 
 If you want to make some analysis, it is useful to log all the events and not just the results. Indeed, knowing that a user put an item in the cart and put is back is important.
+
+Since user action is immutable, your data stock will grow. Compact it if you need deletion. Problem of compacting is that you lose information (you lose the story to keep only the summary). Truly deleting data is complicated since copies exist in many places & deleting is marking the space on disk as possible to overwrite.
+
+### Processing streams
+
+A question of streams is what happens when a stream fails? We can't just retry the whole stream from the beginning. A possibility is maintaining a state and a checkpoint. Data is treated in micro batches and when you finish with a micro batch, you write a new state. Writing states may be necessary but sometimes you can just rebuild it from the logs / data.
+
+Streams reverse the logic of traditionnal DB. In traditionnal dbs, the data is important and the query is meaningless. In streams, the query is all but the data just comes.
+
+When it comes to stream analytics, you have to aggregate to have analytics. If things are not well defined, it can all just end up being stored in a big database and we don't take advantage of the stream. Sliding windows can be a solution to have some aggregation without storing everything. Regular windows have the eternal problems of streams: when does the window end? And if it ends, how do you know data won't arrive late? You don't even know when the stream is supposed to end. Session and sliding window kinda fix these problems.
+
+See conversation on UDP about messages not arriving in the right order. Two options are ignoring past packages (movie streaming) or publishing a correction (example: movements in video games).
+
+## Misc
+
+### Pipe logic: Connect simple parts
+
+Connect programs like pipe who do one action very well and return a clear result. For this kind of logic to work, you need good interfaces and a standardization of input and outputs.
+
+With pipes, it is also pretty easy to identify what is going on in which order and to test each part individually.
+
+MapReduce follows this logic.
