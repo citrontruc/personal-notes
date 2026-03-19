@@ -10,6 +10,7 @@
     - [Tip 3) Transform data](#tip-3-transform-data)
     - [Tip 4) Deploy in multiple regions](#tip-4-deploy-in-multiple-regions)
     - [Bulk insert](#bulk-insert)
+  - [Interceptor design pattern](#interceptor-design-pattern)
   - [Migrations](#migrations)
     - [WARNING EnsureCreated](#warning-ensurecreated)
   - [Filter data](#filter-data)
@@ -232,6 +233,54 @@ await context.BulkInsertAsync(GetUsers());
 ```
 
 BulkInsert has a few nifty options for optimization. You can have InsertIfNotExist to avoid inserting data that already exists. You have BulkUpdate, BulkDelete and other nice methods. Not just insert.
+
+## Interceptor design pattern
+
+There are some things that you might not want to do on your data everytime when you insert data. That is where it could help to have a pattern to intercept changes on your data.
+
+Example right under is for an Audit interceptor that intercepts all data values in order to add CreatedAt and UpdatedAt fields:
+
+```cs
+public class AuditInterceptor : SaveChangesInterceptor{
+    public override InterceptionResult<int> SavingChanges(
+        DbContextEventData eventData, InterceptionResult<int> result
+    ){
+        SetAuditFields(eventData.Context);
+        return base.SavingChanges(eventData, result);
+    }
+
+    public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
+        DbContextEventData eventData, InterceptionResult<int> result,
+        CancellationToken ct = default
+    ){
+        SetAuditFields(eventData.Context);
+        return base.SavingChangesAsync(eventData, result, ct);
+    }
+
+    private static void SetAuditFields(DbContext? context){
+        if (context is null) return;
+        var now = DateTime.UtcNow;
+
+        foreach (var entry in context.ChangeTracker.Entries<IAuditable>()){
+            if (entry.State == EntityState.Added) entry.Entity.CreatedAt = now;
+            if (entry.State is EntityState.Added or EntityState.Modified) entry.Entity.UpdatedAt = now;
+        }
+    }
+}
+```
+
+and in the Program.cs, you can register the service with the following code:
+
+```cs
+builder.Services.AddSingleton<AuditInterceptor>(); // If using DI, pass it as a scoped service.
+
+builder.Services.AddDbContext<AppDbContext>((sp, options) =>
+{
+    options
+        .UseSqlServer(builder.Configuration.GetConnectionString("Default"))
+        .AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
+});
+```
 
 ## Migrations
 
