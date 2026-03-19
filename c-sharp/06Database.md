@@ -483,14 +483,36 @@ modelBuilder
    .HasQueryFilter(order => !order.IsDeleted);
 ```
 
+If you need to make your requests clearer, you can name your query filters that way you can identify your intent.
+
+```cs
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    builder.HasQueryFilter(
+        FilterNames.SoftDelete,
+        product => !product.IsDeleted);
+    builder.HasQueryFilter(
+        FilterNames.InStock,
+        product => product.Quantity > 0);
+}
+```
+
 If you need to do a request without it, you can manually dipose of your query filter
 
 ```cs
-dbContext
-   .Orders
-   .IgnoreQueryFilters()
-   .Where(order => order.Id == orderId)
-   .FirstOrDefault();
+app.MapGet(
+    "products/ignore-all-filters",
+    async (ApplicationDbContext dbContext, CancellationToken cancellationToken) =>
+        await dbContext.Products
+            .IgnoreQueryFilters()
+            .ToListAsync(cancellationToken));
+
+app.MapGet(
+    "products/ignore-soft-delete-filter",
+    async (ApplicationDbContext dbContext, CancellationToken cancellationToken) =>
+        await dbContext.Products
+            .IgnoreQueryFilters([FilterNames.SoftDelete])
+            .ToListAsync(cancellationToken));
 ```
 
 Careful: when adding query filters, you make your requests less clear.
