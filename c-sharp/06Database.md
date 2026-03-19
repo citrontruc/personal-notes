@@ -4,7 +4,7 @@
 
 - [Database](#database)
   - [Table of content](#table-of-content)
-  - [Notes on performances](#notes-on-performances)
+  - [DbContexts](#dbcontexts)
     - [Tip 1) Reuse connection when possible](#tip-1-reuse-connection-when-possible)
     - [Tip 2) regroup queries whenever possible \& entity framework](#tip-2-regroup-queries-whenever-possible--entity-framework)
     - [Tip 3) Transform data](#tip-3-transform-data)
@@ -30,9 +30,80 @@
   - [Examples](#examples)
   - [Entitites and IDs](#entitites-and-ids)
 
-## Notes on performances
+## DbContexts
 
-DbContext serves as an ORM but you can bypass it and directly send an SQL query. Can be useful for some optimization cases.
+DbContext serves as an ORM but you can bypass it and directly send an SQL query. Avoid to do that except for edge cases.
+In order to connect to a database in EF Core, start by having your DbContext:
+
+```cs
+public class AppDbContext : DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options)
+        : base(options) { }
+
+    public DbSet<User> Users { get; set; }
+}
+```
+
+You have a connection string to put in your appsettings.json file and you then have to declare it in the Program.cs
+
+```cs
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    ));
+```
+
+If you have multiple databases that you need to connect to, it is recommended to have multiple dbcontexts:
+
+```cs
+public class MainDbContext : DbContext
+{
+    public MainDbContext(DbContextOptions<MainDbContext> options) : base(options) {}
+}
+
+public class AnalyticsDbContext : DbContext
+{
+    public AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> options) : base(options) {}
+}
+```
+
+Put multiple connection strings in your appsettings file:
+
+```cs
+builder.Services.AddDbContext<MainDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MainDb")));
+
+builder.Services.AddDbContext<AnalyticsDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("AnalyticsDb")));
+```
+
+If you need to connect at runtime, having an AppDbContext factory could be a good solution:
+
+```cs
+public class DbContextFactory
+{
+    private readonly IConfiguration _config;
+
+    public DbContextFactory(IConfiguration config)
+    {
+        _config = config;
+    }
+
+    public AppDbContext Create(string key)
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>();
+
+        var conn = _config.GetConnectionString(key);
+
+        options.UseSqlServer(conn);
+
+        return new AppDbContext(options.Options);
+    }
+}
+```
 
 ### Tip 1) Reuse connection when possible
 
