@@ -210,6 +210,8 @@ Gives reusable components of code, standardized implementation of traffic manage
 
 **.Net Aspire**: focuses on local developer experience. Easy way to have metrics.
 
+Sidecars have a control pane.
+
 ## Anti-corruption layer
 
 Have a layer between your services and outside services to normalize data and check their values before transmitting them.
