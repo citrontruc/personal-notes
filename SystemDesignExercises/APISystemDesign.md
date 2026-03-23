@@ -204,6 +204,10 @@ Gives reusable components of code, standardized implementation of traffic manage
 
 **Careful**: increase each service size. Orchestration of deployments when you change the sidecar. Latency?
 
+**DAPR** is a framework to put in place the sidecar design pattern. It is used to communicate with other microservices. Abstracts the underlying service under. It is independent of language.
+
+**.Net Aspire**: focuses on local developer experience. Easy way to have metrics.
+
 ## Anti-corruption layer
 
 Have a layer between your services and outside services to normalize data and check their values before transmitting them.

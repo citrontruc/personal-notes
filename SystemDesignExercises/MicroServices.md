@@ -14,6 +14,7 @@
     - [Challenges](#challenges)
     - [Communications](#communications)
     - [Availability](#availability)
+    - [Logs](#logs)
     - [Metrics to keep in mind](#metrics-to-keep-in-mind)
     - [Don't start with microservices](#dont-start-with-microservices)
 
@@ -39,7 +40,9 @@ If each service has its own value, you can quantify value in your app and always
 
 ### How to put it in place?
 
-Kubernetes, Docker, cloud run, container apps, cloud brokers... Each app needs to have its own technical environment and can evolve freely.
+Kubernetes, Docker, cloud run, container apps (built on top of kubernetes), cloud brokers... Each app needs to have its own technical environment and can evolve freely. However, there are standards, so make sure you have the right expertise with kubernetes.
+
+You can build on top of your own virtual machine. You just need to handle everything.
 
 ### Conway's Law
 
@@ -73,6 +76,10 @@ You need constant service discovery in case there are multiple regions, a machin
 
 How do you scale dynamically and make sure that errors are detected and lead to a recovery? What is the % of availability?
 
+### Logs
+
+OpenTelemetry is a language neutral framework that can help monitor everything in the same place.
+
 ### Metrics to keep in mind
 
 - Deployment frequency: If you need time between each deployment, adding complexity won"t help.
@@ -80,10 +87,10 @@ How do you scale dynamically and make sure that errors are detected and lead to 
 - Change failure rate: if you can't make changes without breaking stuff, you will have problems at each deployement. Cascading failure.
 - Mean time to recovery: When a problem is met, you nee to correct it fast.
 
-If you don't fill in the needs above, you won't be able to handle well microservices.
+If you don't have good KPIs in the needs above, you won't be able to handle well microservices.
 
 ### Don't start with microservices
 
-If you have a big monolith, don't try to restart with microservices or to separate everything. First, respect all the solid principles and when you identify some features that are on the side that can be separated from the rest of the system, create a microservice for these features and gradually split your monolith.
+If you have a big monolith, don't try to restart with microservices or to separate everything. First, respect all the solid principles and when you identify some features that are on the side that can be separated from the rest of the system, create a microservice for these features and gradually split your monolith. The trajectory is more often: monolith -> modeular monolith -> microservice. If you don't need to go all the way, you can stop at modular monolith.
 
 For services to be truly independent, they need their own databases. You need good telemetry, good traces and take time for configuration to find what helps you have information ahead of time.
