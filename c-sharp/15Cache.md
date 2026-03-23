@@ -4,6 +4,7 @@
 
 - [Cache](#cache)
   - [Table of Content](#table-of-content)
+  - [ForeWarning](#forewarning)
   - [Example](#example)
   - [HybridCache](#hybridcache)
   - [Cache Aside](#cache-aside)
@@ -12,6 +13,10 @@
   - [Write back](#write-back)
   - [Write through](#write-through)
   - [Database result caching](#database-result-caching)
+
+## ForeWarning
+
+Before you put cache in place, make sure you clarify the cache policy: how long do we keep an item in memory? How many of them do we keep... All of these things need to be discussed beforehand.
 
 ## Example
 

@@ -64,6 +64,8 @@ All requests are sent to an api gateway which then dispatches the requests. Secu
 
 **Note**: can be used as a facade when you want to modernize old services. See stragler fig pattern.
 
+Api gateway also allows for some REST to GRPC translation if you want to take advantage of GRPCs superior performances.
+
 ### Detecting failure
 
 In order to check that no service is down, we have the heartbeat & gossip protocol:
@@ -232,8 +234,8 @@ Bulkhead needs redundancy and isolation. Improved if each of the resources can s
 
 ## BFF Design pattern
 
-Stands for Backend For Frontend (BFF). In a frontend application, we have a backend application. This is done so that the frontend applications avoids to directly hit the API and handle the answers. We have an intermediary.
+Stands for Backend For Frontend (BFF). In a frontend application, we communicate with an API that acts a backend application. Essentially, we are adding a layer between the frontend and the backend APIs that can do some computation instead of just giving back information. This is done so that the frontend applications avoids to directly hit the API and handle the answers. We have an intermediary.
 
 Each frontend interacts with its own backend who knows how to do things.
 
-Benefits are that we have a centralized point for data aggreation, we reduce client complexity and make it easier to scale because we can scale each BFF independently. Having aggregation on the server side makes it easier for the frontend.
+Benefits are that we have a centralized point for data aggregation, we reduce client complexity and make it easier to scale because we can scale each BFF independently. Having aggregation on the server side makes it easier for the frontend.

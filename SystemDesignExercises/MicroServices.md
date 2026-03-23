@@ -11,6 +11,7 @@
     - [How to put it in place?](#how-to-put-it-in-place)
     - [Conway's Law](#conways-law)
   - [Microservices need a solid technical understanding of systems](#microservices-need-a-solid-technical-understanding-of-systems)
+    - [Identify your domains](#identify-your-domains)
     - [Challenges](#challenges)
     - [Communications](#communications)
     - [Availability](#availability)
@@ -48,7 +49,17 @@ You can build on top of your own virtual machine. You just need to handle everyt
 
 Companies build softwares that tend to resemble their style of communication. Microservice systems tend to appear in companies where teams are independent and can scale easily. You have existing and resilient communication channels.
 
+A possible explanation for this law is the ownership of information / data. Business Units will probably have different data of interest and if you want to separate you applications in services, doing so by data sources can be a good thing.
+
 ## Microservices need a solid technical understanding of systems
+
+### Identify your domains
+
+A quick example of how to model an app for microservices is this one: <https://learn.microsoft.com/en-us/azure/architecture/microservices/model/domain-analysis>.
+
+You first need to map out what you want to achieve and where you can find the information / where you will need to store it. Having too many services will bog you down, so try to have domains that make sense from a business point of view. DDD works quite well with microservices.
+
+An antipattern is the junk drawer anti-pattern: you end up piling all of the miscellaneous capabilities in the same spot.
 
 If they are not well designed, your whole system might be as slow / weak as your weakest link.
 
@@ -70,11 +81,13 @@ Having different services mean that we will have latency everytime a services ca
 
 RPC communications are often used with microservices. Message driven with queues can also be a solution (can be good when you need to communicate to multiple services or you don't know who to communicate to). Dead letter queue & just long queues can make sure that at least no messages are lost during spikes or when a service goes down. However, more complicated to put in place & eventual consistency. If you want to have an order of edxecution, see Saga pattern.
 
-You need constant service discovery in case there are multiple regions, a machine goes down or other.
+You need constant service discovery in case there are multiple regions, a machine goes down or other...
 
 ### Availability
 
-How do you scale dynamically and make sure that errors are detected and lead to a recovery? What is the % of availability?
+How do you scale dynamically and make sure that errors are detected and lead to a recovery? What is the % of availability? What is your retry strategy? How many and when do you launch a retry? => We need a standardized policy.
+
+Having a health check endpoint is a good solution to have a way of verifying availability.
 
 ### Logs
 
