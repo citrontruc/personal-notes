@@ -14,6 +14,8 @@
     - [Challenges](#challenges)
     - [Communications](#communications)
     - [Availability](#availability)
+    - [Metrics to keep in mind](#metrics-to-keep-in-mind)
+    - [Don't start with microservices](#dont-start-with-microservices)
 
 ## Presentation
 
@@ -57,6 +59,8 @@ Code replication. All of the services will need authentication, logging...
 
 You don't just need to create multiple git repos. Doing microservices is about being loosely coupled. This means keeping simple and standardized interfaces for each of your apis.
 
+You need strong reliability engineering & some cloud most likely.
+
 ### Communications
 
 Having different services mean that we will have latency everytime a services calls another. Not necessarily much but more than if we had loaded the file in memory.
@@ -68,3 +72,18 @@ You need constant service discovery in case there are multiple regions, a machin
 ### Availability
 
 How do you scale dynamically and make sure that errors are detected and lead to a recovery? What is the % of availability?
+
+### Metrics to keep in mind
+
+- Deployment frequency: If you need time between each deployment, adding complexity won"t help.
+- Lead time for changes: if there is always a lot of time between changes and deployment, don't do microservice. Microservices need people to be reactive. Avoid manual steps & slow testing.
+- Change failure rate: if you can't make changes without breaking stuff, you will have problems at each deployement. Cascading failure.
+- Mean time to recovery: When a problem is met, you nee to correct it fast.
+
+If you don't fill in the needs above, you won't be able to handle well microservices.
+
+### Don't start with microservices
+
+If you have a big monolith, don't try to restart with microservices or to separate everything. First, respect all the solid principles and when you identify some features that are on the side that can be separated from the rest of the system, create a microservice for these features and gradually split your monolith.
+
+For services to be truly independent, they need their own databases. You need good telemetry, good traces and take time for configuration to find what helps you have information ahead of time.
