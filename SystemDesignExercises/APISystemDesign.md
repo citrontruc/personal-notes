@@ -23,6 +23,7 @@
   - [Circuit breaker](#circuit-breaker)
   - [Bulkhead pattern](#bulkhead-pattern)
   - [BFF Design pattern](#bff-design-pattern)
+  - [Canary deployment](#canary-deployment)
 
 ## Heuristics to find solutions
 
@@ -200,6 +201,10 @@ Use when move to cloud or there are outdated services you want to modernize.
 
 ## Sidecar
 
+**Careful**: if you want to use a service mesh with a sidecar, you will need to deploy the sidecars, the service mesh... It will cost more than just deploying a kubernetes cluster. It increases running costs.
+
+Service mesh can handle security certificates for mTLS communications. After that, you can configure for automatic sidecar injection. You can define authorization rules for services. These RBAC rules can be configured through headers or JWT.
+
 You bundle a sidecar service in your containers. The sidecar handles logging, events and networking. Allows you to separate concerns and change side activities without modifying services. You can handle multiple sidecars if you want.
 
 Gives reusable components of code, standardized implementation of traffic management, security & observability. Sidecar can be the one listrning to event bus while the service only handles code logic.
@@ -210,7 +215,7 @@ Gives reusable components of code, standardized implementation of traffic manage
 
 **.Net Aspire**: focuses on local developer experience. Easy way to have metrics.
 
-Sidecars have a control pane.
+Sidecars have a service plane. This service plan communicates with the sidecars.
 
 ## Anti-corruption layer
 
@@ -219,6 +224,8 @@ Have a layer between your services and outside services to normalize data and ch
 **CAREFUL**: bottleneck + you need to change it every time external services change.
 
 ## Circuit breaker
+
+Can be given by the service mesh.
 
 Safety switch. Can block calls to faulty systems in order to avoid cascades of errors. Retry every so often to see if the system is fixed.
 
@@ -241,3 +248,9 @@ Stands for Backend For Frontend (BFF). In a frontend application, we communicate
 Each frontend interacts with its own backend who knows how to do things.
 
 Benefits are that we have a centralized point for data aggregation, we reduce client complexity and make it easier to scale because we can scale each BFF independently. Having aggregation on the server side makes it easier for the frontend.
+
+## Canary deployment
+
+A small fraction of users get the latest version of the application while the rest stay on the old version. Allows to do testing with real life sample.
+
+Service mesh can allow this behaviour with a traffic split. We define the percentage that goes to each version.

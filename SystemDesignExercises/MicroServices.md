@@ -18,6 +18,7 @@
     - [Logs](#logs)
     - [Metrics to keep in mind](#metrics-to-keep-in-mind)
     - [Don't start with microservices](#dont-start-with-microservices)
+  - [Misc](#misc)
 
 ## Presentation
 
@@ -107,3 +108,7 @@ If you don't have good KPIs in the needs above, you won't be able to handle well
 If you have a big monolith, don't try to restart with microservices or to separate everything. First, respect all the solid principles and when you identify some features that are on the side that can be separated from the rest of the system, create a microservice for these features and gradually split your monolith. The trajectory is more often: monolith -> modeular monolith -> microservice. If you don't need to go all the way, you can stop at modular monolith.
 
 For services to be truly independent, they need their own databases. You need good telemetry, good traces and take time for configuration to find what helps you have information ahead of time.
+
+## Misc
+
+All your request should have a correlation id so that you can see them being passed around and you can investigate more efficiently.
