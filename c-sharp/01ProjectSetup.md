@@ -1,9 +1,9 @@
 # Create projects
 
-## Table of Contents
+## Table of Content
 
 - [Create projects](#create-projects)
-  - [Table of Contents](#table-of-contents)
+  - [Table of Content](#table-of-content)
   - [Basic projects](#basic-projects)
   - [Adding packages in dotnet](#adding-packages-in-dotnet)
   - [Project components](#project-components)
