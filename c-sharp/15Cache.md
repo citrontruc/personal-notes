@@ -5,7 +5,7 @@
 - [Cache](#cache)
   - [Table of Content](#table-of-content)
   - [ForeWarning](#forewarning)
-  - [Example](#example)
+  - [Example of Memory Cache](#example-of-memory-cache)
   - [HybridCache](#hybridcache)
   - [Cache Aside](#cache-aside)
   - [Read Through cache](#read-through-cache)
@@ -13,12 +13,18 @@
   - [Write back](#write-back)
   - [Write through](#write-through)
   - [Database result caching](#database-result-caching)
+  - [Output Cache](#output-cache)
+    - [Basic version](#basic-version)
+    - [Additional parameters](#additional-parameters)
+    - [Cache eviction](#cache-eviction)
+    - [In memory vs in database](#in-memory-vs-in-database)
+    - [Risks](#risks)
 
 ## ForeWarning
 
 Before you put cache in place, make sure you clarify the cache policy: how long do we keep an item in memory? How many of them do we keep... All of these things need to be discussed beforehand.
 
-## Example
+## Example of Memory Cache
 
 You have to configure cache in your application with timeout and parameters. You can then put data in cache. When you want to access them, just cache.In the cache, you can then TryGetValue.
 
@@ -405,5 +411,231 @@ public async Task<Book?> GetBookAsync(Guid id, CancellationToken cancellationTok
         .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
         
     return book;
+}
+```
+
+## Output Cache
+
+### Basic version
+
+The previous paragraph is about memory cache. You can also cache your outputs so that if an answer was already given, you can send it back. For that, you will need the package **Microsoft.AspNetCore.OutputCaching**.
+
+```cs
+var builder = WebApplication.CreateBuilder(args);
+
+// Register OutputCache in DI
+builder.Services.AddOutputCache();
+
+var app = builder.Build();
+
+// Add OutputCache Middleware
+app.UseOutputCache(); // This is the important line.
+
+app.MapControllers();
+
+app.Run();
+```
+
+Classic API code.
+
+```cs
+[ApiController]
+[Route("api/orders")]
+public class OrdersController(OrdersDbContext db) : ControllerBase
+{
+    [HttpGet]
+    [OutputCache(Duration = 120)] // You can then use Output cache on your endpoints. You can give parameters.
+    public async Task<IActionResult> GetOrders(CancellationToken ct)
+    {
+        var orders = await db.Orders.ToListAsync(ct);
+        return Ok(orders);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetOrder(Guid id, CancellationToken ct)
+    {
+        var order = await db.Orders.FindAsync([id], ct);
+        if (order is null) return NotFound();
+        return Ok(order);
+    }
+}
+```
+
+Minimal API code:
+
+```cs
+app.MapGet("/api/orders", async (OrdersDbContext db, CancellationToken ct) =>
+{
+    var orders = await db.Orders.ToListAsync(ct);
+    return Results.Ok(orders);
+}).CacheOutput(x => x.Expire(TimeSpan.FromMinutes(2))); // You can give parameters here.
+```
+
+If you want to avoid having local parameters and want global policies / parameters. You can give names in your policies so that you can call them by name.
+
+```cs
+builder.Services.AddOutputCache(options =>
+{
+    options.AddPolicy("OrdersPolicy", policy =>
+        policy
+            .Expire(TimeSpan.FromMinutes(5))
+            .SetVaryByHeader("Accept-Language")
+            .Tag("orders")
+    );
+
+    options.AddPolicy("OrderDetailPolicy", policy =>
+        policy
+            .Expire(TimeSpan.FromMinutes(2))
+            .SetVaryByRouteValue("id")
+            .Tag("orders")
+    );
+});
+```
+
+```cs
+[OutputCache(PolicyName = "OrdersPolicy")]
+```
+
+or for minimal apis:
+
+```cs
+.CacheOutput("OrderDetailPolicy")
+```
+
+### Additional parameters
+
+You may want to have different values cached depending on which endpoint was called or which header you have.
+
+```cs
+options.AddPolicy("PagedOrdersPolicy", policy =>
+    policy
+        .Expire(TimeSpan.FromMinutes(5))
+        .SetVaryByQuery("page", "pageSize", "status")
+        .Tag("orders")
+);
+```
+
+### Cache eviction
+
+We have seen that we can parametrize cache eviction and have different values by tag. It is also possible to set cache eviction by tag:
+
+```cs
+builder.Services.AddOutputCache(options =>
+{
+    options.AddPolicy("OrdersPolicy", policy =>
+        policy
+            .Expire(TimeSpan.FromMinutes(5))
+            .Tag("orders")
+    );
+
+    options.AddPolicy("OrderDetailPolicy", policy =>
+        policy
+            .Expire(TimeSpan.FromMinutes(2))
+            .SetVaryByRouteValue("id")
+            .Tag("orders")
+            .Tag("order-detail")
+    );
+});
+```
+
+Cache eviction allows us to evict order value when the order is passed for example. Here we evict the values by tag.
+
+```cs
+public async Task<IActionResult> CreateOrder(
+    [FromBody] CreateOrderRequest request,
+    CancellationToken ct)
+{
+    var order = new Order(Guid.NewGuid(), request.CustomerName, request.TotalAmount, "Pending");
+    db.Orders.Add(order);
+    await db.SaveChangesAsync(ct);
+
+    // Evict all cache entries tagged with "orders"
+    await cache.EvictByTagAsync("orders", ct);
+
+    return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
+}
+
+// Do the same for PUT and DELETE
+```
+
+Here, we evict values by Id.
+
+```cs
+[HttpPut("{id:guid}")]
+public async Task<IActionResult> UpdateOrder(
+    Guid id,
+    [FromBody] UpdateOrderRequest request,
+    CancellationToken ct)
+{
+    var order = await db.Orders.FindAsync([id], ct);
+    if (order is null) return NotFound();
+
+    db.Orders.Entry(order).CurrentValues.SetValues(request);
+    await db.SaveChangesAsync(ct);
+
+    // Evict only the cache entry for this specific order
+    await cache.EvictByTagAsync($"order-{id}", ct);
+
+    return NoContent();
+}
+```
+
+### In memory vs in database
+
+By default, output cache is in memory. It is not shared between users. You can add a redis database for output cache.
+
+```cs
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis")!;
+
+builder.Services.AddStackExchangeRedisOutputCache(options =>
+{
+    options.Configuration = redisConnectionString;
+    options.InstanceName = "OrdersApi:";
+});
+
+builder.Services.AddOutputCache(options =>
+{
+    // ...
+});
+```
+
+### Risks
+
+Caching authenticated API responses is ricky. User B might get the answer of user A which is a security risk. ==> Do not cache authenticated requests by default.
+
+A possible solution would be to use VaryByValue and give a unique value for each user (for example, add userId):
+
+```cs
+builder.Services.AddOutputCache(options =>
+{
+    options.AddPolicy("UserOrdersPolicy", policy =>
+        policy
+            .Expire(TimeSpan.FromMinutes(2))
+            .Tag("orders")
+            .SetVaryByValue(ctx =>
+            {
+                // Extract the user ID from the JWT claims
+                var userId = ctx.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                             ?? "anonymous";
+
+                return new KeyValuePair<string, string>("userId", userId);
+            })
+    );
+});
+```
+
+```cs
+[Authorize]
+[HttpGet("my")]
+[OutputCache(PolicyName = "UserOrdersPolicy")]
+public async Task<IActionResult> GetMyOrders(CancellationToken ct)
+{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+    var orders = await db.Orders
+        .Where(o => o.UserId == userId)
+        .ToListAsync(ct);
+
+    return Ok(orders);
 }
 ```
