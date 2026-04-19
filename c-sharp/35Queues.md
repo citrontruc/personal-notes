@@ -14,6 +14,8 @@
     - [Handling incoming messages](#handling-incoming-messages)
     - [Deployment](#deployment)
 
+<https://antondevtips.com/blog/synchronous-vs-asynchronous-communication-in-microservices>
+
 ## Presentation
 
 ### Queues
