@@ -21,6 +21,11 @@
     - [Tools: Model-Controlled](#tools-model-controlled)
     - [Resources: App-Controlled](#resources-app-controlled)
     - [Prompts: User-Controlled](#prompts-user-controlled)
+  - [Example prompts](#example-prompts)
+    - [Architecture](#architecture)
+    - [Specification](#specification)
+    - [Code quality](#code-quality)
+    - [Onboarding](#onboarding)
 
 ## Models
 
@@ -147,3 +152,163 @@ Think of the "Add from Google Drive" feature in Claude's interface - the applica
 Prompts are triggered by user actions. Users decide when to run these predefined workflows through UI interactions like button clicks, menu selections, or slash commands.
 
 Prompts are ideal for implementing workflows that users can trigger on demand. In Claude's interface, those workflow buttons below the chat input are examples of prompts - predefined, optimized workflows that users can start with a single click.
+
+## Example prompts
+
+### Architecture
+
+```claude.md
+# CLAUDE.md
+
+## Overview
+[Project name] - Modular Monolith Web API
+
+## Tech Stack
+- .NET 10, ASP.NET Core Minimal APIs
+- EF Core 10 with PostgreSQL (snake_case naming convention)
+- FluentValidation for request validation
+- Result<T> pattern for error handling (no exceptions for business logic)
+- JWT Authentication with Refresh Tokens
+- OpenTelemetry for tracing and metrics
+- Serilog for structured logging
+- Swagger/OpenAPI for API documentation
+- Docker for containerization
+
+## Architecture
+- Modular Monolith with Vertical Slice Architecture
+- Clean Architecture: domain is isolated from infrastructure
+- Each module: Domain, Core, Infrastructure, PublicApi projects
+- CQRS with manual handlers (no MediatR, no interfaces)
+- Manual mapping with extension methods
+
+## Project Structure
+- src/Modules.[Name].Domain/ - Entities, value objects, enums
+- src/Modules.[Name].Core/ - Endpoints, handlers, validators
+- src/Modules.[Name].Infrastructure/ - DbContext, EF config, migrations
+- src/Modules.[Name].PublicApi/ - Cross-module contracts
+- src/Modules.Common.API/ - Shared endpoint abstractions, error handling
+- src/Modules.Common.Domain/ - Result<T>, IHandler, IEvent interfaces
+- src/ModularMonolith.Host/ - Program.cs, DI composition
+
+## File Naming
+- Features/[UseCaseName]/[UseCaseName].Endpoint.cs
+- Features/[UseCaseName]/[UseCaseName].Handler.cs
+- Features/[UseCaseName]/[UseCaseName].Validator.cs
+- Features/[UseCaseName]/[UseCaseName].Mapping.cs (if 2+ mappings)
+- Features/Shared/Routes/RouteConsts.cs
+- Features/Shared/Errors/[Module]Errors.cs
+
+## Code Conventions
+- Positional records for request/response DTOs
+- File-scoped namespaces
+- Primary constructors for dependency injection
+- Sealed classes for implementations
+- Internal by default, public only for contracts
+
+## Patterns We Use
+- Result<T> pattern for all handler return types
+- IHandler marker interface for auto-registration
+- IApiEndpoint for endpoint registration
+- RouteConsts for centralized route definitions
+- FluentValidation validators per use case
+- Bogus for test data seeding
+- EF Core DbContext directly in handlers
+
+## Patterns We Do NOT Use
+- Repository pattern
+- AutoMapper or any mapping library
+- MediatR or any mediator library
+- Exceptions for business logic flow
+- [FromServices] attribute
+
+## Testing
+- xUnit for test framework
+- Moq for mocking
+- Testcontainers for integration tests (PostgreSQL)
+- Respawn for database cleanup between tests
+- NetArchTest.Rules for architecture tests
+- Test naming: [Method]_[Scenario]_[ExpectedResult]
+
+## DI Registration
+- Each module: Add[Module]Module(services, configuration)
+- Auto-scan handlers: RegisterHandlersFromAssemblyContaining
+- Auto-scan validators: AddValidatorsFromAssembly
+- Auto-scan endpoints: RegisterApiEndpointsFromAssemblyContaining
+```
+
+### Specification
+
+```claude.md
+Based on the architecture we designed, create a detailed Backend
+Implementation Specification as a Markdown file.
+
+The specification must include:
+
+1. Entity Definitions
+   - All entities as C# classes with property types
+   - Value objects and enums
+   - Entity relationships
+
+2. Database
+   - EF Core mapping configuration for each entity
+   - EF Core Migrations
+   - Seeding strategy with sample data using Bogus
+
+3. API Endpoints
+   - For each endpoint: HTTP method, route, request body,
+     response body with C# record definitions
+   - Business rules and validation rules per endpoint
+   - Error scenarios and expected error responses
+
+4. Authentication and Authorization
+   - Which endpoints require authentication
+   - Which endpoints require specific policies or roles
+```
+
+### Code quality
+
+```claude.md
+Review the generated code with three passes:
+
+Pass 1 - Code Quality:
+- Are naming conventions consistent across all files?
+- Are all handlers following the same pattern?
+- Are there any unused imports or dead code?
+- Is the code DRY without being over-abstracted?
+
+Pass 2 - Performance:
+- Are there any N+1 query issues in EF Core calls?
+- Are there any unnecessary database round-trips?
+- Are all async methods properly awaited?
+- Are CancellationTokens passed through the entire call chain?
+
+Pass 3 - Security:
+- Are all endpoints properly authorized?
+- Are all user inputs validated before processing?
+- Are there any SQL injection or XSS vulnerabilities?
+- Are sensitive data fields excluded from responses?
+- Are sensitive data fields excluded from logging?
+
+For each issue found, show the file, the problem, and the fix.
+```
+
+### Onboarding
+
+```claude.md
+You are onboarding me to this repository.
+
+Tasks:
+- Identify the top-level architecture (apps/services/libraries), and what each does.
+- Produce a directory map: top 10 directories with responsibilities.
+- Identify key runtime boundaries: API layer, domain layer, persistence, async jobs, config.
+- Show a dependency diagram (Mermaid) using the repo’s actual module/package boundaries.
+- Cite exact files for each claim (paths + brief evidence).
+
+Constraints:
+- Do not edit files.
+- Prefer reading docs first (README, AGENTS.md, CLAUDE.md, docs/, CONTRIBUTING, ADRs) and then code.
+- If the repo is a monorepo, explain the workspace/tooling setup.
+
+Diagram:
+Create a mermaid diagram with your findings
+```
