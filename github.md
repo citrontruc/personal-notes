@@ -7,6 +7,7 @@
   - [Create tags](#create-tags)
   - [Basic commands](#basic-commands)
   - [Git bisect](#git-bisect)
+  - [Super helpful](#super-helpful)
 
 ## Create tags
 
@@ -67,3 +68,12 @@ You can then write your tests in a middle commit:
 ```
 
 And mark as bad or good the commit in order to identify which of the commits broke the code.
+
+## Super helpful
+
+To rewrite history, squash everything and then rewrite head.
+
+```sh
+git rebase -i <hash du commit>
+git reset HEAD~
+```
